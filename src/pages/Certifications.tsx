@@ -38,7 +38,7 @@ const Certifications = () => {
   ];
 
   return (
-    <main className="min-h-screen pt-24 pb-16">
+    <section id="certifications" className="min-h-screen pt-24 pb-16 bg-muted/30">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
@@ -127,7 +127,7 @@ const Certifications = () => {
           </div>
         </div>
       </div>
-    </main>
+    </section>
   );
 };
 

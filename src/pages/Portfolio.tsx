@@ -1,4 +1,4 @@
-import { ExternalLink, Github, Code } from "lucide-react";
+import { ExternalLink, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Portfolio = () => {
@@ -9,6 +9,7 @@ const Portfolio = () => {
       technologies: ["Magento", "HTML", "CSS", "JavaScript"],
       category: "Web Development",
       year: "2025",
+      link: "https://magento-1168665-4085035.cloudwaysapps.com/italiano/index",
     },
     {
       title: "Management Software System",
@@ -16,6 +17,7 @@ const Portfolio = () => {
       technologies: ["HTML", "CSS", "JavaScript"],
       category: "Software Development",
       year: "2022-2023",
+      link: "https://www.circolofinwar.it/",
     },
     {
       title: "Wärtsilä UI Development",
@@ -23,11 +25,12 @@ const Portfolio = () => {
       technologies: ["HTML", "CSS", "JavaScript", "UI/UX Design"],
       category: "Internship Project",
       year: "2022",
+      link: "https://www.wartsila.com/ita",
     },
   ];
 
   return (
-    <main className="min-h-screen pt-24 pb-16">
+    <section id="portfolio" className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
@@ -90,25 +93,18 @@ const Portfolio = () => {
                     </div>
                   </div>
 
-                  {/* Action Buttons - Placeholder for future links */}
+                  {/* Action Button */}
                   <div className="flex gap-3 pt-2">
                     <Button
                       variant="outline"
                       size="sm"
                       className="border-primary/50 hover:bg-primary/10"
-                      disabled
+                      asChild
                     >
-                      <ExternalLink className="mr-2 h-4 w-4" />
-                      View Project
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-secondary/50 hover:bg-secondary/10"
-                      disabled
-                    >
-                      <Github className="mr-2 h-4 w-4" />
-                      Source Code
+                      <a href={project.link} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        View Project
+                      </a>
                     </Button>
                   </div>
                 </div>
@@ -130,7 +126,7 @@ const Portfolio = () => {
           </div>
         </div>
       </div>
-    </main>
+    </section>
   );
 };
 
