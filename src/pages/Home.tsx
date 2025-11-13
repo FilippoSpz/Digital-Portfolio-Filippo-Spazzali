@@ -1,13 +1,10 @@
-import { ArrowRight, Download, Mail, Linkedin, Github } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowRight, Download, Linkedin, Github, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import profilePhoto from "@/assets/profile-photo.jpeg";
 
 const Home = () => {
   return (
-    <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-hero-bg via-background to-hero-bg" />
         
         <div className="container mx-auto px-4 relative z-10">
@@ -22,20 +19,17 @@ const Home = () => {
                 Software Developer & Web Developer
               </p>
               <p className="text-lg text-muted-foreground max-w-xl">
-                Building digital experiences that inspire. Specialized in web development with 
-                4 years of experience creating innovative solutions using modern technologies.
+                Building digital experiences that inspire.
               </p>
               
               <div className="flex flex-wrap gap-4 pt-4">
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white"
-                  asChild
+                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
                 >
-                  <Link to="/contact">
-                    Get In Touch
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
+                  Get In Touch
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button
                   size="lg"
@@ -53,14 +47,7 @@ const Home = () => {
               {/* Social Links */}
               <div className="flex gap-4 pt-4">
                 <a
-                  href="mailto:spazzalifilippo@icloud.com"
-                  className="p-3 glass-card hover-lift rounded-full"
-                  aria-label="Email"
-                >
-                  <Mail className="h-5 w-5 text-primary" />
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/filippo-spazzali"
+                  href="https://www.linkedin.com/in/filippospazzali/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-3 glass-card hover-lift rounded-full"
@@ -69,13 +56,22 @@ const Home = () => {
                   <Linkedin className="h-5 w-5 text-primary" />
                 </a>
                 <a
-                  href="https://github.com/filippospazzali"
+                  href="https://github.com/filippospz/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-3 glass-card hover-lift rounded-full"
                   aria-label="GitHub"
                 >
                   <Github className="h-5 w-5 text-primary" />
+                </a>
+                <a
+                  href="https://www.instagram.com/filippo_spz/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 glass-card hover-lift rounded-full"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="h-5 w-5 text-primary" />
                 </a>
               </div>
             </div>
@@ -101,31 +97,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Quick Stats */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center glass-card p-6 hover-lift">
-              <div className="text-4xl font-bold gradient-text">4+</div>
-              <div className="text-muted-foreground mt-2">Years Experience</div>
-            </div>
-            <div className="text-center glass-card p-6 hover-lift">
-              <div className="text-4xl font-bold gradient-text">3+</div>
-              <div className="text-muted-foreground mt-2">Companies Worked</div>
-            </div>
-            <div className="text-center glass-card p-6 hover-lift">
-              <div className="text-4xl font-bold gradient-text">4</div>
-              <div className="text-muted-foreground mt-2">Certifications</div>
-            </div>
-            <div className="text-center glass-card p-6 hover-lift">
-              <div className="text-4xl font-bold gradient-text">17+</div>
-              <div className="text-muted-foreground mt-2">Technologies</div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
   );
 };
 
