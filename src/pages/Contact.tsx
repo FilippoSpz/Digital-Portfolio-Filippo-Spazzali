@@ -56,13 +56,6 @@ const Contact = () => {
       link: "tel:+393776893133",
       color: "from-secondary to-accent",
     },
-    {
-      icon: <MapPin className="h-6 w-6" />,
-      label: "Location",
-      value: "Trieste, Italy",
-      link: null,
-      color: "from-accent to-primary",
-    },
   ];
 
   const socialLinks = [
