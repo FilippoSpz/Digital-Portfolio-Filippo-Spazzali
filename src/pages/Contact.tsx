@@ -1,76 +1,36 @@
-import { useState } from "react";
-import { Mail, Phone, Linkedin, Github, Instagram, Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { Mail, Phone, Linkedin, Github, Instagram } from "lucide-react";
 
 const Contact = () => {
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Create mailto link with form data
-    const mailtoLink = `mailto:spazzalifilippo@icloud.com?subject=${encodeURIComponent(
-      formData.subject
-    )}&body=${encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
-    )}`;
-    
-    window.location.href = mailtoLink;
-    
-    toast({
-      title: "Opening email client",
-      description: "Your default email client will open with the message pre-filled.",
-    });
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const contactInfo = [
+  const contactMethods = [
     {
-      icon: <Mail className="h-6 w-6" />,
+      icon: <Mail className="h-8 w-8" />,
       label: "Email",
       value: "filippospazzali@gmail.com",
       link: "mailto:filippospazzali@gmail.com",
     },
     {
-      icon: <Phone className="h-6 w-6" />,
+      icon: <Phone className="h-8 w-8" />,
       label: "Phone",
       value: "+39 320 171 0095",
       link: "tel:+393201710095",
     },
-  ];
-
-  const socialLinks = [
     {
-      name: "LinkedIn",
       icon: <Linkedin className="h-8 w-8" />,
-      url: "https://www.linkedin.com/in/filippospazzali/",
+      label: "LinkedIn",
+      value: "filippospazzali",
+      link: "https://www.linkedin.com/in/filippospazzali/",
     },
     {
-      name: "GitHub",
       icon: <Github className="h-8 w-8" />,
-      url: "https://github.com/filippospz/",
+      label: "GitHub",
+      value: "filippospz",
+      link: "https://github.com/filippospz/",
     },
     {
-      name: "Instagram",
       icon: <Instagram className="h-8 w-8" />,
-      url: "https://www.instagram.com/filippo_spz/",
+      label: "Instagram",
+      value: "@filippo_spz",
+      link: "https://www.instagram.com/filippo_spz/",
     },
   ];
 
@@ -78,143 +38,33 @@ const Contact = () => {
     <section id="contact" className="min-h-screen pt-24 pb-16 bg-muted/30">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
+        <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Get In <span className="gradient-text">Touch</span>
+            Let's <span className="gradient-text">Connect</span>
           </h1>
-          <p className="text-lg text-muted-foreground">
-            Have a project in mind or want to collaborate? I'd love to hear from you!
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Feel free to reach out to me using any of the contact methods below. I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Contact Information */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Contact Cards */}
-            {contactInfo.map((info, index) => (
-              <div
-                key={index}
-                className="glass-card p-6 hover-lift"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-primary to-secondary text-primary-foreground mb-4">
-                  {info.icon}
-                </div>
-                <h3 className="font-semibold mb-2">{info.label}</h3>
-                {info.link ? (
-                  <a
-                    href={info.link}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {info.value}
-                  </a>
-                ) : (
-                  <p className="text-muted-foreground">{info.value}</p>
-                )}
+        {/* Contact Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {contactMethods.map((method, index) => (
+            <a
+              key={index}
+              href={method.link}
+              target={method.link.startsWith('http') ? '_blank' : undefined}
+              rel={method.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+              className="glass-card p-6 hover-lift transition-all"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-primary to-secondary text-primary-foreground mb-4">
+                {method.icon}
               </div>
-            ))}
-
-            {/* Social Links */}
-            <div className="glass-card p-6">
-              <h3 className="font-semibold mb-4">Connect With Me</h3>
-              <div className="flex gap-4">
-                {socialLinks.map((social, index) => (
-                  <a
-                    key={index}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-3 glass-card hover-lift rounded-full transition-colors hover:text-primary"
-                    aria-label={social.name}
-                  >
-                    {social.icon}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Form */}
-          <div className="lg:col-span-2">
-            <div className="glass-card p-8 animate-slide-up">
-              <h2 className="text-2xl font-bold mb-6 gradient-text">Send Me a Message</h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium mb-2">
-                      Your Name
-                    </label>
-                    <Input
-                      id="name"
-                      name="name"
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="John Doe"
-                      className="w-full"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium mb-2">
-                      Your Email
-                    </label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="john@example.com"
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium mb-2">
-                    Subject
-                  </label>
-                  <Input
-                    id="subject"
-                    name="subject"
-                    type="text"
-                    required
-                    value={formData.subject}
-                    onChange={handleChange}
-                    placeholder="Project Discussion"
-                    className="w-full"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium mb-2">
-                    Message
-                  </label>
-                  <Textarea
-                    id="message"
-                    name="message"
-                    required
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder="Tell me about your project..."
-                    rows={6}
-                    className="w-full"
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white"
-                >
-                  <Send className="mr-2 h-5 w-5" />
-                  Send Message
-                </Button>
-              </form>
-            </div>
-          </div>
+              <h3 className="font-semibold text-lg mb-2">{method.label}</h3>
+              <p className="text-muted-foreground">{method.value}</p>
+            </a>
+          ))}
         </div>
       </div>
     </section>
