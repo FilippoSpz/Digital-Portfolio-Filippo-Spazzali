@@ -1,4 +1,4 @@
-# 🌐 Personal Portfolio
+# 🌐 Digital Portfolio
 
 A modern and responsive portfolio website to showcase projects, experiences, and professional skills.  
 Official domain (coming soon): **https://www.yourdomain.com**
