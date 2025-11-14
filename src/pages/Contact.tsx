@@ -97,7 +97,7 @@ const Contact = () => {
                 className="glass-card p-6 hover-lift"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${info.color} text-white mb-4`}>
+                <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-primary to-secondary text-primary-foreground mb-4">
                   {info.icon}
                 </div>
                 <h3 className="font-semibold mb-2">{info.label}</h3>
@@ -121,11 +121,11 @@ const Contact = () => {
                 {socialLinks.map((social, index) => (
                   <a
                     key={index}
-                    href={social.link}
+                    href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`p-3 glass-card hover-lift rounded-full ${social.color} transition-colors`}
-                    aria-label={social.label}
+                    className="p-3 glass-card hover-lift rounded-full transition-colors hover:text-primary"
+                    aria-label={social.name}
                   >
                     {social.icon}
                   </a>
