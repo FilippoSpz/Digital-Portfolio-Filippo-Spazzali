@@ -115,14 +115,6 @@ const Portfolio = () => {
                         Visit Project
                       </a>
                     </Button>
-                      className="border-primary/50 hover:bg-primary/10"
-                      asChild
-                    >
-                      <a href={project.link} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        View Project
-                      </a>
-                    </Button>
                   </div>
                 </div>
               </div>
