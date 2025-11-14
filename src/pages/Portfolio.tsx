@@ -1,5 +1,8 @@
 import { ExternalLink, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import viaglutImage from "@/assets/portfolio/viaglut.png";
+import wartsilaImage from "@/assets/portfolio/wartsila.webp";
+import circoloImage from "@/assets/portfolio/circolo.webp";
 
 const Portfolio = () => {
   const projects = [
@@ -10,6 +13,7 @@ const Portfolio = () => {
       category: "Web Development",
       year: "2025",
       link: "https://magento-1168665-4085035.cloudwaysapps.com/italiano/index",
+      image: viaglutImage,
     },
     {
       title: "Management Software System",
@@ -18,6 +22,7 @@ const Portfolio = () => {
       category: "Software Development",
       year: "2022-2023",
       link: "https://www.circolofinwar.it/",
+      image: circoloImage,
     },
     {
       title: "Wärtsilä UI Development",
@@ -26,6 +31,7 @@ const Portfolio = () => {
       category: "Internship Project",
       year: "2022",
       link: "https://www.wartsila.com/ita",
+      image: wartsilaImage,
     },
   ];
 
@@ -51,10 +57,14 @@ const Portfolio = () => {
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="grid md:grid-cols-3 gap-6">
-                {/* Left Column - Project Image Placeholder */}
+                {/* Left Column - Project Image */}
                 <div className="md:col-span-1">
-                  <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border-2 border-primary/30 group-hover:border-primary/60 transition-colors">
-                    <Code className="h-16 w-16 text-primary/50" />
+                  <div className="aspect-square rounded-xl overflow-hidden border-2 border-primary/30 group-hover:border-primary/60 transition-colors">
+                    <img 
+                      src={project.image} 
+                      alt={project.title}
+                      className="w-full h-full object-contain bg-gradient-to-br from-primary/10 to-secondary/10 p-4"
+                    />
                   </div>
                 </div>
 
@@ -96,8 +106,15 @@ const Portfolio = () => {
                   {/* Action Button */}
                   <div className="flex gap-3 pt-2">
                     <Button
-                      variant="outline"
-                      size="sm"
+                      variant="default"
+                      className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+                      asChild
+                    >
+                      <a href={project.link} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Visit Project
+                      </a>
+                    </Button>
                       className="border-primary/50 hover:bg-primary/10"
                       asChild
                     >

@@ -104,28 +104,6 @@ const Certifications = () => {
           ))}
         </div>
 
-        {/* Stats */}
-        <div className="mt-16 max-w-4xl mx-auto">
-          <div className="glass-card p-8">
-            <h2 className="text-2xl font-bold mb-6 text-center gradient-text">
-              Certification Highlights
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-4xl font-bold gradient-text mb-2">4</div>
-                <p className="text-muted-foreground">Total Certifications</p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold gradient-text mb-2">2</div>
-                <p className="text-muted-foreground">Cisco Certifications</p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold gradient-text mb-2">2022</div>
-                <p className="text-muted-foreground">Most Recent Year</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

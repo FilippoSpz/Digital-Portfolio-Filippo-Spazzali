@@ -45,31 +45,32 @@ const Contact = () => {
     {
       icon: <Mail className="h-6 w-6" />,
       label: "Email",
-      value: "spazzalifilippo@icloud.com",
-      link: "mailto:spazzalifilippo@icloud.com",
-      color: "from-primary to-secondary",
+      value: "filippospazzali@gmail.com",
+      link: "mailto:filippospazzali@gmail.com",
     },
     {
       icon: <Phone className="h-6 w-6" />,
       label: "Phone",
-      value: "+39 377 689 3133",
-      link: "tel:+393776893133",
-      color: "from-secondary to-accent",
+      value: "+39 320 171 0095",
+      link: "tel:+393201710095",
     },
   ];
 
   const socialLinks = [
     {
-      icon: <Linkedin className="h-6 w-6" />,
-      label: "LinkedIn",
-      link: "https://www.linkedin.com/in/filippo-spazzali",
-      color: "hover:text-primary",
+      name: "LinkedIn",
+      icon: <Linkedin className="h-8 w-8" />,
+      url: "https://www.linkedin.com/in/filippospazzali/",
     },
     {
-      icon: <Github className="h-6 w-6" />,
-      label: "GitHub",
-      link: "https://github.com/filippospazzali",
-      color: "hover:text-secondary",
+      name: "GitHub",
+      icon: <Github className="h-8 w-8" />,
+      url: "https://github.com/filippospz/",
+    },
+    {
+      name: "Instagram",
+      icon: <Instagram className="h-8 w-8" />,
+      url: "https://www.instagram.com/filippo_spz/",
     },
   ];
 

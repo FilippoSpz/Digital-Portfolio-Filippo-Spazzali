@@ -9,6 +9,13 @@ import ciscoIcon from "@/assets/skills/cisco.png";
 import excelIcon from "@/assets/skills/excel.png";
 import accessIcon from "@/assets/skills/access.png";
 import onenoteIcon from "@/assets/skills/note.png";
+import phpIcon from "@/assets/skills/php.png";
+import typescriptIcon from "@/assets/skills/typescript.png";
+import wordIcon from "@/assets/skills/word.png";
+import powerpointIcon from "@/assets/skills/powerpoint.png";
+import outlookIcon from "@/assets/skills/outlook.jpg";
+import teamsIcon from "@/assets/skills/teams.png";
+import sharepointIcon from "@/assets/skills/sharepoint.png";
 
 const Skills = () => {
   const skillCategories = [
@@ -29,7 +36,7 @@ const Skills = () => {
         { name: "HTML", icon: htmlIcon },
         { name: "CSS", icon: cssIcon },
         { name: "JavaScript", icon: jsIcon },
-        { name: "TypeScript", placeholder: true },
+        { name: "TypeScript", icon: typescriptIcon },
       ],
     },
     {
@@ -38,7 +45,7 @@ const Skills = () => {
       color: "from-accent to-primary",
       skills: [
         { name: "SQL", icon: mysqlIcon },
-        { name: "PHP", placeholder: true },
+        { name: "PHP", icon: phpIcon },
       ],
     },
     {
@@ -54,12 +61,12 @@ const Skills = () => {
       icon: <Wrench className="h-8 w-8" />,
       color: "from-secondary to-primary",
       skills: [
-        { name: "Word", placeholder: true },
+        { name: "Word", icon: wordIcon },
         { name: "Excel", icon: excelIcon },
-        { name: "Teams", placeholder: true },
-        { name: "SharePoint", placeholder: true },
-        { name: "Outlook", placeholder: true },
-        { name: "PowerPoint", placeholder: true },
+        { name: "Teams", icon: teamsIcon },
+        { name: "SharePoint", icon: sharepointIcon },
+        { name: "Outlook", icon: outlookIcon },
+        { name: "PowerPoint", icon: powerpointIcon },
         { name: "OneNote", icon: onenoteIcon },
         { name: "Access", icon: accessIcon },
       ],
@@ -104,19 +111,11 @@ const Skills = () => {
                       className="group relative"
                     >
                       <div className="glass-card p-6 hover-lift text-center h-full flex flex-col items-center justify-center gap-4 group-hover:border-primary/50 transition-colors">
-                        {skill.placeholder ? (
-                          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                            <div className="text-xs text-muted-foreground text-center px-2">
-                              Icon
-                            </div>
-                          </div>
-                        ) : (
-                          <img 
-                            src={skill.icon} 
-                            alt={skill.name}
-                            className="w-16 h-16 object-contain"
-                          />
-                        )}
+                        <img 
+                          src={skill.icon} 
+                          alt={skill.name}
+                          className="w-16 h-16 object-contain"
+                        />
                         <p className="font-semibold text-sm">{skill.name}</p>
                       </div>
                     </div>
@@ -127,15 +126,6 @@ const Skills = () => {
           ))}
         </div>
 
-        {/* Note about remaining skill icons */}
-        <div className="mt-12 text-center">
-          <div className="glass-card p-6 max-w-2xl mx-auto">
-            <p className="text-muted-foreground">
-              <span className="font-semibold text-primary">Note:</span> Some skill icons are still placeholders 
-              and will be displayed once you upload the remaining images.
-            </p>
-          </div>
-        </div>
       </div>
     </section>
   );
