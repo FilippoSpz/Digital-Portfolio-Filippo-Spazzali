@@ -22,16 +22,16 @@ const AnimatedBackground = () => {
       opacity: number;
     }> = [];
 
-    const particleCount = 50;
+    const particleCount = 80;
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         size: Math.random() * 3 + 1,
-        speedX: (Math.random() - 0.5) * 0.5,
-        speedY: (Math.random() - 0.5) * 0.5,
-        opacity: Math.random() * 0.5 + 0.2,
+        speedX: (Math.random() - 0.5) * 1.2,
+        speedY: (Math.random() - 0.5) * 1.2,
+        opacity: Math.random() * 0.6 + 0.3,
       });
     }
 
@@ -62,8 +62,13 @@ const AnimatedBackground = () => {
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(59, 130, 246, ${0.1 * (1 - distance / 150)})`;
-            ctx.lineWidth = 1;
+            const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+            const alpha = 0.3 * (1 - distance / 150);
+            gradient.addColorStop(0, `rgba(139, 92, 246, ${alpha})`);
+            gradient.addColorStop(0.5, `rgba(236, 72, 153, ${alpha})`);
+            gradient.addColorStop(1, `rgba(139, 92, 246, ${alpha})`);
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 1.5;
             ctx.stroke();
           }
         });

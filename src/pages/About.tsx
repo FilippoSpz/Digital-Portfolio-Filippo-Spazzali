@@ -7,6 +7,7 @@ const About = () => {
       company: "ViaGlut",
       period: "2025",
       location: "Trieste, Italy",
+      link: "https://magento-1168665-4085035.cloudwaysapps.com/italiano/index",
       description: [
         "Fixed, reinvented, and redesigned parts of the website using Magento, integrating HTML and CSS",
         "Designed user-friendly and intuitive web pages to enhance customer experience, working independently",
@@ -17,6 +18,7 @@ const About = () => {
       company: "CIRCOLO AZIENDALE FINCANTIERI - WÄRTSILÄ ITALIA - APS",
       period: "2022 – 2023",
       location: "Trieste, Italy",
+      link: "https://www.circolofinwar.it/",
       description: [
         "Developed a management software from scratch using HTML, CSS, and JavaScript",
         "Replaced an old program and significantly improved performance and usability",
@@ -27,6 +29,7 @@ const About = () => {
       company: "Wärtsilä Italia (School Work Experience - PCTO)",
       period: "January 2022 – February 2022",
       location: "Trieste, Italy",
+      link: "https://www.wartsila.com/ita",
       description: [
         "Designed and developed the initial user interface of a management program using HTML, CSS, and JavaScript",
         "Participated in daily team meetings to review progress and gather feedback, enhancing collaboration and learning",
@@ -40,12 +43,14 @@ const About = () => {
       institution: "University of Trieste",
       period: "Expected July 2026",
       location: "Trieste, Italy",
+      link: "https://lauree.units.it/it/0320106200800001",
     },
     {
       degree: "High School Diploma",
       institution: "Alessandro Volta Technical Institute",
       period: "July 2022",
       location: "Trieste, Italy",
+      link: "https://www.voltatrieste.edu.it/",
     },
   ];
 
@@ -126,8 +131,8 @@ const About = () => {
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                   <div>
-                    <h3 className="text-xl font-bold text-secondary">{edu.degree}</h3>
-                    <p className="text-lg font-semibold">{edu.institution}</p>
+                    <a href={edu.link} target="_blank" rel="noopener noreferrer" className="hover:underline"><h3 className="text-xl font-bold text-secondary hover:opacity-80 transition-opacity">{edu.degree}</h3></a>
+                    <a href={edu.link} target="_blank" rel="noopener noreferrer" className="hover:underline"><p className="text-lg font-semibold hover:text-primary transition-colors">{edu.institution}</p></a>
                   </div>
                   <div className="text-muted-foreground mt-2 md:mt-0 md:text-right">
                     <p>{edu.period}</p>
