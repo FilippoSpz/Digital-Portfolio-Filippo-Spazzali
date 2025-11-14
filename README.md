@@ -34,6 +34,6 @@ The chosen deployment platform is **Netlify**, which offers:
 ---
 
 ## 📧 Contact
-- Email: your.email@example.com  
+- Email: spazzalifilippo@icloud.com
 - LinkedIn: https://www.linkedin.com/in/FilippoSpazzali/
 - GitHub: https://github.com/FilippoSpz/
