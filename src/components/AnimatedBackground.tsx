@@ -10,6 +10,9 @@ const AnimatedBackground = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    let scrollY = 0;
+    let scrollVelocity = 0;
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
@@ -35,12 +38,21 @@ const AnimatedBackground = () => {
       });
     }
 
+    const handleScroll = () => {
+      const newScrollY = window.scrollY;
+      scrollVelocity = (newScrollY - scrollY) * 0.05;
+      scrollY = newScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach((particle) => {
-        particle.x += particle.speedX;
-        particle.y += particle.speedY;
+        // Add scroll velocity to particle movement
+        particle.x += particle.speedX + scrollVelocity * 0.3;
+        particle.y += particle.speedY + scrollVelocity * 0.8;
 
         if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
         if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
@@ -50,6 +62,9 @@ const AnimatedBackground = () => {
         ctx.fillStyle = `rgba(59, 130, 246, ${particle.opacity})`;
         ctx.fill();
       });
+
+      // Gradually reduce scroll velocity
+      scrollVelocity *= 0.95;
 
       // Draw connections
       particles.forEach((p1, i) => {
@@ -85,7 +100,10 @@ const AnimatedBackground = () => {
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (

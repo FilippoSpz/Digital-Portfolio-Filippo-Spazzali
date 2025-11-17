@@ -1,34 +1,37 @@
 import { Mail, Phone, Linkedin, Github, Instagram } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Contact = () => {
+  const { t } = useLanguage();
+  
   const contactMethods = [
     {
       icon: <Mail className="h-8 w-8" />,
-      label: "Email",
-      value: "filippospazzali@gmail.com",
-      link: "mailto:filippospazzali@gmail.com",
+      label: t('contact.email'),
+      value: "spazzalifilippo@icloud.com",
+      link: "mailto:spazzalifilippo@icloud.com",
     },
     {
       icon: <Phone className="h-8 w-8" />,
-      label: "Phone",
-      value: "+39 320 171 0095",
-      link: "tel:+393201710095",
+      label: t('contact.phone'),
+      value: "+39 377 689 3133",
+      link: "tel:+393776893133",
     },
     {
       icon: <Linkedin className="h-8 w-8" />,
-      label: "LinkedIn",
+      label: t('contact.linkedin'),
       value: "filippospazzali",
       link: "https://www.linkedin.com/in/filippospazzali/",
     },
     {
       icon: <Github className="h-8 w-8" />,
-      label: "GitHub",
+      label: t('contact.github'),
       value: "filippospz",
       link: "https://github.com/filippospz/",
     },
     {
       icon: <Instagram className="h-8 w-8" />,
-      label: "Instagram",
+      label: t('contact.instagram'),
       value: "@filippo_spz",
       link: "https://www.instagram.com/filippo_spz/",
     },
@@ -40,10 +43,10 @@ const Contact = () => {
         {/* Header */}
         <div className="max-w-4xl mx-auto text-center mb-16 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Let's <span className="gradient-text">Connect</span>
+            {t('contact.title')}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Feel free to reach out to me using any of the contact methods below. I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
+            {t('contact.subtitle')}
           </p>
         </div>
 
