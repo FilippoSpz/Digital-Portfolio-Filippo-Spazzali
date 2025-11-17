@@ -1,10 +1,13 @@
 import { ExternalLink, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 import viaglutImage from "@/assets/portfolio/viaglut.png";
 import wartsilaImage from "@/assets/portfolio/wartsila.webp";
 import circoloImage from "@/assets/portfolio/circolo.webp";
 
 const Portfolio = () => {
+  const { t } = useLanguage();
+  
   const projects = [
     {
       title: "ViaGlut Website Redesign",
@@ -41,10 +44,10 @@ const Portfolio = () => {
         {/* Header */}
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            My <span className="gradient-text">Portfolio</span>
+            {t('portfolio.title')}
           </h1>
           <p className="text-lg text-muted-foreground">
-            A showcase of my professional projects and contributions in web development and software engineering
+            {t('portfolio.subtitle')}
           </p>
         </div>
 
@@ -112,7 +115,7 @@ const Portfolio = () => {
                     >
                       <a href={project.link} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="mr-2 h-4 w-4" />
-                        Visit Project
+                        {t('portfolio.viewProject')}
                       </a>
                     </Button>
                   </div>

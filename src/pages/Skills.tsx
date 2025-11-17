@@ -1,4 +1,5 @@
 import { Code2, Database, Server, Wrench } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import intellijIcon from "@/assets/skills/intellij.jpg";
 import javaIcon from "@/assets/skills/java.png";
 import htmlIcon from "@/assets/skills/html.png";
@@ -18,6 +19,8 @@ import teamsIcon from "@/assets/skills/teams.png";
 import sharepointIcon from "@/assets/skills/sharepoint.png";
 
 const Skills = () => {
+  const { t } = useLanguage();
+  
   const skillCategories = [
     {
       category: "Software Programming",
@@ -79,10 +82,10 @@ const Skills = () => {
         {/* Header */}
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Technical <span className="gradient-text">Skills</span>
+            {t('skills.title')}
           </h1>
           <p className="text-lg text-muted-foreground">
-            A comprehensive overview of the technologies and tools I work with
+            {t('skills.subtitle')}
           </p>
         </div>
 

@@ -1,6 +1,8 @@
 import { Briefcase, GraduationCap, Globe } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const About = () => {
+  const { t } = useLanguage();
   const experiences = [
     {
       role: "Web Developer",
@@ -60,10 +62,10 @@ const About = () => {
         {/* Header */}
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            About <span className="gradient-text">Me</span>
+            {t('about.title')}
           </h1>
           <p className="text-lg text-muted-foreground">
-            Passionate about creating innovative web solutions and constantly learning new technologies
+            {t('about.intro')}
           </p>
         </div>
 
@@ -84,7 +86,7 @@ const About = () => {
         <section className="mb-20">
           <h2 className="text-3xl font-bold mb-8 text-center">
             <Briefcase className="inline-block mr-3 mb-1 h-8 w-8 text-primary" />
-            Work <span className="gradient-text">Experience</span>
+            {t('about.experience')}
           </h2>
           <div className="space-y-6 max-w-4xl mx-auto">
             {experiences.map((exp, index) => (
@@ -120,7 +122,7 @@ const About = () => {
         <section className="mb-20">
           <h2 className="text-3xl font-bold mb-8 text-center">
             <GraduationCap className="inline-block mr-3 mb-1 h-8 w-8 text-secondary" />
-            <span className="gradient-text">Education</span>
+            {t('about.education')}
           </h2>
           <div className="space-y-6 max-w-4xl mx-auto">
             {education.map((edu, index) => (
