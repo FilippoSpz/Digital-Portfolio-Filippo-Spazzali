@@ -1,7 +1,9 @@
 import { Award, Download, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Certifications = () => {
+  const { t } = useLanguage();
   const certificates = [
     {
       title: "Cisco CCNA Certification",
@@ -44,10 +46,10 @@ const Certifications = () => {
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             <Award className="inline-block mr-3 mb-2 h-10 w-10 text-primary" />
-            <span className="gradient-text">Certifications</span>
+            {t('certifications.title')}
           </h1>
           <p className="text-lg text-muted-foreground">
-            Professional certifications and achievements that demonstrate my expertise and commitment to continuous learning
+            {t('certifications.subtitle')}
           </p>
         </div>
 
@@ -96,7 +98,7 @@ const Certifications = () => {
                 >
                   <a href={cert.file} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="mr-2 h-4 w-4" />
-                    View
+                    {t('certifications.view')}
                   </a>
                 </Button>
               </div>
