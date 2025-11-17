@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Download } from "lucide-react";
+import { Menu, X, Download, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Navigation = () => {
+  const { language, setLanguage, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
@@ -36,25 +38,29 @@ const Navigation = () => {
   };
 
   const navLinks = [
-    { id: "home", label: "Home" },
-    { id: "about", label: "About" },
-    { id: "skills", label: "Skills" },
-    { id: "certifications", label: "Certifications" },
-    { id: "portfolio", label: "Portfolio" },
-    { id: "contact", label: "Contact" },
+    { id: "home", label: t('nav.home') },
+    { id: "about", label: t('nav.about') },
+    { id: "skills", label: t('nav.skills') },
+    { id: "certifications", label: t('nav.certifications') },
+    { id: "portfolio", label: t('nav.portfolio') },
+    { id: "contact", label: t('nav.contact') },
   ];
+  
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'it' : 'en');
+  };
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
         isScrolled ? "glass-card shadow-lg" : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           <button 
             onClick={() => scrollToSection("home")} 
-            className="text-xl font-bold gradient-text cursor-pointer"
+            className="text-xl font-bold gradient-text cursor-pointer z-50"
           >
             FS
           </button>
@@ -82,19 +88,39 @@ const Navigation = () => {
             >
               <a href="/certificates/Filippo_Spazzali_Resume.pdf" download>
                 <Download className="mr-2 h-4 w-4" />
-                CV
+                {t('nav.downloadCV')}
               </a>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleLanguage}
+              className="border border-primary/30 hover:bg-primary/10"
+            >
+              <Languages className="h-4 w-4 mr-2" />
+              {language.toUpperCase()}
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-foreground"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Mobile Menu Button and Language Switcher */}
+          <div className="md:hidden flex items-center gap-2 z-50">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleLanguage}
+              className="border border-primary/30 hover:bg-primary/10 px-3"
+            >
+              <Languages className="h-4 w-4 mr-1" />
+              {language.toUpperCase()}
+            </Button>
+            <button
+              className="text-foreground hover:text-primary transition-colors p-2"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Toggle menu"
+            >
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -116,12 +142,12 @@ const Navigation = () => {
             <Button
               variant="default"
               size="sm"
-              className="mt-4 w-full bg-gradient-to-r from-primary to-secondary"
+              className="w-full mt-4 bg-gradient-to-r from-primary to-secondary hover:opacity-90"
               asChild
             >
               <a href="/certificates/Filippo_Spazzali_Resume.pdf" download>
                 <Download className="mr-2 h-4 w-4" />
-                Download CV
+                {t('nav.downloadCV')}
               </a>
             </Button>
           </div>
