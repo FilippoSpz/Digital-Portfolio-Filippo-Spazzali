@@ -10,28 +10,28 @@ const Portfolio = () => {
   
   const projects = [
     {
-      title: "ViaGlut Website Redesign",
-      description: "Redesigned and optimized parts of the ViaGlut website using Magento, HTML, and CSS. Focused on creating user-friendly and intuitive interfaces to enhance customer experience.",
+      titleKey: "portfolio.viaglut.title",
+      descriptionKey: "portfolio.viaglut.description",
       technologies: ["Magento", "HTML", "CSS", "JavaScript"],
-      category: "Web Development",
+      categoryKey: "portfolio.viaglut.category",
       year: "2025",
       link: "https://magento-1168665-4085035.cloudwaysapps.com/italiano/index",
       image: viaglutImage,
     },
     {
-      title: "Management Software System",
-      description: "Developed a comprehensive management software from scratch for CIRCOLO AZIENDALE FINCANTIERI - WÄRTSILÄ ITALIA. Replaced legacy system and significantly improved performance and usability.",
+      titleKey: "portfolio.circolo.title",
+      descriptionKey: "portfolio.circolo.description",
       technologies: ["HTML", "CSS", "JavaScript"],
-      category: "Software Development",
+      categoryKey: "portfolio.circolo.category",
       year: "2022-2023",
       link: "https://www.circolofinwar.it/",
       image: circoloImage,
     },
     {
-      title: "Wärtsilä UI Development",
-      description: "Designed and developed the initial user interface for a management program during internship at Wärtsilä Italia. Collaborated with the R&D Engineering team.",
+      titleKey: "portfolio.wartsila.title",
+      descriptionKey: "portfolio.wartsila.description",
       technologies: ["HTML", "CSS", "JavaScript", "UI/UX Design"],
-      category: "Internship Project",
+      categoryKey: "portfolio.wartsila.category",
       year: "2022",
       link: "https://www.wartsila.com/ita",
       image: wartsilaImage,
@@ -65,7 +65,7 @@ const Portfolio = () => {
                   <div className="aspect-square rounded-xl overflow-hidden border-2 border-primary/30 group-hover:border-primary/60 transition-colors">
                     <img 
                       src={project.image} 
-                      alt={project.title}
+                      alt={t(project.titleKey)}
                       className="w-full h-full object-contain bg-gradient-to-br from-primary/10 to-secondary/10 p-4"
                     />
                   </div>
@@ -76,24 +76,24 @@ const Portfolio = () => {
                   {/* Title and Category */}
                   <div>
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-2xl font-bold gradient-text">{project.title}</h3>
+                      <h3 className="text-2xl font-bold gradient-text">{t(project.titleKey)}</h3>
                       <span className="text-sm text-muted-foreground whitespace-nowrap ml-4">
                         {project.year}
                       </span>
                     </div>
                     <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-semibold">
-                      {project.category}
+                      {t(project.categoryKey)}
                     </span>
                   </div>
 
                   {/* Description */}
                   <p className="text-muted-foreground leading-relaxed">
-                    {project.description}
+                    {t(project.descriptionKey)}
                   </p>
 
                   {/* Technologies */}
                   <div>
-                    <h4 className="text-sm font-semibold mb-2 text-foreground/80">Technologies Used:</h4>
+                    <h4 className="text-sm font-semibold mb-2 text-foreground/80">{t('portfolio.technologiesUsed')}</h4>
                     <div className="flex flex-wrap gap-2">
                       {project.technologies.map((tech, techIndex) => (
                         <span
@@ -128,12 +128,9 @@ const Portfolio = () => {
         {/* Additional Info */}
         <div className="mt-16 text-center">
           <div className="glass-card p-8 max-w-3xl mx-auto">
-            <h3 className="text-xl font-bold mb-4 gradient-text">More Projects Coming Soon</h3>
+            <h3 className="text-xl font-bold mb-4 gradient-text">{t('portfolio.moreComingSoon')}</h3>
             <p className="text-muted-foreground">
-              I'm constantly working on new projects and expanding my portfolio. 
-              These projects represent my professional experience and demonstrate my ability 
-              to build scalable, user-friendly applications. Feel free to contact me to learn 
-              more about any of these projects or to discuss potential collaborations.
+              {t('portfolio.moreComingSoonDesc')}
             </p>
           </div>
         </div>

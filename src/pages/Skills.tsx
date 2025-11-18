@@ -23,7 +23,7 @@ const Skills = () => {
   
   const skillCategories = [
     {
-      category: "Software Programming",
+      categoryKey: "skills.category.softwareProgramming",
       icon: <Code2 className="h-8 w-8" />,
       color: "from-primary to-secondary",
       skills: [
@@ -32,7 +32,7 @@ const Skills = () => {
       ],
     },
     {
-      category: "Web Programming",
+      categoryKey: "skills.category.webProgramming",
       icon: <Code2 className="h-8 w-8" />,
       color: "from-secondary to-accent",
       skills: [
@@ -43,7 +43,7 @@ const Skills = () => {
       ],
     },
     {
-      category: "Databases",
+      categoryKey: "skills.category.databases",
       icon: <Database className="h-8 w-8" />,
       color: "from-accent to-primary",
       skills: [
@@ -52,7 +52,7 @@ const Skills = () => {
       ],
     },
     {
-      category: "Hardware & Networking",
+      categoryKey: "skills.category.hardware",
       icon: <Server className="h-8 w-8" />,
       color: "from-primary to-accent",
       skills: [
@@ -60,7 +60,7 @@ const Skills = () => {
       ],
     },
     {
-      category: "Office & Productivity",
+      categoryKey: "skills.category.office",
       icon: <Wrench className="h-8 w-8" />,
       color: "from-secondary to-primary",
       skills: [
@@ -103,7 +103,7 @@ const Skills = () => {
                     {category.icon}
                   </div>
                   <h2 className="text-2xl md:text-3xl font-bold gradient-text">
-                    {category.category}
+                    {t(category.categoryKey)}
                   </h2>
                 </div>
 
@@ -117,7 +117,7 @@ const Skills = () => {
                         <img 
                           src={skill.icon} 
                           alt={skill.name}
-                          className="w-16 h-16 object-contain"
+                          className={`w-16 h-16 object-contain ${skill.name === 'Cisco' ? 'mix-blend-multiply dark:mix-blend-normal dark:invert' : ''}`}
                         />
                         <p className="font-semibold text-sm">{skill.name}</p>
                       </div>

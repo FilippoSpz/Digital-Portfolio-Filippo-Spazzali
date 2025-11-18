@@ -54,8 +54,29 @@ const translations = {
     // Portfolio
     'portfolio.title': 'Portfolio',
     'portfolio.subtitle': 'Some of my recent projects',
-    'portfolio.viewProject': 'View Project',
+    'portfolio.viewProject': 'See More',
     'portfolio.viewDetails': 'View Details',
+    'portfolio.moreComingSoon': 'More Projects Coming Soon',
+    'portfolio.moreComingSoonDesc': "I'm constantly working on new projects and expanding my portfolio. These projects represent my professional experience and demonstrate my ability to build scalable, user-friendly applications. Feel free to contact me to learn more about any of these projects or to discuss potential collaborations.",
+    
+    // Portfolio Projects
+    'portfolio.viaglut.title': 'ViaGlut Website Redesign',
+    'portfolio.viaglut.description': 'Redesigned and optimized parts of the ViaGlut website using Magento, HTML, and CSS. Focused on creating user-friendly and intuitive interfaces to enhance customer experience.',
+    'portfolio.viaglut.category': 'Web Development',
+    'portfolio.circolo.title': 'Management Software System',
+    'portfolio.circolo.description': 'Developed a comprehensive management software from scratch for CIRCOLO AZIENDALE FINCANTIERI - WÄRTSILÄ ITALIA. Replaced legacy system and significantly improved performance and usability.',
+    'portfolio.circolo.category': 'Software Development',
+    'portfolio.wartsila.title': 'Wärtsilä UI Development',
+    'portfolio.wartsila.description': 'Designed and developed the initial user interface for a management program during internship at Wärtsilä Italia. Collaborated with the R&D Engineering team.',
+    'portfolio.wartsila.category': 'Internship Project',
+    'portfolio.technologiesUsed': 'Technologies Used:',
+    
+    // Skills Categories
+    'skills.category.softwareProgramming': 'Software Programming',
+    'skills.category.webProgramming': 'Web Programming',
+    'skills.category.databases': 'Databases',
+    'skills.category.hardware': 'Hardware & Networking',
+    'skills.category.office': 'Office & Productivity',
     
     // Contact
     'contact.title': "Let's Connect",
@@ -111,8 +132,29 @@ const translations = {
     // Portfolio
     'portfolio.title': 'Portfolio',
     'portfolio.subtitle': 'Alcuni dei miei progetti recenti',
-    'portfolio.viewProject': 'Vedi Progetto',
+    'portfolio.viewProject': 'Scopri di più',
     'portfolio.viewDetails': 'Vedi Dettagli',
+    'portfolio.moreComingSoon': 'Altri Progetti in Arrivo',
+    'portfolio.moreComingSoonDesc': 'Sto costantemente lavorando su nuovi progetti ed espandendo il mio portfolio. Questi progetti rappresentano la mia esperienza professionale e dimostrano la mia capacità di costruire applicazioni scalabili e user-friendly. Non esitare a contattarmi per saperne di più su questi progetti o per discutere potenziali collaborazioni.',
+    
+    // Portfolio Projects
+    'portfolio.viaglut.title': 'Redesign Sito Web ViaGlut',
+    'portfolio.viaglut.description': 'Ho riprogettato e ottimizzato parti del sito web ViaGlut utilizzando Magento, HTML e CSS. Mi sono concentrato sulla creazione di interfacce user-friendly e intuitive per migliorare l\'esperienza del cliente.',
+    'portfolio.viaglut.category': 'Sviluppo Web',
+    'portfolio.circolo.title': 'Sistema Software Gestionale',
+    'portfolio.circolo.description': 'Ho sviluppato da zero un software gestionale completo per il CIRCOLO AZIENDALE FINCANTIERI - WÄRTSILÄ ITALIA. Ho sostituito il sistema legacy migliorando significativamente le prestazioni e l\'usabilità.',
+    'portfolio.circolo.category': 'Sviluppo Software',
+    'portfolio.wartsila.title': 'Sviluppo UI Wärtsilä',
+    'portfolio.wartsila.description': 'Ho progettato e sviluppato l\'interfaccia utente iniziale per un programma gestionale durante il tirocinio presso Wärtsilä Italia. Ho collaborato con il team di Ingegneria R&D.',
+    'portfolio.wartsila.category': 'Progetto di Stage',
+    'portfolio.technologiesUsed': 'Tecnologie Utilizzate:',
+    
+    // Skills Categories
+    'skills.category.softwareProgramming': 'Programmazione Software',
+    'skills.category.webProgramming': 'Programmazione Web',
+    'skills.category.databases': 'Database',
+    'skills.category.hardware': 'Hardware & Networking',
+    'skills.category.office': 'Office & Produttività',
     
     // Contact
     'contact.title': 'Contattami',
