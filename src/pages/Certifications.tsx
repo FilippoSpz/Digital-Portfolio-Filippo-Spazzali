@@ -6,34 +6,34 @@ const Certifications = () => {
   const { t } = useLanguage();
   const certificates = [
     {
-      title: "Cisco CCNA Certification",
-      issuer: "Cisco Networking Academy",
-      date: "April 2022",
-      description: "CCNAv7: Introduction to Networks - Comprehensive networking certification covering network fundamentals, routing, switching, and security.",
+      titleKey: "certifications.ccna.title",
+      issuerKey: "certifications.ccna.issuer",
+      dateKey: "certifications.ccna.date",
+      descriptionKey: "certifications.ccna.description",
       file: "/certificates/FilippoSpazzaliCCNAv7_-_certificate.pdf",
       color: "from-primary to-secondary",
     },
     {
-      title: "Cisco IT Essentials Certification",
-      issuer: "Cisco Networking Academy",
-      date: "November 2020",
-      description: "Comprehensive IT hardware and software certification covering computer assembly, troubleshooting, and maintenance.",
+      titleKey: "certifications.itEssentials.title",
+      issuerKey: "certifications.itEssentials.issuer",
+      dateKey: "certifications.itEssentials.date",
+      descriptionKey: "certifications.itEssentials.description",
       file: "/certificates/CISCO_IT_Essential.pdf",
       color: "from-secondary to-accent",
     },
     {
-      title: "Safety Course Certificate",
-      issuer: "Wärtsilä Italia / Mega Italia Media",
-      date: "February 2022",
-      description: "Specific Training for Low Risk Offices - Occupational health and safety training in accordance with Italian regulations.",
+      titleKey: "certifications.safety.title",
+      issuerKey: "certifications.safety.issuer",
+      dateKey: "certifications.safety.date",
+      descriptionKey: "certifications.safety.description",
       file: "/certificates/certificato_sicurezza_lavoro.pdf",
       color: "from-accent to-primary",
     },
     {
-      title: "Internship Completion Certificate",
-      issuer: "Wärtsilä Italia S.p.A.",
-      date: "February 2022",
-      description: "Successfully completed internship at Wärtsilä Italia R&D Engineering, working on UI development and team collaboration.",
+      titleKey: "certifications.internship.title",
+      issuerKey: "certifications.internship.issuer",
+      dateKey: "certifications.internship.date",
+      descriptionKey: "certifications.internship.description",
       file: "/certificates/certificazione_wartsila.pdf",
       color: "from-primary to-accent",
     },
@@ -63,20 +63,20 @@ const Certifications = () => {
             >
               {/* Header with gradient */}
               <div className={`mb-6 p-4 rounded-xl bg-gradient-to-br ${cert.color} text-white`}>
-                <h3 className="text-xl font-bold mb-2">{cert.title}</h3>
-                <p className="text-sm opacity-90">{cert.issuer}</p>
+                <h3 className="text-xl font-bold mb-2">{t(cert.titleKey)}</h3>
+                <p className="text-sm opacity-90">{t(cert.issuerKey)}</p>
               </div>
 
               {/* Date */}
               <div className="mb-4">
                 <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-semibold">
-                  {cert.date}
+                  {t(cert.dateKey)}
                 </span>
               </div>
 
               {/* Description */}
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                {cert.description}
+                {t(cert.descriptionKey)}
               </p>
 
               {/* Actions */}
@@ -88,7 +88,7 @@ const Certifications = () => {
                 >
                   <a href={cert.file} download>
                     <Download className="mr-2 h-4 w-4" />
-                    Download
+                    {t('certifications.download')}
                   </a>
                 </Button>
                 <Button

@@ -1,56 +1,57 @@
 import { Briefcase, GraduationCap, Globe } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const About = () => {
   const { t } = useLanguage();
   const experiences = [
     {
-      role: "Web Developer",
+      roleKey: "experience.webDeveloper",
       company: "ViaGlut",
       period: "2025",
       location: "Trieste, Italy",
       link: "https://magento-1168665-4085035.cloudwaysapps.com/italiano/index",
-      description: [
-        "Fixed, reinvented, and redesigned parts of the website using Magento, integrating HTML and CSS",
-        "Designed user-friendly and intuitive web pages to enhance customer experience, working independently",
+      descriptionKeys: [
+        "experience.viaglut.desc1",
+        "experience.viaglut.desc2",
       ],
     },
     {
-      role: "Web Developer",
+      roleKey: "experience.webDeveloper",
       company: "CIRCOLO AZIENDALE FINCANTIERI - WÄRTSILÄ ITALIA - APS",
       period: "2022 – 2023",
       location: "Trieste, Italy",
       link: "https://www.circolofinwar.it/",
-      description: [
-        "Developed a management software from scratch using HTML, CSS, and JavaScript",
-        "Replaced an old program and significantly improved performance and usability",
+      descriptionKeys: [
+        "experience.circolo.desc1",
+        "experience.circolo.desc2",
       ],
     },
     {
-      role: "Intern",
+      roleKey: "experience.intern",
       company: "Wärtsilä Italia (School Work Experience - PCTO)",
       period: "January 2022 – February 2022",
       location: "Trieste, Italy",
       link: "https://www.wartsila.com/ita",
-      description: [
-        "Designed and developed the initial user interface of a management program using HTML, CSS, and JavaScript",
-        "Participated in daily team meetings to review progress and gather feedback, enhancing collaboration and learning",
+      descriptionKeys: [
+        "experience.wartsila.desc1",
+        "experience.wartsila.desc2",
       ],
     },
   ];
 
   const education = [
     {
-      degree: "Bachelor's Degree in Computer Engineering",
-      institution: "University of Trieste",
-      period: "Expected July 2026",
+      degreeKey: "education.bachelors",
+      institutionKey: "education.university",
+      periodKey: "education.expectedGraduation",
       location: "Trieste, Italy",
       link: "https://lauree.units.it/it/0320106200800001",
     },
     {
-      degree: "High School Diploma",
-      institution: "Alessandro Volta Technical Institute",
-      period: "July 2022",
+      degreeKey: "education.highSchool",
+      institutionKey: "education.technicalInstitute",
+      periodKey: "education.graduated",
       location: "Trieste, Italy",
       link: "https://www.voltatrieste.edu.it/",
     },
@@ -72,12 +73,9 @@ const About = () => {
         {/* Professional Summary */}
         <section className="mb-20 animate-slide-up">
           <div className="glass-card p-8 max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-4 gradient-text">Professional Summary</h2>
+            <h2 className="text-2xl font-bold mb-4 gradient-text">{t('about.professionalSummary')}</h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Software Developer, in particular Web Developer, holding Cisco IT Essentials and CCNA Certifications 
-              with 4 years of experience in web development and software management. Demonstrated ability in developing 
-              user-friendly management software using HTML, CSS and TypeScript to significantly improve system performance 
-              and usability.
+              {t('about.professionalSummaryText')}
             </p>
           </div>
         </section>
@@ -97,7 +95,7 @@ const About = () => {
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                   <div>
-                    <h3 className="text-xl font-bold text-primary">{exp.role}</h3>
+                    <h3 className="text-xl font-bold text-primary">{t(exp.roleKey)}</h3>
                     <p className="text-lg font-semibold">{exp.company}</p>
                   </div>
                   <div className="text-muted-foreground mt-2 md:mt-0 md:text-right">
@@ -106,10 +104,10 @@ const About = () => {
                   </div>
                 </div>
                 <ul className="space-y-2 text-muted-foreground">
-                  {exp.description.map((item, i) => (
+                  {exp.descriptionKeys.map((key, i) => (
                     <li key={i} className="flex items-start">
                       <span className="text-primary mr-2">▸</span>
-                      <span>{item}</span>
+                      <span>{t(key)}</span>
                     </li>
                   ))}
                 </ul>
@@ -133,11 +131,11 @@ const About = () => {
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                   <div>
-                    <a href={edu.link} target="_blank" rel="noopener noreferrer" className="hover:underline"><h3 className="text-xl font-bold text-secondary hover:opacity-80 transition-opacity">{edu.degree}</h3></a>
-                    <a href={edu.link} target="_blank" rel="noopener noreferrer" className="hover:underline"><p className="text-lg font-semibold hover:text-primary transition-colors">{edu.institution}</p></a>
+                    <a href={edu.link} target="_blank" rel="noopener noreferrer" className="hover:underline"><h3 className="text-xl font-bold text-secondary hover:opacity-80 transition-opacity">{t(edu.degreeKey)}</h3></a>
+                    <a href={edu.link} target="_blank" rel="noopener noreferrer" className="hover:underline"><p className="text-lg font-semibold hover:text-primary transition-colors">{t(edu.institutionKey)}</p></a>
                   </div>
                   <div className="text-muted-foreground mt-2 md:mt-0 md:text-right">
-                    <p>{edu.period}</p>
+                    <p>{t(edu.periodKey)}</p>
                     <p className="text-sm">{edu.location}</p>
                   </div>
                 </div>
@@ -147,22 +145,33 @@ const About = () => {
         </section>
 
         {/* Languages */}
-        <section>
+        <section className="mb-20">
           <h2 className="text-3xl font-bold mb-8 text-center">
             <Globe className="inline-block mr-3 mb-1 h-8 w-8 text-accent" />
-            <span className="gradient-text">Languages</span>
+            <span className="gradient-text">{t('about.languages')}</span>
           </h2>
-          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            <div className="glass-card p-6 text-center hover-lift">
-              <h3 className="text-xl font-bold mb-2">Italian</h3>
-              <p className="text-muted-foreground">Native Speaker</p>
-            </div>
-            <div className="glass-card p-6 text-center hover-lift">
-              <h3 className="text-xl font-bold mb-2">English</h3>
-              <p className="text-muted-foreground">C1 Level</p>
-            </div>
+          <div className="glass-card p-6 max-w-4xl mx-auto">
+            <p className="text-lg text-center text-muted-foreground">
+              {t('about.languagesText')}
+            </p>
           </div>
         </section>
+
+        {/* Call to Action */}
+        <div className="text-center">
+          <div className="glass-card p-8 max-w-3xl mx-auto">
+            <h3 className="text-2xl font-bold mb-4 gradient-text">{t('contact.title')}</h3>
+            <p className="text-muted-foreground mb-6">
+              {t('about.contactCTA')}
+            </p>
+            <Button
+              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+              asChild
+            >
+              <a href="#contact">{t('about.getInTouch')}</a>
+            </Button>
+          </div>
+        </div>
       </div>
     </section>
   );
