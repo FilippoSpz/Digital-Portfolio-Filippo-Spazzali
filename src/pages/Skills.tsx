@@ -56,7 +56,7 @@ const Skills = () => {
       icon: <Server className="h-8 w-8" />,
       color: "from-primary to-accent",
       skills: [
-        { name: "Cisco", icon: ciscoIcon },
+        { name: "Cisco", icon: ciscoIcon, className: "mix-blend-multiply dark:mix-blend-normal dark:invert" },
       ],
     },
     {
