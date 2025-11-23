@@ -164,7 +164,7 @@ const About = () => {
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <div className="glass-card p-6 text-center">
               <h3 className="text-xl font-semibold mb-2">Italiano</h3>
-              <p className="text-muted-foreground">Madrelingua</p>
+              <p className="text-muted-foreground">{t('about.nativeLevel')}</p>
             </div>
             <div className="glass-card p-6 text-center">
               <h3 className="text-xl font-semibold mb-2">English</h3>
