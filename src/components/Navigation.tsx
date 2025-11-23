@@ -60,7 +60,7 @@ const Navigation = () => {
         <div className="flex items-center justify-between h-20">
           <button 
             onClick={() => scrollToSection("home")} 
-            className="text-xl font-bold gradient-text cursor-pointer z-50"
+            className="text-xl font-bold gradient-text cursor-pointer z-50 relative"
           >
             FS
           </button>

@@ -8,7 +8,16 @@ import circoloImage from "@/assets/portfolio/circolo.webp";
 const Portfolio = () => {
   const { t } = useLanguage();
   
-  const projects = [
+  const projects: Array<{
+    titleKey: string;
+    descriptionKey: string;
+    technologies?: string[];
+    techKey?: string;
+    categoryKey: string;
+    year: string;
+    link: string;
+    image: string;
+  }> = [
     {
       titleKey: "portfolio.viaglut.title",
       descriptionKey: "portfolio.viaglut.description",
@@ -21,7 +30,7 @@ const Portfolio = () => {
     {
       titleKey: "portfolio.circolo.title",
       descriptionKey: "portfolio.circolo.description",
-      technologies: ["HTML", "CSS", "JavaScript"],
+      techKey: "portfolio.circolo.tech",
       categoryKey: "portfolio.circolo.category",
       year: "2022-2023",
       link: "https://www.circolofinwar.it/",
@@ -95,7 +104,7 @@ const Portfolio = () => {
                   <div>
                     <h4 className="text-sm font-semibold mb-2 text-foreground/80">{t('portfolio.technologiesUsed')}</h4>
                     <div className="flex flex-wrap gap-2">
-                      {project.technologies.map((tech, techIndex) => (
+                      {(project.techKey ? t(project.techKey).split(', ') : project.technologies || []).map((tech, techIndex) => (
                         <span
                           key={techIndex}
                           className="px-3 py-1 bg-muted rounded-full text-sm font-medium"

@@ -129,16 +129,27 @@ const About = () => {
                 className="glass-card p-6 hover-lift"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <a href={edu.link} target="_blank" rel="noopener noreferrer" className="hover:underline"><h3 className="text-xl font-bold text-secondary hover:opacity-80 transition-opacity">{t(edu.degreeKey)}</h3></a>
-                    <a href={edu.link} target="_blank" rel="noopener noreferrer" className="hover:underline"><p className="text-lg font-semibold hover:text-primary transition-colors">{t(edu.institutionKey)}</p></a>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-secondary">{t(edu.degreeKey)}</h3>
+                    <p className="text-lg font-semibold text-muted-foreground">{t(edu.institutionKey)}</p>
                   </div>
                   <div className="text-muted-foreground mt-2 md:mt-0 md:text-right">
                     <p>{t(edu.periodKey)}</p>
                     <p className="text-sm">{edu.location}</p>
                   </div>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-secondary/50 hover:bg-secondary/10"
+                  asChild
+                >
+                  <a href={edu.link} target="_blank" rel="noopener noreferrer">
+                    <Globe className="mr-2 h-4 w-4" />
+                    {t('about.viewInstitute')}
+                  </a>
+                </Button>
               </div>
             ))}
           </div>

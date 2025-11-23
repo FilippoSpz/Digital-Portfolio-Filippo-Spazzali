@@ -27,7 +27,7 @@ const Skills = () => {
       icon: <Code2 className="h-8 w-8" />,
       color: "from-primary to-secondary",
       skills: [
-        { name: "IntelliJ", icon: intellijIcon },
+        { name: "IntelliJ", icon: intellijIcon, className: "mix-blend-multiply dark:mix-blend-normal dark:invert" },
         { name: "Java", icon: javaIcon },
       ],
     },
@@ -68,7 +68,7 @@ const Skills = () => {
         { name: "Excel", icon: excelIcon },
         { name: "Teams", icon: teamsIcon },
         { name: "SharePoint", icon: sharepointIcon },
-        { name: "Outlook", icon: outlookIcon },
+        { name: "Outlook", icon: outlookIcon, className: "mix-blend-multiply dark:mix-blend-normal dark:invert" },
         { name: "PowerPoint", icon: powerpointIcon },
         { name: "OneNote", icon: onenoteIcon },
         { name: "Access", icon: accessIcon },
@@ -117,7 +117,7 @@ const Skills = () => {
                         <img 
                           src={skill.icon} 
                           alt={skill.name}
-                          className={`w-16 h-16 object-contain ${skill.name === 'Cisco' ? 'mix-blend-multiply dark:mix-blend-normal dark:invert' : ''}`}
+                          className={`w-16 h-16 object-contain ${(skill as any).className || ''}`}
                         />
                         <p className="font-semibold text-sm">{skill.name}</p>
                       </div>
