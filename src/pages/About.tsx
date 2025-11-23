@@ -1,4 +1,4 @@
-import { Briefcase, GraduationCap, Globe } from "lucide-react";
+import { Briefcase, GraduationCap, ExternalLink, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -146,7 +146,7 @@ const About = () => {
                   asChild
                 >
                   <a href={edu.link} target="_blank" rel="noopener noreferrer">
-                    <Globe className="mr-2 h-4 w-4" />
+                    <ExternalLink className="mr-2 h-4 w-4" />
                     {t('about.viewInstitute')}
                   </a>
                 </Button>
@@ -158,13 +158,18 @@ const About = () => {
         {/* Languages */}
         <section className="mb-20">
           <h2 className="text-3xl font-bold mb-8 text-center">
-            <Globe className="inline-block mr-3 mb-1 h-8 w-8 text-accent" />
+            <Languages className="inline-block mr-3 mb-1 h-8 w-8 text-accent" />
             <span className="gradient-text">{t('about.languages')}</span>
           </h2>
-          <div className="glass-card p-6 max-w-4xl mx-auto">
-            <p className="text-lg text-center text-muted-foreground">
-              {t('about.languagesText')}
-            </p>
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="glass-card p-6 text-center">
+              <h3 className="text-xl font-semibold mb-2">Italiano</h3>
+              <p className="text-muted-foreground">Madrelingua</p>
+            </div>
+            <div className="glass-card p-6 text-center">
+              <h3 className="text-xl font-semibold mb-2">English</h3>
+              <p className="text-muted-foreground">{t('about.languagesText')}</p>
+            </div>
           </div>
         </section>
 
