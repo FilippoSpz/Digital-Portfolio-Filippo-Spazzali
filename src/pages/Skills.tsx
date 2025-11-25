@@ -1,6 +1,6 @@
 import { Code2, Database, Server, Wrench } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import intellijIcon from "@/assets/skills/intellij.jpg";
+import intellijIcon from "@/assets/skills/intellij.png";
 import javaIcon from "@/assets/skills/java.png";
 import htmlIcon from "@/assets/skills/html.png";
 import cssIcon from "@/assets/skills/css.png";
@@ -10,11 +10,11 @@ import ciscoIcon from "@/assets/skills/cisco.png";
 import excelIcon from "@/assets/skills/excel.png";
 import accessIcon from "@/assets/skills/access.png";
 import onenoteIcon from "@/assets/skills/note.png";
-import phpIcon from "@/assets/skills/php.png";
+import phpIcon from "@/assets/skills/php-transparent.png";
 import typescriptIcon from "@/assets/skills/typescript.png";
 import wordIcon from "@/assets/skills/word.png";
 import powerpointIcon from "@/assets/skills/powerpoint.png";
-import outlookIcon from "@/assets/skills/outlook.jpg";
+import outlookIcon from "@/assets/skills/outlook.png";
 import teamsIcon from "@/assets/skills/teams.png";
 import sharepointIcon from "@/assets/skills/sharepoint.png";
 
@@ -27,7 +27,7 @@ const Skills = () => {
       icon: <Code2 className="h-8 w-8" />,
       color: "from-primary to-secondary",
       skills: [
-        { name: "IntelliJ", icon: intellijIcon, className: "mix-blend-multiply dark:mix-blend-normal dark:invert" },
+        { name: "IntelliJ", icon: intellijIcon },
         { name: "Java", icon: javaIcon },
       ],
     },
@@ -56,7 +56,7 @@ const Skills = () => {
       icon: <Server className="h-8 w-8" />,
       color: "from-primary to-accent",
       skills: [
-        { name: "Cisco", icon: ciscoIcon, className: "mix-blend-multiply dark:mix-blend-normal dark:invert" },
+        { name: "Cisco", icon: ciscoIcon },
       ],
     },
     {
@@ -68,7 +68,7 @@ const Skills = () => {
         { name: "Excel", icon: excelIcon },
         { name: "Teams", icon: teamsIcon },
         { name: "SharePoint", icon: sharepointIcon },
-        { name: "Outlook", icon: outlookIcon, className: "mix-blend-multiply dark:mix-blend-normal dark:invert" },
+        { name: "Outlook", icon: outlookIcon },
         { name: "PowerPoint", icon: powerpointIcon },
         { name: "OneNote", icon: onenoteIcon },
         { name: "Access", icon: accessIcon },
