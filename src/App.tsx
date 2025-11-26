@@ -3,8 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "./contexts/LanguageContext";
-import Navigation from "./components/Navigation";
-import AnimatedBackground from "./components/AnimatedBackground";
+import CosmicBackground from "./components/CosmicBackground";
 import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 
@@ -16,8 +15,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <AnimatedBackground />
-        <Navigation />
+        <CosmicBackground />
         <Index />
         <ScrollToTop />
       </TooltipProvider>
