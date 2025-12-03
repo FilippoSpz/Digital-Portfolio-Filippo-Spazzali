@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import OrbitalNavigation from "@/components/OrbitalNavigation";
+import CosmicBackground from "@/components/CosmicBackground";
 import HomeSection from "@/components/sections/HomeSection";
 import AboutSection from "@/components/sections/AboutSection";
 import SkillsSection from "@/components/sections/SkillsSection";
@@ -28,7 +29,7 @@ const Index = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Initial check
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -42,10 +43,16 @@ const Index = () => {
 
   return (
     <div className="relative">
+      {/* Dynamic Cosmic Background */}
+      <CosmicBackground activeSection={activeSection} />
+      
       <OrbitalNavigation 
         activeSection={activeSection} 
         onSectionChange={handleSectionChange} 
       />
+      
+      {/* Mobile top padding for header */}
+      <div className="md:hidden h-16" />
       
       <main className="relative z-10">
         <HomeSection isActive={activeSection === "home"} />
