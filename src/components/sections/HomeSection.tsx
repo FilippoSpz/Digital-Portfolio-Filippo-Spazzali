@@ -30,10 +30,10 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
           {/* Left - Text Content */}
           <div className="space-y-8 animate-fade-in">
-            {/* Greeting Badge */}
+            {/* Section Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm font-medium text-primary">{t('home.greeting')}</span>
+              <span className="text-sm font-medium text-primary">{t('nav.home')}</span>
             </div>
 
             {/* Main Title */}
