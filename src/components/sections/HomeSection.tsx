@@ -1,4 +1,5 @@
-import { ArrowRight, Download, Linkedin, Github, Instagram } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Download, Linkedin, Github, Instagram, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import profilePhoto from "@/assets/profile-photo.jpeg";
@@ -6,6 +7,27 @@ import profilePhoto from "@/assets/profile-photo.jpeg";
 interface HomeSectionProps {
   isActive: boolean;
 }
+
+// Animated letter component
+const AnimatedLetter = ({ letter, delay }: { letter: string; delay: number }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  if (letter === ' ') return <span>&nbsp;</span>;
+  
+  return (
+    <span
+      className={`
+        inline-block transition-all duration-300 cursor-default
+        ${isHovered ? 'scale-125 opacity-60 blur-[1px] -translate-y-1' : 'scale-100 opacity-100'}
+      `}
+      style={{ transitionDelay: `${delay * 20}ms` }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {letter}
+    </span>
+  );
+};
 
 const HomeSection = ({ isActive }: HomeSectionProps) => {
   const { t } = useLanguage();
@@ -17,6 +39,10 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
     }
   };
 
+  const nameParts = t('home.name').split(' ');
+  const firstName = nameParts[0];
+  const lastName = nameParts[1];
+
   return (
     <section
       id="home"
@@ -26,39 +52,48 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
         ${isActive ? "opacity-100" : "opacity-50"}
       `}
     >
-      <div className="container mx-auto px-4 pl-28 md:pl-40">
+      {/* Mobile/Tablet centered, Desktop with left padding */}
+      <div className="container mx-auto px-4 md:pl-40 lg:pl-40">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
           {/* Left - Text Content */}
-          <div className="space-y-8 animate-fade-in">
+          <div className="space-y-8 animate-fade-in text-center lg:text-left">
             {/* Section Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-sm font-medium text-primary">{t('nav.home')}</span>
             </div>
 
-            {/* Main Title */}
+            {/* Main Title with animated letters */}
             <div>
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight">
-                <span className="block text-foreground mb-2">{t('home.name').split(' ')[0]}</span>
-                <span className="block gradient-text">{t('home.name').split(' ')[1]}</span>
+                <span className="block text-foreground mb-2">
+                  {firstName.split('').map((letter, i) => (
+                    <AnimatedLetter key={i} letter={letter} delay={i} />
+                  ))}
+                </span>
+                <span className="block gradient-text">
+                  {lastName.split('').map((letter, i) => (
+                    <AnimatedLetter key={i} letter={letter} delay={i + firstName.length} />
+                  ))}
+                </span>
               </h1>
             </div>
 
             {/* Role */}
-            <div className="relative">
-              <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-secondary to-accent rounded-full" />
-              <p className="text-xl md:text-2xl text-muted-foreground pl-4">
+            <div className="relative inline-block lg:block">
+              <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-secondary to-accent rounded-full hidden lg:block" />
+              <p className="text-xl md:text-2xl text-muted-foreground lg:pl-4">
                 {t('home.title')}
               </p>
             </div>
 
             {/* Tagline */}
-            <p className="text-lg text-muted-foreground/80 max-w-lg leading-relaxed">
+            <p className="text-lg text-muted-foreground/80 max-w-lg leading-relaxed mx-auto lg:mx-0">
               {t('home.tagline')}
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-background font-semibold px-8 group"
@@ -70,18 +105,19 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-primary/50 hover:bg-primary/10 px-8"
+                className="border-primary/50 hover:bg-primary/10 px-8 group relative overflow-hidden"
                 asChild
               >
                 <a href="/certificates/Filippo_Spazzali_Resume.pdf" download>
-                  <Download className="mr-2 h-5 w-5" />
+                  <FileDown className="mr-2 h-5 w-5 group-hover:animate-bounce" />
                   {t('home.downloadCV')}
+                  <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                 </a>
               </Button>
             </div>
 
             {/* Social Links */}
-            <div className="flex items-center gap-6 pt-4">
+            <div className="flex items-center gap-6 pt-4 justify-center lg:justify-start">
               <span className="text-sm text-muted-foreground">{t('contact.title')}</span>
               <div className="flex gap-3">
                 {[

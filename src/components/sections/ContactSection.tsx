@@ -55,9 +55,10 @@ const ContactSection = ({ isActive }: ContactSectionProps) => {
         ${isActive ? "opacity-100" : "opacity-50"}
       `}
     >
-      <div className="container mx-auto px-4 pl-28 md:pl-40">
+      {/* Mobile/Tablet centered, Desktop with left padding */}
+      <div className="container mx-auto px-4 md:px-8 lg:pl-40">
         {/* Section Header */}
-        <div className="max-w-4xl mb-16">
+        <div className="max-w-4xl mb-16 text-center lg:text-left">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/30 mb-6">
             <Send className="w-4 h-4 text-accent" />
             <span className="text-sm font-medium text-accent">{t('nav.contact')}</span>
@@ -65,13 +66,13 @@ const ContactSection = ({ isActive }: ContactSectionProps) => {
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             {t('contact.title')}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0">
             {t('contact.subtitle')}
           </p>
         </div>
 
         {/* Contact Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto lg:mx-0">
           {contactMethods.map((method, index) => {
             const Icon = method.icon;
             return (
@@ -106,7 +107,7 @@ const ContactSection = ({ isActive }: ContactSectionProps) => {
         </div>
 
         {/* Footer Note */}
-        <div className="mt-16 max-w-4xl">
+        <div className="mt-16 max-w-4xl mx-auto lg:mx-0">
           <div className="bg-card/20 rounded-2xl border border-border/30 p-8 text-center">
             <p className="text-muted-foreground">
               {t('about.contactCTA')}
