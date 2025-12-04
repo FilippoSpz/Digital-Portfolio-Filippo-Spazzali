@@ -89,9 +89,10 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
         ${isActive ? "opacity-100" : "opacity-50"}
       `}
     >
-      <div className="container mx-auto px-4 pl-28 md:pl-40">
+      {/* Mobile/Tablet centered, Desktop with left padding */}
+      <div className="container mx-auto px-4 md:px-8 lg:pl-40">
         {/* Section Header */}
-        <div className="max-w-4xl mb-16">
+        <div className="max-w-4xl mb-16 text-center lg:text-left">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/30 mb-6">
             <Code2 className="w-4 h-4 text-accent" />
             <span className="text-sm font-medium text-accent">{t('nav.skills')}</span>
@@ -99,7 +100,7 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             {t('skills.title')}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0">
             {t('skills.subtitle')}
           </p>
         </div>
@@ -116,7 +117,7 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
               <div className="bg-card/30 rounded-2xl border border-border/30 overflow-hidden">
                 {/* Header */}
                 <div className="p-6 border-b border-border/30">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 justify-center lg:justify-start">
                     <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center text-background`}>
                       {category.icon}
                     </div>
@@ -126,7 +127,7 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
 
                 {/* Skills Grid */}
                 <div className="p-6">
-                  <div className="flex flex-wrap gap-4">
+                  <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
                     {category.skills.map((skill, skillIndex) => (
                       <div
                         key={skillIndex}

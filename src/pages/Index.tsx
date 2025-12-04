@@ -51,8 +51,8 @@ const Index = () => {
         onSectionChange={handleSectionChange} 
       />
       
-      {/* Mobile top padding for header */}
-      <div className="md:hidden h-16" />
+      {/* Mobile/Tablet top padding for header */}
+      <div className="lg:hidden h-16" />
       
       <main className="relative z-10">
         <HomeSection isActive={activeSection === "home"} />

@@ -6,17 +6,17 @@ interface CosmicBackgroundProps {
 
 const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const currentColorRef = useRef({ h: 231, s: 15, l: 18 });
-  const targetColorRef = useRef({ h: 231, s: 15, l: 18 });
+  const currentColorRef = useRef({ h: 265, s: 20, l: 12 });
+  const targetColorRef = useRef({ h: 265, s: 20, l: 12 });
 
-  // Section-specific background colors (HSL values)
+  // Section-specific background colors matching planet colors (HSL values)
   const sectionColors = useMemo(() => ({
-    home: { h: 231, s: 15, l: 18 },      // Deep space purple-black
-    about: { h: 245, s: 20, l: 16 },     // Deeper purple
-    skills: { h: 200, s: 25, l: 14 },    // Deep ocean blue
-    certifications: { h: 280, s: 20, l: 15 }, // Royal purple
-    portfolio: { h: 320, s: 18, l: 14 }, // Deep magenta
-    contact: { h: 260, s: 22, l: 16 },   // Violet space
+    home: { h: 265, s: 35, l: 12 },      // Purple (matching home planet #bd93f9)
+    about: { h: 187, s: 30, l: 11 },     // Cyan (matching about planet #8be9fd)
+    skills: { h: 135, s: 35, l: 10 },    // Green (matching skills planet #50fa7b)
+    certifications: { h: 30, s: 35, l: 12 }, // Orange (matching certifications planet #ffb86c)
+    portfolio: { h: 326, s: 30, l: 12 }, // Pink (matching portfolio planet #ff79c6)
+    contact: { h: 65, s: 30, l: 11 },    // Yellow (matching contact planet #f1fa8c)
   }), []);
 
   // Update target color when section changes
@@ -60,16 +60,19 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
     const stars: Star[] = [];
     const nebulae: Nebula[] = [];
 
-    // Star colors with variety
+    // Star colors matching planet theme colors
     const starColors = [
       "248, 248, 242", // White
-      "189, 147, 249", // Purple
-      "139, 233, 253", // Cyan
-      "255, 121, 198", // Pink
+      "189, 147, 249", // Purple (home)
+      "139, 233, 253", // Cyan (about)
+      "80, 250, 123",  // Green (skills)
+      "255, 184, 108", // Orange (certifications)
+      "255, 121, 198", // Pink (portfolio)
+      "241, 250, 140", // Yellow (contact)
     ];
 
     // Create stars
-    for (let i = 0; i < 250; i++) {
+    for (let i = 0; i < 200; i++) {
       stars.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
@@ -81,23 +84,25 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
       });
     }
 
-    // Nebula colors
+    // Nebula colors matching planets
     const nebulaColors = [
-      { r: 189, g: 147, b: 249 }, // Primary purple
-      { r: 255, g: 121, b: 198 }, // Accent pink
-      { r: 139, g: 233, b: 253 }, // Secondary cyan
+      { r: 189, g: 147, b: 249 }, // Purple
+      { r: 139, g: 233, b: 253 }, // Cyan
       { r: 80, g: 250, b: 123 },  // Green
+      { r: 255, g: 184, b: 108 }, // Orange
+      { r: 255, g: 121, b: 198 }, // Pink
+      { r: 241, g: 250, b: 140 }, // Yellow
     ];
 
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 5; i++) {
       const color = nebulaColors[Math.floor(Math.random() * nebulaColors.length)];
       nebulae.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        radius: Math.random() * 350 + 150,
+        radius: Math.random() * 300 + 150,
         color: `${color.r}, ${color.g}, ${color.b}`,
-        opacity: Math.random() * 0.04 + 0.015,
-        drift: (Math.random() - 0.5) * 0.08,
+        opacity: Math.random() * 0.03 + 0.01,
+        drift: (Math.random() - 0.5) * 0.06,
       });
     }
 
@@ -113,7 +118,7 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
       time += 0.016;
 
       // Smoothly transition background color
-      const lerpFactor = 0.02; // Slow, smooth transition
+      const lerpFactor = 0.02;
       currentColorRef.current.h = lerp(currentColorRef.current.h, targetColorRef.current.h, lerpFactor);
       currentColorRef.current.s = lerp(currentColorRef.current.s, targetColorRef.current.s, lerpFactor);
       currentColorRef.current.l = lerp(currentColorRef.current.l, targetColorRef.current.l, lerpFactor);
@@ -174,13 +179,13 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
             0,
             star.x,
             star.y,
-            star.size * 5
+            star.size * 4
           );
-          glow.addColorStop(0, `rgba(${star.color}, ${finalOpacity * 0.4})`);
+          glow.addColorStop(0, `rgba(${star.color}, ${finalOpacity * 0.3})`);
           glow.addColorStop(1, "transparent");
           ctx.fillStyle = glow;
           ctx.beginPath();
-          ctx.arc(star.x, star.y, star.size * 5, 0, Math.PI * 2);
+          ctx.arc(star.x, star.y, star.size * 4, 0, Math.PI * 2);
           ctx.fill();
         }
       });

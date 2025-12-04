@@ -1,4 +1,4 @@
-import { Briefcase, GraduationCap, ExternalLink, Languages, MapPin, Calendar } from "lucide-react";
+import { Briefcase, GraduationCap, ExternalLink, Languages, MapPin, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -7,7 +7,7 @@ interface AboutSectionProps {
 }
 
 const AboutSection = ({ isActive }: AboutSectionProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const experiences = [
     {
@@ -53,6 +53,12 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     },
   ];
 
+  // Language names based on current language
+  const languageNames = {
+    italian: language === 'en' ? 'Italian' : 'Italiano',
+    english: language === 'en' ? 'English' : 'Inglese',
+  };
+
   return (
     <section
       id="about"
@@ -62,9 +68,10 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         ${isActive ? "opacity-100" : "opacity-50"}
       `}
     >
-      <div className="container mx-auto px-4 pl-28 md:pl-40">
+      {/* Mobile/Tablet centered, Desktop with left padding */}
+      <div className="container mx-auto px-4 md:px-8 lg:pl-40">
         {/* Section Header */}
-        <div className="max-w-4xl mb-16">
+        <div className="max-w-4xl mb-16 text-center lg:text-left">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/30 mb-6">
             <User className="w-4 h-4 text-secondary" />
             <span className="text-sm font-medium text-secondary">{t('nav.about')}</span>
@@ -72,7 +79,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             {t('about.title')}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0">
             {t('about.intro')}
           </p>
         </div>
@@ -92,7 +99,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Experience Column */}
           <div>
-            <div className="flex items-center gap-3 mb-8">
+            <div className="flex items-center gap-3 mb-8 justify-center lg:justify-start">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
                 <Briefcase className="w-6 h-6 text-background" />
               </div>
@@ -109,7 +116,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
                     {/* Timeline dot */}
                     <div className="absolute left-4 top-2 w-4 h-4 rounded-full bg-primary border-4 border-background" />
                     
-                    <div className="bg-card/30 rounded-xl p-6 border border-border/30 hover:border-primary/30 transition-colors">
+                    <div className="bg-card/30 rounded-xl p-6 border border-border/30 hover:border-primary/30 transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
                         <h4 className="text-lg font-semibold text-primary">{t(exp.roleKey)}</h4>
                         <span className="text-sm text-muted-foreground flex items-center gap-1">
@@ -141,50 +148,58 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
           <div className="space-y-12">
             {/* Education */}
             <div>
-              <div className="flex items-center gap-3 mb-8">
+              <div className="flex items-center gap-3 mb-8 justify-center lg:justify-start">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center">
                   <GraduationCap className="w-6 h-6 text-background" />
                 </div>
                 <h3 className="text-2xl font-bold">{t('about.education')}</h3>
               </div>
 
-              <div className="space-y-4">
-                {education.map((edu, index) => (
-                  <div
-                    key={index}
-                    className="bg-card/30 rounded-xl p-6 border border-border/30 hover:border-secondary/30 transition-colors"
-                  >
-                    <h4 className="text-lg font-semibold text-secondary mb-1">{t(edu.degreeKey)}</h4>
-                    <p className="text-muted-foreground mb-2">{t(edu.institutionKey)}</p>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {t(edu.periodKey)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {edu.location}
-                      </span>
+              {/* Education with timeline */}
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-secondary via-accent to-primary" />
+
+                <div className="space-y-6">
+                  {education.map((edu, index) => (
+                    <div key={index} className="relative pl-16">
+                      {/* Timeline dot */}
+                      <div className="absolute left-4 top-2 w-4 h-4 rounded-full bg-secondary border-4 border-background" />
+                      
+                      <div className="bg-card/30 rounded-xl p-6 border border-border/30 hover:border-secondary/30 transition-all duration-300 hover:scale-[1.02]">
+                        <h4 className="text-lg font-semibold text-secondary mb-1">{t(edu.degreeKey)}</h4>
+                        <p className="text-muted-foreground mb-2">{t(edu.institutionKey)}</p>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {t(edu.periodKey)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {edu.location}
+                          </span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-secondary/50 hover:bg-secondary/10"
+                          asChild
+                        >
+                          <a href={edu.link} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="mr-2 h-3 w-3" />
+                            {t('about.viewInstitute')}
+                          </a>
+                        </Button>
+                      </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-secondary/50 hover:bg-secondary/10"
-                      asChild
-                    >
-                      <a href={edu.link} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="mr-2 h-3 w-3" />
-                        {t('about.viewInstitute')}
-                      </a>
-                    </Button>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Languages */}
             <div>
-              <div className="flex items-center gap-3 mb-8">
+              <div className="flex items-center gap-3 mb-8 justify-center lg:justify-start">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center">
                   <Languages className="w-6 h-6 text-background" />
                 </div>
@@ -192,12 +207,14 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-card/30 rounded-xl p-6 border border-border/30 text-center">
-                  <h4 className="text-xl font-semibold mb-2">🇮🇹 Italiano</h4>
+                <div className="bg-card/30 rounded-xl p-6 border border-border/30 text-center hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group">
+                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🇮🇹</div>
+                  <h4 className="text-xl font-semibold mb-2">{languageNames.italian}</h4>
                   <p className="text-sm text-muted-foreground">{t('about.nativeLevel')}</p>
                 </div>
-                <div className="bg-card/30 rounded-xl p-6 border border-border/30 text-center">
-                  <h4 className="text-xl font-semibold mb-2">🇬🇧 English</h4>
+                <div className="bg-card/30 rounded-xl p-6 border border-border/30 text-center hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group">
+                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🇬🇧</div>
+                  <h4 className="text-xl font-semibold mb-2">{languageNames.english}</h4>
                   <p className="text-sm text-muted-foreground">{t('about.languagesText')}</p>
                 </div>
               </div>
@@ -208,8 +225,5 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     </section>
   );
 };
-
-// Add missing import
-import { User } from "lucide-react";
 
 export default AboutSection;

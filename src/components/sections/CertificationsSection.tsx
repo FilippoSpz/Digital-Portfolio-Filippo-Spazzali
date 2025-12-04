@@ -57,9 +57,10 @@ const CertificationsSection = ({ isActive }: CertificationsSectionProps) => {
         ${isActive ? "opacity-100" : "opacity-50"}
       `}
     >
-      <div className="container mx-auto px-4 pl-28 md:pl-40">
+      {/* Mobile/Tablet centered, Desktop with left padding */}
+      <div className="container mx-auto px-4 md:px-8 lg:pl-40">
         {/* Section Header */}
-        <div className="max-w-4xl mb-16">
+        <div className="max-w-4xl mb-16 text-center lg:text-left">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-6">
             <Award className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary">{t('nav.certifications')}</span>
@@ -67,13 +68,13 @@ const CertificationsSection = ({ isActive }: CertificationsSectionProps) => {
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             {t('certifications.title')}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0">
             {t('certifications.subtitle')}
           </p>
         </div>
 
         {/* Certificates Grid */}
-        <div className="grid md:grid-cols-2 gap-6 max-w-5xl">
+        <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto lg:mx-0">
           {certificates.map((cert, index) => (
             <div
               key={index}
