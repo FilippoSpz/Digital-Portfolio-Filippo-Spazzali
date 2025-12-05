@@ -97,13 +97,13 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-primary/50 hover:bg-primary/10 px-8 group relative overflow-hidden"
+                className="border-primary/50 hover:bg-primary/10 hover:text-foreground px-8 group relative overflow-hidden"
                 asChild
               >
-                <a href="/certificates/Filippo_Spazzali_Resume.pdf" download>
-                  <FileDown className="mr-2 h-5 w-5 group-hover:animate-bounce" />
-                  {t('home.downloadCV')}
-                  <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                <a href="/certificates/Filippo_Spazzali_Resume.pdf" download className="text-foreground">
+                  <FileDown className="mr-2 h-5 w-5 group-hover:animate-bounce text-foreground" />
+                  <span className="text-foreground">{t('home.downloadCV')}</span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none" />
                 </a>
               </Button>
             </div>
