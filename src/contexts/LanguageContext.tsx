@@ -22,7 +22,7 @@ const translations = {
     // Home
     'home.greeting': "Hi, I'm",
     'home.name': 'Filippo Spazzali',
-    'home.title': 'Software Developer & Web Developer',
+    'home.title': 'Software and Web Developer',
     'home.tagline': 'Passionate software developer with expertise in web technologies and a keen eye for crafting delightful user experiences.',
     'home.getInTouch': 'Get In Touch',
     'home.downloadCV': 'Download CV',
@@ -135,7 +135,7 @@ const translations = {
     // Home
     'home.greeting': 'Ciao, sono',
     'home.name': 'Filippo Spazzali',
-    'home.title': 'Sviluppatore Software & Web Developer',
+    'home.title': 'Sviluppatore Software e Web',
     'home.tagline': 'Sono uno sviluppatore software entusiasta, con una forte competenza nel mondo delle tecnologie web e una cura particolare per la progettazione di interfacce piacevoli da utilizzare.',
     'home.getInTouch': 'Contattami',
     'home.downloadCV': 'Scarica CV',
