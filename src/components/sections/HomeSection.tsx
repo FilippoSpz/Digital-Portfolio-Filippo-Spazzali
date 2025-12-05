@@ -8,19 +8,22 @@ interface HomeSectionProps {
   isActive: boolean;
 }
 
-// Animated letter component
+// Animated letter component with faster response
 const AnimatedLetter = ({ letter, delay }: { letter: string; delay: number }) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  if (letter === ' ') return <span>&nbsp;</span>;
+  if (letter === ' ') return <span className="inline-block w-4">&nbsp;</span>;
   
   return (
     <span
       className={`
-        inline-block transition-all duration-300 cursor-default
-        ${isHovered ? 'scale-125 opacity-60 blur-[1px] -translate-y-1' : 'scale-100 opacity-100'}
+        inline-block cursor-default
+        ${isHovered ? 'scale-150 opacity-30 blur-[2px] -translate-y-2' : 'scale-100 opacity-100 blur-0'}
       `}
-      style={{ transitionDelay: `${delay * 20}ms` }}
+      style={{ 
+        transition: 'all 0.1s ease-out',
+        transitionDelay: '0ms',
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -39,9 +42,7 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
     }
   };
 
-  const nameParts = t('home.name').split(' ');
-  const firstName = nameParts[0];
-  const lastName = nameParts[1];
+  const fullName = t('home.name'); // "Filippo Spazzali"
 
   return (
     <section
@@ -63,19 +64,12 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
               <span className="text-sm font-medium text-primary">{t('nav.home')}</span>
             </div>
 
-            {/* Main Title with animated letters */}
+            {/* Main Title with animated letters - Full name on one line */}
             <div>
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight">
-                <span className="block text-foreground mb-2">
-                  {firstName.split('').map((letter, i) => (
-                    <AnimatedLetter key={i} letter={letter} delay={i} />
-                  ))}
-                </span>
-                <span className="block gradient-text">
-                  {lastName.split('').map((letter, i) => (
-                    <AnimatedLetter key={i} letter={letter} delay={i + firstName.length} />
-                  ))}
-                </span>
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-none tracking-tight gradient-text">
+                {fullName.split('').map((letter, i) => (
+                  <AnimatedLetter key={i} letter={letter} delay={i} />
+                ))}
               </h1>
             </div>
 
