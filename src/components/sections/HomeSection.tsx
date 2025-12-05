@@ -8,21 +8,19 @@ interface HomeSectionProps {
   isActive: boolean;
 }
 
-// Animated letter component with faster response
-const AnimatedLetter = ({ letter, delay }: { letter: string; delay: number }) => {
+// Animated letter component - scales up and fades on hover, returns to normal on leave
+const AnimatedLetter = ({ letter }: { letter: string }) => {
   const [isHovered, setIsHovered] = useState(false);
   
   if (letter === ' ') return <span className="inline-block w-4">&nbsp;</span>;
   
   return (
     <span
-      className={`
-        inline-block cursor-default
-        ${isHovered ? 'scale-150 opacity-30 blur-[2px] -translate-y-2' : 'scale-100 opacity-100 blur-0'}
-      `}
+      className="inline-block cursor-default transition-all duration-75 ease-out"
       style={{ 
-        transition: 'all 0.1s ease-out',
-        transitionDelay: '0ms',
+        transform: isHovered ? 'scale(1.3) translateY(-4px)' : 'scale(1) translateY(0)',
+        opacity: isHovered ? 0.4 : 1,
+        filter: isHovered ? 'blur(1px)' : 'blur(0)',
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -68,7 +66,7 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
             <div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-none tracking-tight gradient-text">
                 {fullName.split('').map((letter, i) => (
-                  <AnimatedLetter key={i} letter={letter} delay={i} />
+                  <AnimatedLetter key={i} letter={letter} />
                 ))}
               </h1>
             </div>
