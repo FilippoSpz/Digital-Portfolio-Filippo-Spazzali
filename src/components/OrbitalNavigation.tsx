@@ -13,14 +13,14 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [rotation, setRotation] = useState(0);
 
-  // Planet colors matching solar system theme
+  // Planet colors matching solar system theme - reduced orbit radii to stay on screen
   const sections = [
-    { id: "home", icon: Home, label: t('nav.home'), color: "#bd93f9", size: 32, orbitRadius: 60, speed: 1 },
-    { id: "about", icon: User, label: t('nav.about'), color: "#8be9fd", size: 28, orbitRadius: 85, speed: 0.8 },
-    { id: "skills", icon: Code2, label: t('nav.skills'), color: "#50fa7b", size: 26, orbitRadius: 110, speed: 0.6 },
-    { id: "certifications", icon: Award, label: t('nav.certifications'), color: "#ffb86c", size: 24, orbitRadius: 135, speed: 0.5 },
-    { id: "portfolio", icon: Briefcase, label: t('nav.portfolio'), color: "#ff79c6", size: 22, orbitRadius: 160, speed: 0.4 },
-    { id: "contact", icon: Mail, label: t('nav.contact'), color: "#f1fa8c", size: 20, orbitRadius: 185, speed: 0.35 },
+    { id: "home", icon: Home, label: t('nav.home'), color: "#bd93f9", size: 28, orbitRadius: 50, speed: 1 },
+    { id: "about", icon: User, label: t('nav.about'), color: "#8be9fd", size: 26, orbitRadius: 70, speed: 0.8 },
+    { id: "skills", icon: Code2, label: t('nav.skills'), color: "#50fa7b", size: 24, orbitRadius: 90, speed: 0.6 },
+    { id: "certifications", icon: Award, label: t('nav.certifications'), color: "#ffb86c", size: 22, orbitRadius: 110, speed: 0.5 },
+    { id: "portfolio", icon: Briefcase, label: t('nav.portfolio'), color: "#ff79c6", size: 20, orbitRadius: 130, speed: 0.4 },
+    { id: "contact", icon: Mail, label: t('nav.contact'), color: "#f1fa8c", size: 18, orbitRadius: 150, speed: 0.35 },
   ];
 
   // Continuous rotation animation
@@ -154,12 +154,12 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
   return (
     <>
       {/* Desktop Solar System Navigation */}
-      <nav className="fixed left-0 top-0 h-screen w-[240px] z-[100] hidden lg:flex items-center justify-center pointer-events-none">
+      <nav className="fixed left-0 top-0 h-screen w-[320px] z-[100] hidden lg:flex items-center justify-center">
         {/* Background fade */}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent pointer-events-none" />
         
-        {/* Solar System Container - adjusted to keep planets visible */}
-        <div className="relative w-[400px] h-[400px] flex items-center justify-center pointer-events-auto" style={{ marginLeft: '-80px' }}>
+        {/* Solar System Container - centered and contained */}
+        <div className="relative w-[340px] h-[340px] flex items-center justify-center" style={{ marginLeft: '10px' }}>
           
           {/* Orbit Rings */}
           {sections.map((section) => (
@@ -285,24 +285,30 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
           })}
         </div>
 
-        {/* Bottom Actions - Fixed Position */}
-        <div className="absolute bottom-8 left-8 flex flex-col gap-3 z-20">
+        {/* Bottom Actions - Fixed Position with proper pointer events */}
+        <div className="absolute bottom-8 left-8 flex flex-col gap-3 z-[101]">
           <button
-            onClick={toggleLanguage}
-            className="w-12 h-12 rounded-full flex items-center justify-center bg-card/80 border border-border/50 hover:bg-primary/20 hover:border-primary/50 transition-all duration-300 backdrop-blur-sm hover:scale-110"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleLanguage();
+            }}
+            className="w-12 h-12 rounded-full flex items-center justify-center bg-card/90 border border-border/50 hover:bg-primary/20 hover:border-primary/50 transition-all duration-300 backdrop-blur-sm hover:scale-110 cursor-pointer"
             title={language === 'en' ? 'Switch to Italian' : 'Switch to English'}
+            type="button"
           >
             <span className="text-sm font-bold text-foreground">{language === 'en' ? 'EN' : 'IT'}</span>
           </button>
 
           <a
             href="/certificates/Filippo_Spazzali_Resume.pdf"
-            download
-            className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-primary to-secondary hover:opacity-90 transition-all duration-300 hover:scale-110 group relative overflow-hidden"
+            download="Filippo_Spazzali_Resume.pdf"
+            className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-primary to-secondary hover:opacity-90 transition-all duration-300 hover:scale-110 group relative overflow-hidden cursor-pointer"
             title={t('nav.downloadCV')}
             style={{
               boxShadow: '0 0 20px rgba(189,147,249,0.4)',
             }}
+            onClick={(e) => e.stopPropagation()}
           >
             <FileDown className="w-5 h-5 text-background group-hover:animate-bounce" />
             <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 rounded-full" />
