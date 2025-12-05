@@ -94,8 +94,13 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
         return (
           <button
             key={`mobile-planet-${section.id}`}
+            type="button"
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              handleSectionClick(section.id);
+            }}
             onClick={() => handleSectionClick(section.id)}
-            className="absolute z-10 group transition-transform duration-300"
+            className="absolute z-10 group transition-transform duration-300 touch-manipulation"
             style={{
               transform: `translate(${pos.x}px, ${pos.y}px)`,
             }}
@@ -349,18 +354,24 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
             {/* Bottom Actions */}
             <div className="flex items-center gap-3 pt-4 border-t border-border/30 mt-4">
               <button
+                type="button"
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  toggleLanguage();
+                }}
                 onClick={toggleLanguage}
-                className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-card/50 border border-border/50 hover:bg-primary/10 transition-colors"
+                className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-card/50 border border-border/50 active:bg-primary/10 transition-colors touch-manipulation"
               >
                 <Languages className="w-4 h-4" />
                 <span className="text-sm font-medium">{language === 'en' ? 'Italiano' : 'English'}</span>
               </button>
               <a
                 href="/certificates/Filippo_Spazzali_Resume.pdf"
-                download
-                className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary group relative overflow-hidden"
+                download="Filippo_Spazzali_Resume.pdf"
+                onTouchEnd={(e) => e.stopPropagation()}
+                className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary relative overflow-hidden touch-manipulation"
               >
-                <FileDown className="w-4 h-4 text-background group-hover:animate-bounce" />
+                <FileDown className="w-4 h-4 text-background" />
                 <span className="text-sm text-background font-medium">{t('nav.downloadCV')}</span>
               </a>
             </div>
