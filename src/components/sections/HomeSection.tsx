@@ -64,7 +64,7 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
 
             {/* Main Title with animated letters - Full name on one line */}
             <div>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-none tracking-tight gradient-text">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-none tracking-tight text-foreground">
                 {fullName.split('').map((letter, i) => (
                   <AnimatedLetter key={i} letter={letter} />
                 ))}
