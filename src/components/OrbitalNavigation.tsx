@@ -101,10 +101,15 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
             key={`mobile-planet-${section.id}`}
             type="button"
             onClick={() => handleSectionClick(section.id)}
-            className="absolute z-10 group transition-transform duration-300 touch-manipulation select-none"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              handleSectionClick(section.id);
+            }}
+            className="absolute z-10 transition-transform duration-300 touch-manipulation select-none"
             style={{
               transform: `translate(${pos.x}px, ${pos.y}px)`,
               WebkitTapHighlightColor: 'transparent',
+              cursor: 'pointer',
             }}
           >
             <div 
@@ -341,8 +346,9 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
           <button
             type="button"
             onClick={handleMobileMenuToggle}
+            onPointerDown={(e) => e.currentTarget.click()}
             className="w-10 h-10 rounded-xl flex items-center justify-center bg-card/50 border border-border/50 touch-manipulation select-none active:bg-primary/20"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
+            style={{ WebkitTapHighlightColor: 'transparent', cursor: 'pointer' }}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -365,8 +371,12 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
               <button
                 type="button"
                 onClick={toggleLanguage}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  toggleLanguage();
+                }}
                 className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-card/50 border border-border/50 active:bg-primary/20 transition-colors touch-manipulation select-none"
-                style={{ WebkitTapHighlightColor: 'transparent' }}
+                style={{ WebkitTapHighlightColor: 'transparent', cursor: 'pointer' }}
               >
                 <Languages className="w-4 h-4" />
                 <span className="text-sm font-medium">{language === 'en' ? 'Italiano' : 'English'}</span>
@@ -374,8 +384,11 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
               <a
                 href="/certificates/Filippo_Spazzali_Resume.pdf"
                 download="Filippo_Spazzali_Resume.pdf"
+                onPointerDown={(e) => {
+                  e.currentTarget.click();
+                }}
                 className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary relative overflow-hidden touch-manipulation select-none"
-                style={{ WebkitTapHighlightColor: 'transparent' }}
+                style={{ WebkitTapHighlightColor: 'transparent', cursor: 'pointer' }}
               >
                 <FileDown className="w-4 h-4 text-background" />
                 <span className="text-sm text-background font-medium">{t('nav.downloadCV')}</span>
