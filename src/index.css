@@ -60,11 +60,13 @@ All colors MUST be HSL.
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
   }
 
   html, body {
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;
   }
 
   body {
@@ -74,6 +76,11 @@ All colors MUST be HSL.
 
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Fix 300ms tap delay on mobile */
+  button, a, [role="button"] {
+    touch-action: manipulation;
   }
 }
 
