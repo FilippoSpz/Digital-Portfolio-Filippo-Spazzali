@@ -6,17 +6,17 @@ interface CosmicBackgroundProps {
 
 const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const currentColorRef = useRef({ h: 265, s: 20, l: 12 });
-  const targetColorRef = useRef({ h: 265, s: 20, l: 12 });
+  const currentColorRef = useRef({ h: 265, s: 15, l: 10 });
+  const targetColorRef = useRef({ h: 265, s: 15, l: 10 });
 
-  // Section-specific background colors matching planet colors (HSL values)
+  // Section-specific background colors - more desaturated and transparent
   const sectionColors = useMemo(() => ({
-    home: { h: 265, s: 35, l: 12 },      // Purple (matching home planet #bd93f9)
-    about: { h: 187, s: 30, l: 11 },     // Cyan (matching about planet #8be9fd)
-    skills: { h: 135, s: 35, l: 10 },    // Green (matching skills planet #50fa7b)
-    certifications: { h: 30, s: 35, l: 12 }, // Orange (matching certifications planet #ffb86c)
-    portfolio: { h: 326, s: 30, l: 12 }, // Pink (matching portfolio planet #ff79c6)
-    contact: { h: 65, s: 30, l: 11 },    // Yellow (matching contact planet #f1fa8c)
+    home: { h: 265, s: 18, l: 10 },      // Purple - more muted
+    about: { h: 187, s: 15, l: 9 },      // Cyan - more muted
+    skills: { h: 135, s: 18, l: 8 },     // Green - more muted
+    certifications: { h: 30, s: 18, l: 10 }, // Orange - more muted
+    portfolio: { h: 326, s: 15, l: 10 }, // Pink - more muted
+    contact: { h: 65, s: 15, l: 9 },     // Yellow - more muted
   }), []);
 
   // Update target color when section changes
@@ -84,7 +84,7 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
       });
     }
 
-    // Nebula colors matching planets
+    // Nebula colors matching planets - more transparent
     const nebulaColors = [
       { r: 189, g: 147, b: 249 }, // Purple
       { r: 139, g: 233, b: 253 }, // Cyan
@@ -101,7 +101,7 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
         y: Math.random() * canvas.height,
         radius: Math.random() * 300 + 150,
         color: `${color.r}, ${color.g}, ${color.b}`,
-        opacity: Math.random() * 0.03 + 0.01,
+        opacity: Math.random() * 0.02 + 0.005, // More transparent
         drift: (Math.random() - 0.5) * 0.06,
       });
     }
@@ -129,7 +129,7 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
       ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw nebulae with dynamic opacity based on section
+      // Draw nebulae with dynamic opacity based on section - more subtle
       nebulae.forEach((nebula) => {
         const gradient = ctx.createRadialGradient(
           nebula.x,
@@ -140,9 +140,9 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
           nebula.radius
         );
         
-        const dynamicOpacity = nebula.opacity * (1 + Math.sin(time * 0.5) * 0.3);
+        const dynamicOpacity = nebula.opacity * (1 + Math.sin(time * 0.5) * 0.2);
         gradient.addColorStop(0, `rgba(${nebula.color}, ${dynamicOpacity})`);
-        gradient.addColorStop(0.5, `rgba(${nebula.color}, ${dynamicOpacity * 0.5})`);
+        gradient.addColorStop(0.5, `rgba(${nebula.color}, ${dynamicOpacity * 0.4})`);
         gradient.addColorStop(1, "transparent");
         
         ctx.fillStyle = gradient;
@@ -219,6 +219,14 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
+      style={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        willChange: 'auto'
+      }}
     />
   );
 };

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Home, User, Code2, Award, Briefcase, Mail, Download, Languages, Menu, X, FileDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import profilePhoto from "@/assets/profile-photo.jpeg";
@@ -31,14 +31,18 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
     return () => clearInterval(interval);
   }, []);
 
-  const toggleLanguage = () => {
+  const toggleLanguage = useCallback(() => {
     setLanguage(language === 'en' ? 'it' : 'en');
-  };
+  }, [language, setLanguage]);
 
-  const handleSectionClick = (sectionId: string) => {
+  const handleSectionClick = useCallback((sectionId: string) => {
     onSectionChange(sectionId);
     setMobileMenuOpen(false);
-  };
+  }, [onSectionChange]);
+
+  const handleMobileMenuToggle = useCallback(() => {
+    setMobileMenuOpen(prev => !prev);
+  }, []);
 
   // Calculate planet position on orbit - keeping planets in visible area
   const getPlanetPosition = (orbitRadius: number, speed: number, baseAngle: number) => {
@@ -70,8 +74,9 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
 
       {/* Central Sun (Profile) */}
       <button
+        type="button"
         onClick={() => handleSectionClick("home")}
-        className="absolute z-20 group"
+        className="absolute z-20 group touch-manipulation"
       >
         <div 
           className="absolute inset-[-15px] rounded-full animate-pulse"
@@ -95,14 +100,11 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
           <button
             key={`mobile-planet-${section.id}`}
             type="button"
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              handleSectionClick(section.id);
-            }}
             onClick={() => handleSectionClick(section.id)}
-            className="absolute z-10 group transition-transform duration-300 touch-manipulation"
+            className="absolute z-10 group transition-transform duration-300 touch-manipulation select-none"
             style={{
               transform: `translate(${pos.x}px, ${pos.y}px)`,
+              WebkitTapHighlightColor: 'transparent',
             }}
           >
             <div 
@@ -324,7 +326,12 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
       {/* Mobile/Tablet Header with Menu Button */}
       <header className="fixed top-0 left-0 right-0 z-[100] lg:hidden">
         <div className="flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur-xl border-b border-border/30">
-          <button onClick={() => handleSectionClick("home")} className="flex items-center gap-3">
+          <button 
+            type="button"
+            onClick={() => handleSectionClick("home")} 
+            className="flex items-center gap-3 touch-manipulation"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+          >
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/50">
               <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
             </div>
@@ -332,8 +339,10 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
           </button>
 
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="w-10 h-10 rounded-xl flex items-center justify-center bg-card/50 border border-border/50"
+            type="button"
+            onClick={handleMobileMenuToggle}
+            className="w-10 h-10 rounded-xl flex items-center justify-center bg-card/50 border border-border/50 touch-manipulation select-none active:bg-primary/20"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -355,12 +364,9 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
             <div className="flex items-center gap-3 pt-4 border-t border-border/30 mt-4">
               <button
                 type="button"
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  toggleLanguage();
-                }}
                 onClick={toggleLanguage}
-                className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-card/50 border border-border/50 active:bg-primary/10 transition-colors touch-manipulation"
+                className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-card/50 border border-border/50 active:bg-primary/20 transition-colors touch-manipulation select-none"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
                 <Languages className="w-4 h-4" />
                 <span className="text-sm font-medium">{language === 'en' ? 'Italiano' : 'English'}</span>
@@ -368,8 +374,8 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
               <a
                 href="/certificates/Filippo_Spazzali_Resume.pdf"
                 download="Filippo_Spazzali_Resume.pdf"
-                onTouchEnd={(e) => e.stopPropagation()}
-                className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary relative overflow-hidden touch-manipulation"
+                className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary relative overflow-hidden touch-manipulation select-none"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
                 <FileDown className="w-4 h-4 text-background" />
                 <span className="text-sm text-background font-medium">{t('nav.downloadCV')}</span>

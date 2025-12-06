@@ -17,6 +17,10 @@ import powerpointIcon from "@/assets/skills/powerpoint.png";
 import outlookIcon from "@/assets/skills/outlook.png";
 import teamsIcon from "@/assets/skills/teams.png";
 import sharepointIcon from "@/assets/skills/sharepoint.png";
+import bashIcon from "@/assets/skills/bash.png";
+import cIcon from "@/assets/skills/c.png";
+import cppIcon from "@/assets/skills/cpp.png";
+import latexIcon from "@/assets/skills/latex.png";
 
 interface SkillsSectionProps {
   isActive: boolean;
@@ -33,6 +37,10 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
       skills: [
         { name: "IntelliJ", icon: intellijIcon },
         { name: "Java", icon: javaIcon },
+        { name: "C", icon: cIcon },
+        { name: "C++", icon: cppIcon },
+        { name: "Bash", icon: bashIcon },
+        { name: "LaTeX", icon: latexIcon },
       ],
     },
     {
@@ -80,6 +88,65 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
     },
   ];
 
+  // First row: Software Programming + Web Programming
+  const row1 = skillCategories.slice(0, 2);
+  // Second row: Databases + Hardware
+  const row2 = skillCategories.slice(2, 4);
+  // Third row: Office alone
+  const row3 = skillCategories.slice(4);
+
+  const renderCard = (category: typeof skillCategories[0], categoryIndex: number) => (
+    <div
+      key={categoryIndex}
+      className="relative flex-1"
+      style={{ animationDelay: `${categoryIndex * 0.1}s` }}
+    >
+      {/* Category Card */}
+      <div className="bg-card/30 rounded-2xl border border-border/30 overflow-hidden h-full">
+        {/* Header */}
+        <div className="p-4 lg:p-6 border-b border-border/30">
+          <div className="flex items-center gap-4 justify-center lg:justify-start">
+            <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center text-background`}>
+              {category.icon}
+            </div>
+            <h3 className="text-lg lg:text-xl font-bold">{t(category.categoryKey)}</h3>
+          </div>
+        </div>
+
+        {/* Skills Grid */}
+        <div className="p-4 lg:p-6">
+          <div className="flex flex-wrap gap-3 lg:gap-4 justify-center lg:justify-start">
+            {category.skills.map((skill, skillIndex) => (
+              <div
+                key={skillIndex}
+                className="group relative"
+              >
+                <div className="relative flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 bg-background/50 rounded-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-105">
+                  {/* Skill Icon Container */}
+                  <div className="relative w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center">
+                    {/* Transparent background circle for icons */}
+                    <div className="absolute inset-0 rounded-lg bg-foreground/5" />
+                    <img
+                      src={skill.icon}
+                      alt={skill.name}
+                      className="relative w-6 h-6 lg:w-8 lg:h-8 object-contain"
+                    />
+                  </div>
+                  
+                  {/* Skill Name */}
+                  <span className="font-medium text-xs lg:text-sm">{skill.name}</span>
+
+                  {/* Hover glow */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <section
       id="skills"
@@ -105,59 +172,22 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
           </p>
         </div>
 
-        {/* Skills Constellation */}
-        <div className="space-y-8">
-          {skillCategories.map((category, categoryIndex) => (
-            <div
-              key={categoryIndex}
-              className="relative"
-              style={{ animationDelay: `${categoryIndex * 0.1}s` }}
-            >
-              {/* Category Card */}
-              <div className="bg-card/30 rounded-2xl border border-border/30 overflow-hidden">
-                {/* Header */}
-                <div className="p-6 border-b border-border/30">
-                  <div className="flex items-center gap-4 justify-center lg:justify-start">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center text-background`}>
-                      {category.icon}
-                    </div>
-                    <h3 className="text-xl font-bold">{t(category.categoryKey)}</h3>
-                  </div>
-                </div>
-
-                {/* Skills Grid */}
-                <div className="p-6">
-                  <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                    {category.skills.map((skill, skillIndex) => (
-                      <div
-                        key={skillIndex}
-                        className="group relative"
-                      >
-                        <div className="relative flex items-center gap-3 px-4 py-3 bg-background/50 rounded-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-105">
-                          {/* Skill Icon Container */}
-                          <div className="relative w-10 h-10 flex items-center justify-center">
-                            {/* Transparent background circle for icons */}
-                            <div className="absolute inset-0 rounded-lg bg-foreground/5" />
-                            <img
-                              src={skill.icon}
-                              alt={skill.name}
-                              className="relative w-8 h-8 object-contain"
-                            />
-                          </div>
-                          
-                          {/* Skill Name */}
-                          <span className="font-medium text-sm">{skill.name}</span>
-
-                          {/* Hover glow */}
-                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* Skills Grid - Two column layout except for Office */}
+        <div className="space-y-6">
+          {/* Row 1: Software Programming + Web Programming */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            {row1.map((category, index) => renderCard(category, index))}
+          </div>
+          
+          {/* Row 2: Databases + Hardware */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            {row2.map((category, index) => renderCard(category, index + 2))}
+          </div>
+          
+          {/* Row 3: Office alone (full width) */}
+          <div className="flex flex-col gap-6">
+            {row3.map((category, index) => renderCard(category, index + 4))}
+          </div>
         </div>
       </div>
     </section>
