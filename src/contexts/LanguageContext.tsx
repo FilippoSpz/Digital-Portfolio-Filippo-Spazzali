@@ -113,6 +113,10 @@ const translations = {
     'skills.category.hardware': 'Hardware & Networking',
     'skills.category.office': 'Office & Productivity',
     
+    // Skill Levels
+    'skills.level.expert': 'Expert',
+    'skills.level.advanced': 'Advanced',
+    
     // Contact
     'contact.title': "Let's Connect",
     'contact.subtitle': "Feel free to reach out to me using any of the contact methods below. I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.",
@@ -225,6 +229,10 @@ const translations = {
     'skills.category.databases': 'Database',
     'skills.category.hardware': 'Hardware & Networking',
     'skills.category.office': 'Office & Produttività',
+    
+    // Skill Levels
+    'skills.level.expert': 'Esperto',
+    'skills.level.advanced': 'Avanzato',
     
     // Contact
     'contact.title': 'Contattami',
