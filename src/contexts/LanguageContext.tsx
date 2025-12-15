@@ -105,7 +105,7 @@ const translations = {
     'portfolio.wartsila.description': 'Designed and developed the initial user interface for a management program during internship at Wärtsilä Italia. Collaborated with the R&D Engineering team.',
     'portfolio.wartsila.category': 'Internship Project',
     'portfolio.ceramiche.title': 'Ceramiche De Simone Website Building',
-    'portfolio.ceramiche.description': 'Built the entire e-commerce website from scratch for Ceramiche De Simone, a traditional Sicilian ceramics brand. Developed a fully functional online store using Odoo platform, implementing custom HTML, CSS, and TypeScript solutions to create a unique shopping experience that showcases their handcrafted products.',
+    'portfolio.ceramiche.description': 'Built an e-commerce website from scratch for a traditional Sicilian ceramics brand using Odoo platform with custom HTML, CSS, and TypeScript solutions.',
     'portfolio.ceramiche.category': 'Web Development',
     'portfolio.technologiesUsed': 'Technologies Used:',
     
@@ -225,7 +225,7 @@ const translations = {
     'portfolio.wartsila.description': 'Ho progettato e sviluppato l\'interfaccia utente iniziale per un programma gestionale durante il tirocinio presso Wärtsilä Italia. Ho collaborato con il team di Ingegneria R&D.',
     'portfolio.wartsila.category': 'Progetto di Stage',
     'portfolio.ceramiche.title': 'Sviluppo Sito Web Ceramiche De Simone',
-    'portfolio.ceramiche.description': 'Ho costruito da zero l\'intero sito e-commerce per Ceramiche De Simone, un marchio tradizionale di ceramiche siciliane. Ho sviluppato un negozio online completamente funzionale utilizzando la piattaforma Odoo, implementando soluzioni personalizzate in HTML, CSS e TypeScript per creare un\'esperienza di acquisto unica che valorizza i loro prodotti artigianali.',
+    'portfolio.ceramiche.description': 'Ho costruito da zero un sito e-commerce per un marchio tradizionale di ceramiche siciliane utilizzando la piattaforma Odoo con soluzioni personalizzate in HTML, CSS e TypeScript.',
     'portfolio.ceramiche.category': 'Sviluppo Web',
     'portfolio.technologiesUsed': 'Tecnologie Utilizzate:',
     
