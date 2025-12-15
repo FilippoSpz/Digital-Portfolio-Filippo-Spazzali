@@ -32,7 +32,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       year: "2025",
       link: "https://magento-1168665-4085035.cloudwaysapps.com/italiano/index",
       image: viaglutImage,
-      color: "from-primary to-secondary",
+      color: "from-cyan-500 to-purple-600",
     },
     {
       titleKey: "portfolio.circolo.title",
@@ -42,7 +42,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       year: "2022-2023",
       link: "https://www.circolofinwar.it/",
       image: circoloImage,
-      color: "from-secondary to-accent",
+      color: "from-orange-500 to-amber-500",
     },
     {
       titleKey: "portfolio.wartsila.title",
@@ -52,7 +52,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       year: "2022",
       link: "https://www.wartsila.com/ita",
       image: wartsilaImage,
-      color: "from-accent to-primary",
+      color: "from-cyan-500 to-purple-600",
     },
   ];
 
