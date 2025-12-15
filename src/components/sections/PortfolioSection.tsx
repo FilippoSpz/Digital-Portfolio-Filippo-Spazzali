@@ -97,11 +97,12 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
                   {/* Gradient overlay */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-20`} />
                   
-                  <div className="absolute inset-0 flex items-center justify-center p-8">
+                  <div className={project.rounded ? "rounded-2xl overflow-hidden bg-background/70 p-3 shadow-sm" : ""}>
                     <img
                       src={project.image}
                       alt={t(project.titleKey)}
-                      className={`w-full h-full object-contain max-w-[200px] max-h-[200px] ${project.rounded ? 'rounded-2xl' : ''}`}
+                      loading="lazy"
+                      className="w-full h-full object-contain max-w-[200px] max-h-[200px]"
                     />
                   </div>
 
