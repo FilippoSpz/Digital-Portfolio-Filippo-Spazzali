@@ -23,6 +23,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       link: "https://coloridisicilia1.odoo.com/",
       image: ceramicheImage,
       color: "from-orange-500 to-amber-500",
+      rounded: true,
     },
     {
       titleKey: "portfolio.viaglut.title",
@@ -33,6 +34,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       link: "https://magento-1168665-4085035.cloudwaysapps.com/italiano/index",
       image: viaglutImage,
       color: "from-cyan-500 to-purple-600",
+      rounded: true,
     },
     {
       titleKey: "portfolio.circolo.title",
@@ -99,7 +101,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
                     <img
                       src={project.image}
                       alt={t(project.titleKey)}
-                      className="w-full h-full object-contain max-w-[200px] max-h-[200px]"
+                      className={`w-full h-full object-contain max-w-[200px] max-h-[200px] ${project.rounded ? 'rounded-2xl' : ''}`}
                     />
                   </div>
 
