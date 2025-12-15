@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import viaglutImage from "@/assets/portfolio/viaglut.png";
 import wartsilaImage from "@/assets/portfolio/wartsila.webp";
 import circoloImage from "@/assets/portfolio/circolo.webp";
+import ceramicheImage from "@/assets/portfolio/ceramiche.png";
 
 interface PortfolioSectionProps {
   isActive: boolean;
@@ -13,6 +14,16 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
   const { t } = useLanguage();
 
   const projects = [
+    {
+      titleKey: "portfolio.ceramiche.title",
+      descriptionKey: "portfolio.ceramiche.description",
+      technologies: ["Odoo", "HTML", "CSS", "TypeScript"],
+      categoryKey: "portfolio.ceramiche.category",
+      year: "2025",
+      link: "https://coloridisicilia1.odoo.com/",
+      image: ceramicheImage,
+      color: "from-orange-500 to-amber-500",
+    },
     {
       titleKey: "portfolio.viaglut.title",
       descriptionKey: "portfolio.viaglut.description",
