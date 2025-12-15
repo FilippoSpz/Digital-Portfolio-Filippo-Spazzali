@@ -29,64 +29,87 @@ interface SkillsSectionProps {
 const SkillsSection = ({ isActive }: SkillsSectionProps) => {
   const { t } = useLanguage();
 
+  // Skills with 4 dots (Advanced): Bash, C, Access, OneNote
+  // All others: 5 dots (Expert)
   const skillCategories = [
     {
       categoryKey: "skills.category.softwareProgramming",
       icon: <Code2 className="w-6 h-6" />,
-      color: "from-primary to-secondary",
+      color: "from-violet-500 to-purple-600",
       skills: [
-        { name: "IntelliJ", icon: intellijIcon },
-        { name: "Java", icon: javaIcon },
-        { name: "C", icon: cIcon },
-        { name: "C++", icon: cppIcon },
-        { name: "Bash", icon: bashIcon },
-        { name: "LaTeX", icon: latexIcon },
+        { name: "IntelliJ", icon: intellijIcon, level: 5 },
+        { name: "Java", icon: javaIcon, level: 5 },
+        { name: "C", icon: cIcon, level: 4 },
+        { name: "C++", icon: cppIcon, level: 5 },
+        { name: "Bash", icon: bashIcon, level: 4 },
+        { name: "LaTeX", icon: latexIcon, level: 5 },
       ],
     },
     {
       categoryKey: "skills.category.webProgramming",
       icon: <Code2 className="w-6 h-6" />,
-      color: "from-secondary to-accent",
+      color: "from-cyan-500 to-blue-600",
       skills: [
-        { name: "HTML", icon: htmlIcon },
-        { name: "CSS", icon: cssIcon },
-        { name: "JavaScript", icon: jsIcon },
-        { name: "TypeScript", icon: typescriptIcon },
+        { name: "HTML", icon: htmlIcon, level: 5 },
+        { name: "CSS", icon: cssIcon, level: 5 },
+        { name: "JavaScript", icon: jsIcon, level: 5 },
+        { name: "TypeScript", icon: typescriptIcon, level: 5 },
       ],
     },
     {
       categoryKey: "skills.category.databases",
       icon: <Database className="w-6 h-6" />,
-      color: "from-accent to-primary",
+      color: "from-emerald-500 to-green-600",
       skills: [
-        { name: "SQL", icon: mysqlIcon },
-        { name: "PHP", icon: phpIcon },
+        { name: "SQL", icon: mysqlIcon, level: 5 },
+        { name: "PHP", icon: phpIcon, level: 5 },
       ],
     },
     {
       categoryKey: "skills.category.hardware",
       icon: <Server className="w-6 h-6" />,
-      color: "from-primary to-accent",
+      color: "from-orange-500 to-amber-600",
       skills: [
-        { name: "Cisco", icon: ciscoIcon },
+        { name: "Cisco", icon: ciscoIcon, level: 5 },
       ],
     },
     {
       categoryKey: "skills.category.office",
       icon: <Wrench className="w-6 h-6" />,
-      color: "from-secondary to-primary",
+      color: "from-pink-500 to-rose-600",
       skills: [
-        { name: "Word", icon: wordIcon },
-        { name: "Excel", icon: excelIcon },
-        { name: "Teams", icon: teamsIcon },
-        { name: "SharePoint", icon: sharepointIcon },
-        { name: "Outlook", icon: outlookIcon },
-        { name: "PowerPoint", icon: powerpointIcon },
-        { name: "OneNote", icon: onenoteIcon },
-        { name: "Access", icon: accessIcon },
+        { name: "Word", icon: wordIcon, level: 5 },
+        { name: "Excel", icon: excelIcon, level: 5 },
+        { name: "Teams", icon: teamsIcon, level: 5 },
+        { name: "SharePoint", icon: sharepointIcon, level: 5 },
+        { name: "Outlook", icon: outlookIcon, level: 5 },
+        { name: "PowerPoint", icon: powerpointIcon, level: 5 },
+        { name: "OneNote", icon: onenoteIcon, level: 4 },
+        { name: "Access", icon: accessIcon, level: 4 },
       ],
     },
   ];
+
+  const renderDots = (level: number, color: string) => {
+    return (
+      <div className="flex gap-1 mt-1">
+        {[1, 2, 3, 4, 5].map((dot) => (
+          <div
+            key={dot}
+            className={`w-2 h-2 rounded-full transition-all ${
+              dot <= level 
+                ? `bg-gradient-to-r ${color}` 
+                : 'bg-muted-foreground/30'
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const getLevelLabel = (level: number) => {
+    return level === 5 ? t('skills.level.expert') : t('skills.level.advanced');
+  };
 
   // First row: Software Programming + Web Programming
   const row1 = skillCategories.slice(0, 2);
@@ -115,26 +138,31 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
 
         {/* Skills Grid */}
         <div className="p-4 lg:p-6">
-          <div className="flex flex-wrap gap-3 lg:gap-4 justify-center lg:justify-start">
+          <div className="flex flex-wrap gap-4 lg:gap-6 justify-center lg:justify-start">
             {category.skills.map((skill, skillIndex) => (
               <div
                 key={skillIndex}
                 className="group relative"
               >
-                <div className="relative flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 bg-background/50 rounded-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-105">
+                <div className="relative flex flex-col items-center gap-2 px-4 py-3 bg-background/50 rounded-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-105 min-w-[100px]">
                   {/* Skill Icon Container */}
-                  <div className="relative w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center">
-                    {/* Transparent background circle for icons */}
+                  <div className="relative w-12 h-12 flex items-center justify-center">
                     <div className="absolute inset-0 rounded-lg bg-foreground/5" />
                     <img
                       src={skill.icon}
                       alt={skill.name}
-                      className="relative w-6 h-6 lg:w-8 lg:h-8 object-contain"
+                      className="relative w-10 h-10 object-contain"
                     />
                   </div>
                   
                   {/* Skill Name */}
-                  <span className="font-medium text-xs lg:text-sm">{skill.name}</span>
+                  <span className="font-medium text-sm text-center">{skill.name}</span>
+
+                  {/* Proficiency Dots */}
+                  {renderDots(skill.level, category.color)}
+                  
+                  {/* Level Label */}
+                  <span className="text-xs text-muted-foreground">{getLevelLabel(skill.level)}</span>
 
                   {/* Hover glow */}
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
