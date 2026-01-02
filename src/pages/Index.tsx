@@ -7,7 +7,6 @@ import SkillsSection from "@/components/sections/SkillsSection";
 import CertificationsSection from "@/components/sections/CertificationsSection";
 import PortfolioSection from "@/components/sections/PortfolioSection";
 import ContactSection from "@/components/sections/ContactSection";
-import ThemeToggle from "@/components/ThemeToggle";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("home");
@@ -51,9 +50,6 @@ const Index = () => {
         activeSection={activeSection} 
         onSectionChange={handleSectionChange} 
       />
-      
-      {/* Floating Theme Toggle */}
-      <ThemeToggle />
       
       {/* Mobile/Tablet top padding for header */}
       <div className="lg:hidden h-16" />

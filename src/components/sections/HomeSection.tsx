@@ -3,7 +3,6 @@ import { ArrowRight, Download, Linkedin, Github, Instagram, FileDown } from "luc
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import profilePhoto from "@/assets/profile-photo.jpeg";
-import StatsCounter from "@/components/StatsCounter";
 
 interface HomeSectionProps {
   isActive: boolean;
@@ -156,11 +155,6 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
               />
             </div>
           </div>
-        </div>
-
-        {/* Stats Counter */}
-        <div className="mt-16 lg:mt-24 max-w-4xl mx-auto">
-          <StatsCounter />
         </div>
       </div>
 

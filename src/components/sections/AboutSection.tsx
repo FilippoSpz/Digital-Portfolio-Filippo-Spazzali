@@ -1,7 +1,6 @@
 import { Briefcase, GraduationCap, ExternalLink, Languages, MapPin, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import Timeline from "@/components/Timeline";
 
 interface AboutSectionProps {
   isActive: boolean;
@@ -111,9 +110,6 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
             </p>
           </div>
         </div>
-
-        {/* Animated Timeline */}
-        <Timeline />
 
         {/* Two Column Layout */}
         <div className="grid lg:grid-cols-2 gap-12">

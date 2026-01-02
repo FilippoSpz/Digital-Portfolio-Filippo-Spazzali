@@ -55,45 +55,6 @@ All colors MUST be HSL.
     /* Animations */
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
-  /* Light theme */
-  .light {
-    --background: 60 30% 96%;
-    --foreground: 231 15% 18%;
-
-    --card: 60 20% 92%;
-    --card-foreground: 231 15% 18%;
-
-    --popover: 60 20% 92%;
-    --popover-foreground: 231 15% 18%;
-
-    --primary: 265 89% 58%;
-    --primary-foreground: 60 30% 96%;
-
-    --secondary: 191 97% 47%;
-    --secondary-foreground: 60 30% 96%;
-
-    --muted: 60 10% 85%;
-    --muted-foreground: 231 15% 40%;
-
-    --accent: 326 100% 54%;
-    --accent-foreground: 60 30% 96%;
-
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 60 30% 96%;
-
-    --border: 231 15% 80%;
-    --input: 231 15% 80%;
-    --ring: 265 89% 58%;
-
-    /* Custom Light portfolio colors */
-    --gradient-start: 265 89% 58%;
-    --gradient-end: 326 100% 54%;
-    --glow: 265 89% 58%;
-    --hero-bg: 60 30% 96%;
-    --hero-text: 231 15% 18%;
-    --glass-bg: 60 20% 92%;
-  }
 }
 
 @layer base {
