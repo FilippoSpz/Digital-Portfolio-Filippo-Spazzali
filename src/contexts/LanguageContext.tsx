@@ -38,12 +38,17 @@ const translations = {
     'about.languagesText': 'Proficient',
     'about.nativeLevel': 'Native',
     'about.viewInstitute': 'View Institute',
+    'about.viewPortfolio': 'View Portfolio',
     'about.contactCTA': "Interested in working together? Let's connect and discuss your project.",
     'about.getInTouch': 'Get In Touch',
     
     // Work Experience
     'experience.webDeveloper': 'Web Developer',
     'experience.intern': 'Intern',
+    'experience.ceramiche.desc1': 'Built a complete e-commerce website from scratch using Odoo platform with custom HTML, CSS, and TypeScript solutions.',
+    'experience.ceramiche.desc2': 'Designed and implemented user-friendly interfaces tailored for traditional Sicilian ceramics showcase.',
+    'experience.artigiani.desc1': 'Developed a complete e-commerce platform for artisan pipe makers using Odoo with modern web technologies.',
+    'experience.artigiani.desc2': 'Created custom solutions to showcase handcrafted products with an elegant user experience.',
     'experience.viaglut.desc1': 'Identified and resolved various issues, revamping and optimizing site sections using Magento and effectively integrating HTML and CSS.',
     'experience.viaglut.desc2': 'Created intuitive and user-oriented web pages to enhance browsing experience, managing the entire process independently.',
     'experience.circolo.desc1': 'Developed a private management software from scratch using HTML, CSS, and JavaScript',
@@ -105,8 +110,11 @@ const translations = {
     'portfolio.wartsila.description': 'Designed and developed the initial user interface for a management program during internship at Wärtsilä Italia. Collaborated with the R&D Engineering team.',
     'portfolio.wartsila.category': 'Internship Project',
     'portfolio.ceramiche.title': 'Ceramiche De Simone Website Building',
-    'portfolio.ceramiche.description': 'Built an e-commerce website from scratch for a traditional Sicilian ceramics brand using Odoo platform with custom HTML, CSS, and TypeScript solutions.',
+    'portfolio.ceramiche.description': 'Built an e-commerce website from scratch for a traditional Sicilian ceramics brand using Odoo platform.',
     'portfolio.ceramiche.category': 'Web Development',
+    'portfolio.artigiani.title': 'Artigiani della Pipa Website Building',
+    'portfolio.artigiani.description': 'Developed a complete e-commerce platform for artisan pipe makers, crafting custom solutions with Odoo and modern web technologies.',
+    'portfolio.artigiani.category': 'Web Development',
     'portfolio.technologiesUsed': 'Technologies Used:',
     
     // Skills Categories
@@ -158,12 +166,17 @@ const translations = {
     'about.languagesText': 'Avanzato',
     'about.nativeLevel': 'Madrelingua',
     'about.viewInstitute': 'Visualizza Istituto',
+    'about.viewPortfolio': 'Vedi Portfolio',
     'about.contactCTA': 'Interessato a lavorare insieme? Mettiamoci in contatto per discutere del tuo progetto.',
     'about.getInTouch': 'Contattami',
     
     // Work Experience
     'experience.webDeveloper': 'Web Developer',
     'experience.intern': 'Stagista',
+    'experience.ceramiche.desc1': 'Ho costruito da zero un sito e-commerce completo utilizzando la piattaforma Odoo con soluzioni personalizzate in HTML, CSS e TypeScript.',
+    'experience.ceramiche.desc2': 'Ho progettato e implementato interfacce user-friendly pensate per la vetrina di ceramiche siciliane tradizionali.',
+    'experience.artigiani.desc1': 'Ho sviluppato una piattaforma e-commerce completa per artigiani produttori di pipe utilizzando Odoo con tecnologie web moderne.',
+    'experience.artigiani.desc2': 'Ho creato soluzioni personalizzate per mettere in mostra prodotti artigianali con un\'esperienza utente elegante.',
     'experience.viaglut.desc1': 'Ho individuato e risolto diverse problematiche, rinnovando e ottimizzando sezioni del sito utilizzando Magento e integrando efficacemente HTML e CSS.',
     'experience.viaglut.desc2': 'Ho realizzato pagine web intuitive e orientate all\'utente per migliorare l\'esperienza di navigazione, gestendo l\'intero processo in autonomia.',
     'experience.circolo.desc1': 'Ho sviluppato da zero un software gestionale privato utilizzando HTML, CSS e JavaScript',
@@ -225,8 +238,11 @@ const translations = {
     'portfolio.wartsila.description': 'Ho progettato e sviluppato l\'interfaccia utente iniziale per un programma gestionale durante il tirocinio presso Wärtsilä Italia. Ho collaborato con il team di Ingegneria R&D.',
     'portfolio.wartsila.category': 'Progetto di Stage',
     'portfolio.ceramiche.title': 'Sviluppo Sito Web Ceramiche De Simone',
-    'portfolio.ceramiche.description': 'Ho costruito da zero un sito e-commerce per un marchio tradizionale di ceramiche siciliane utilizzando la piattaforma Odoo con soluzioni personalizzate in HTML, CSS e TypeScript.',
+    'portfolio.ceramiche.description': 'Ho costruito da zero un sito e-commerce per un marchio tradizionale di ceramiche siciliane utilizzando Odoo.',
     'portfolio.ceramiche.category': 'Sviluppo Web',
+    'portfolio.artigiani.title': 'Sviluppo Sito Web Artigiani della Pipa',
+    'portfolio.artigiani.description': 'Ho sviluppato una piattaforma e-commerce completa per artigiani produttori di pipe, creando soluzioni personalizzate con Odoo e tecnologie web moderne.',
+    'portfolio.artigiani.category': 'Sviluppo Web',
     'portfolio.technologiesUsed': 'Tecnologie Utilizzate:',
     
     // Skills Categories
