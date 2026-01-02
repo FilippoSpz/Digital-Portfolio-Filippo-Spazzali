@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 
 interface CosmicBackgroundProps {
   activeSection: string;
@@ -8,6 +8,16 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const currentColorRef = useRef({ h: 265, s: 15, l: 10 });
   const targetColorRef = useRef({ h: 265, s: 15, l: 10 });
+  const [scrollY, setScrollY] = useState(0);
+
+  // Parallax scroll listener
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Section-specific background colors - more desaturated and transparent
   const sectionColors = useMemo(() => ({
@@ -215,19 +225,33 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
     };
   }, []);
 
+  const parallaxOffset = scrollY * 0.1;
+
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ 
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        willChange: 'auto'
-      }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{ 
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          willChange: 'auto',
+          transform: `translateY(${parallaxOffset}px)`,
+        }}
+      />
+      {/* Parallax floating elements */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
+        style={{ transform: `translateY(${scrollY * 0.05}px)` }}
+      >
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute top-1/2 right-1/4 w-96 h-96 rounded-full bg-secondary/5 blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 rounded-full bg-accent/5 blur-3xl" />
+      </div>
+    </>
   );
 };
 

@@ -143,15 +143,16 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
               <div
                 key={skillIndex}
                 className="group relative"
+                style={{ animationDelay: `${skillIndex * 50}ms` }}
               >
-                <div className="relative flex flex-col items-center gap-2 px-4 py-3 bg-background/50 rounded-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-105 min-w-[100px]">
+                <div className="relative flex flex-col items-center gap-2 px-4 py-3 bg-background/50 rounded-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-110 hover:-translate-y-1 min-w-[100px] group-hover:shadow-lg group-hover:shadow-primary/20">
                   {/* Skill Icon Container */}
-                  <div className="relative w-12 h-12 flex items-center justify-center">
-                    <div className="absolute inset-0 rounded-lg bg-foreground/5" />
+                  <div className="relative w-12 h-12 flex items-center justify-center transition-transform duration-300 group-hover:rotate-6">
+                    <div className="absolute inset-0 rounded-lg bg-foreground/5 group-hover:bg-primary/10 transition-colors duration-300" />
                     <img
                       src={skill.icon}
                       alt={skill.name}
-                      className="relative w-10 h-10 object-contain"
+                      className="relative w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-110"
                     />
                   </div>
                   
@@ -165,7 +166,7 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
                   <span className="text-xs text-muted-foreground">{getLevelLabel(skill.level)}</span>
 
                   {/* Hover glow */}
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 </div>
               </div>
             ))}

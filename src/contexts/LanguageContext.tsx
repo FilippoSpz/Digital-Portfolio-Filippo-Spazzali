@@ -136,6 +136,15 @@ const translations = {
     'contact.linkedin': 'LinkedIn',
     'contact.github': 'GitHub',
     'contact.instagram': 'Instagram',
+    
+    // Stats
+    'stats.projects': 'Projects Completed',
+    'stats.yearsExperience': 'Years Experience',
+    'stats.technologies': 'Technologies',
+    
+    // Timeline
+    'timeline.title': 'My Journey',
+    'timeline.subtitle': 'Work experience and education combined',
   },
   it: {
     // Navigation
@@ -264,6 +273,15 @@ const translations = {
     'contact.linkedin': 'LinkedIn',
     'contact.github': 'GitHub',
     'contact.instagram': 'Instagram',
+    
+    // Stats
+    'stats.projects': 'Progetti Completati',
+    'stats.yearsExperience': 'Anni di Esperienza',
+    'stats.technologies': 'Tecnologie',
+    
+    // Timeline
+    'timeline.title': 'Il Mio Percorso',
+    'timeline.subtitle': 'Esperienza lavorativa e formazione',
   },
 };
 
