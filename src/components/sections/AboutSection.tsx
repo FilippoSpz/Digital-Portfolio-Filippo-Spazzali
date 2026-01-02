@@ -12,6 +12,22 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
   const experiences = [
     {
       roleKey: "experience.webDeveloper",
+      company: "Ceramiche De Simone",
+      period: "2025",
+      location: "Sicily, Italy",
+      link: "https://coloridisicilia1.odoo.com/",
+      descriptionKeys: ["experience.ceramiche.desc1", "experience.ceramiche.desc2"],
+    },
+    {
+      roleKey: "experience.webDeveloper",
+      company: "Artigiani della Pipa",
+      period: "2025",
+      location: "Italy",
+      link: "https://artigianidellapipa.odoo.com/",
+      descriptionKeys: ["experience.artigiani.desc1", "experience.artigiani.desc2"],
+    },
+    {
+      roleKey: "experience.webDeveloper",
       company: "ViaGlut",
       period: "2025",
       location: "Trieste, Italy",
@@ -104,6 +120,14 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
                 <Briefcase className="w-6 h-6 text-background" />
               </div>
               <h3 className="text-2xl font-bold">{t('about.experience')}</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-auto border-primary/50 hover:bg-primary/10"
+                onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                {t('about.viewPortfolio')}
+              </Button>
             </div>
 
             <div className="relative">

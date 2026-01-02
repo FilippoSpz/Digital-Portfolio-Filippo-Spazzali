@@ -5,6 +5,7 @@ import viaglutImage from "@/assets/portfolio/viaglut.png";
 import wartsilaImage from "@/assets/portfolio/wartsila.webp";
 import circoloImage from "@/assets/portfolio/circolo.webp";
 import ceramicheImage from "@/assets/portfolio/ceramiche.png";
+import artigianiImage from "@/assets/portfolio/artigiani.png";
 
 interface PortfolioSectionProps {
   isActive: boolean;
@@ -26,6 +27,18 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       rounded: true,
     },
     {
+      titleKey: "portfolio.artigiani.title",
+      descriptionKey: "portfolio.artigiani.description",
+      technologies: ["Odoo", "HTML", "CSS", "TypeScript"],
+      categoryKey: "portfolio.artigiani.category",
+      year: "2025",
+      link: "https://artigianidellapipa.odoo.com/",
+      image: artigianiImage,
+      color: "from-cyan-500 to-purple-600",
+      rounded: true,
+      whiteBg: true,
+    },
+    {
       titleKey: "portfolio.viaglut.title",
       descriptionKey: "portfolio.viaglut.description",
       technologies: ["Magento", "HTML", "CSS", "JavaScript"],
@@ -33,7 +46,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       year: "2025",
       link: "https://magento-1168665-4085035.cloudwaysapps.com/italiano/index",
       image: viaglutImage,
-      color: "from-cyan-500 to-purple-600",
+      color: "from-orange-500 to-amber-500",
       rounded: true,
     },
     {
@@ -44,7 +57,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       year: "2022-2023",
       link: "https://www.circolofinwar.it/",
       image: circoloImage,
-      color: "from-orange-500 to-amber-500",
+      color: "from-cyan-500 to-purple-600",
     },
     {
       titleKey: "portfolio.wartsila.title",
@@ -54,7 +67,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       year: "2022",
       link: "https://www.wartsila.com/ita",
       image: wartsilaImage,
-      color: "from-cyan-500 to-purple-600",
+      color: "from-orange-500 to-amber-500",
     },
   ];
 
@@ -101,7 +114,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
                     <img
                       src={project.image}
                       alt={t(project.titleKey)}
-                      className={`w-full h-full object-contain max-w-[200px] max-h-[200px] ${project.rounded ? 'rounded-2xl' : ''}`}
+                      className={`w-full h-full object-contain max-w-[200px] max-h-[200px] ${project.rounded ? 'rounded-2xl' : ''} ${project.whiteBg ? 'bg-white p-2' : ''}`}
                     />
                   </div>
 
