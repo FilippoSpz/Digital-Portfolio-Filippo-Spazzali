@@ -25,7 +25,6 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       image: ceramicheImage,
       color: "from-orange-500 to-amber-500",
       rounded: true,
-      whiteBg: true,
     },
     {
       titleKey: "portfolio.artigiani.title",
@@ -164,9 +163,9 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
                   </div>
 
                   {/* Action */}
-                  <div className="relative z-10">
+                  <div>
                     <Button
-                      className="bg-gradient-to-r from-primary to-secondary hover:scale-105 hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 group/btn"
+                      className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 group/btn"
                       asChild
                     >
                       <a href={project.link} target="_blank" rel="noopener noreferrer">
