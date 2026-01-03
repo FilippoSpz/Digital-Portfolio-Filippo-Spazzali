@@ -70,7 +70,7 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
       icon: <Server className="w-6 h-6" />,
       color: "from-orange-500 to-amber-600",
       skills: [
-        { name: "Cisco", icon: ciscoIcon, level: 5 },
+        { name: "Cisco", icon: ciscoIcon, level: 4 },
       ],
     },
     {

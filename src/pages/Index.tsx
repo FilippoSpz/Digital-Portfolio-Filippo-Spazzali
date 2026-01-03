@@ -7,9 +7,11 @@ import SkillsSection from "@/components/sections/SkillsSection";
 import CertificationsSection from "@/components/sections/CertificationsSection";
 import PortfolioSection from "@/components/sections/PortfolioSection";
 import ContactSection from "@/components/sections/ContactSection";
+import { useParallax } from "@/hooks/useParallax";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("home");
+  const parallaxOffset = useParallax({ speed: 0.15 });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,8 +45,13 @@ const Index = () => {
 
   return (
     <div className="relative">
-      {/* Dynamic Cosmic Background */}
-      <CosmicBackground activeSection={activeSection} />
+      {/* Dynamic Cosmic Background with parallax */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{ transform: `translateY(${parallaxOffset}px)` }}
+      >
+        <CosmicBackground activeSection={activeSection} />
+      </div>
       
       <OrbitalNavigation 
         activeSection={activeSection} 

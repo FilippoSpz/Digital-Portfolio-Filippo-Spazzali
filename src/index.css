@@ -8,14 +8,14 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Dracula Dark Theme - Default */
-    --background: 231 15% 18%;
+    /* Deep Black Theme */
+    --background: 0 0% 3%;
     --foreground: 60 30% 96%;
 
-    --card: 232 14% 21%;
+    --card: 0 0% 8%;
     --card-foreground: 60 30% 96%;
 
-    --popover: 232 14% 21%;
+    --popover: 0 0% 8%;
     --popover-foreground: 60 30% 96%;
 
     --primary: 265 89% 78%;
@@ -24,8 +24,8 @@ All colors MUST be HSL.
     --secondary: 191 97% 77%;
     --secondary-foreground: 231 15% 18%;
 
-    --muted: 232 14% 31%;
-    --muted-foreground: 225 27% 51%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
 
     --accent: 326 100% 74%;
     --accent-foreground: 231 15% 18%;
@@ -33,8 +33,8 @@ All colors MUST be HSL.
     --destructive: 0 100% 67%;
     --destructive-foreground: 60 30% 96%;
 
-    --border: 232 14% 31%;
-    --input: 232 14% 31%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
     --ring: 265 89% 78%;
 
     --radius: 1rem;
@@ -43,9 +43,9 @@ All colors MUST be HSL.
     --gradient-start: 265 89% 78%;
     --gradient-end: 326 100% 74%;
     --glow: 265 89% 78%;
-    --hero-bg: 231 15% 18%;
+    --hero-bg: 0 0% 3%;
     --hero-text: 60 30% 96%;
-    --glass-bg: 232 14% 21%;
+    --glass-bg: 0 0% 8%;
     
     /* Additional Dracula colors */
     --dracula-green: 135 94% 65%;

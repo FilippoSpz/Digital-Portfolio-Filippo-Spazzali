@@ -127,11 +127,12 @@ const CertificationsSection = ({ isActive }: CertificationsSectionProps) => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-border/50 hover:bg-primary/10"
+                    className="flex-1 border-border/50 hover:bg-primary/10"
                     asChild
                   >
                     <a href={cert.file} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-4 w-4" />
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      {t('certifications.view')}
                     </a>
                   </Button>
                 </div>
