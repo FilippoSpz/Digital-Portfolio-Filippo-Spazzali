@@ -6,17 +6,17 @@ interface CosmicBackgroundProps {
 
 const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const currentColorRef = useRef({ h: 265, s: 15, l: 10 });
-  const targetColorRef = useRef({ h: 265, s: 15, l: 10 });
+  const currentColorRef = useRef({ h: 0, s: 0, l: 3 });
+  const targetColorRef = useRef({ h: 0, s: 0, l: 3 });
 
-  // Section-specific background colors - more desaturated and transparent
+  // Section-specific background colors - black base with subtle tints
   const sectionColors = useMemo(() => ({
-    home: { h: 265, s: 18, l: 10 },      // Purple - more muted
-    about: { h: 187, s: 15, l: 9 },      // Cyan - more muted
-    skills: { h: 135, s: 18, l: 8 },     // Green - more muted
-    certifications: { h: 30, s: 18, l: 10 }, // Orange - more muted
-    portfolio: { h: 326, s: 15, l: 10 }, // Pink - more muted
-    contact: { h: 65, s: 15, l: 9 },     // Yellow - more muted
+    home: { h: 265, s: 5, l: 3 },      // Slight purple tint
+    about: { h: 187, s: 5, l: 3 },      // Slight cyan tint
+    skills: { h: 135, s: 5, l: 3 },     // Slight green tint
+    certifications: { h: 30, s: 5, l: 3 }, // Slight orange tint
+    portfolio: { h: 326, s: 5, l: 3 }, // Slight pink tint
+    contact: { h: 65, s: 5, l: 3 },     // Slight yellow tint
   }), []);
 
   // Update target color when section changes

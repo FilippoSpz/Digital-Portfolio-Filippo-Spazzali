@@ -12,9 +12,9 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
   const experiences = [
     {
       roleKey: "experience.webDeveloper",
-      company: "Ceramiche De Simone",
+      company: "Colori di Sicilia",
       period: "2025",
-      location: "Sicily, Italy",
+      location: "Trieste, Italy",
       link: "https://coloridisicilia1.odoo.com/",
       descriptionKeys: ["experience.ceramiche.desc1", "experience.ceramiche.desc2"],
     },
@@ -22,7 +22,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
       roleKey: "experience.webDeveloper",
       company: "Artigiani della Pipa",
       period: "2025",
-      location: "Italy",
+      location: "Trieste, Italy",
       link: "https://artigianidellapipa.odoo.com/",
       descriptionKeys: ["experience.artigiani.desc1", "experience.artigiani.desc2"],
     },
@@ -123,7 +123,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
               <Button
                 variant="outline"
                 size="sm"
-                className="ml-auto border-primary/50 hover:bg-primary/10"
+                className="ml-auto border-primary/50 hover:bg-primary/10 text-foreground"
                 onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 {t('about.viewPortfolio')}
@@ -206,7 +206,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-secondary/50 hover:bg-secondary/10"
+                          className="border-secondary/50 hover:bg-secondary/10 text-foreground"
                           asChild
                         >
                           <a href={edu.link} target="_blank" rel="noopener noreferrer">
