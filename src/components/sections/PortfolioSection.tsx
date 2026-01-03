@@ -25,6 +25,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       image: ceramicheImage,
       color: "from-orange-500 to-amber-500",
       rounded: true,
+      whiteBg: true,
     },
     {
       titleKey: "portfolio.artigiani.title",
