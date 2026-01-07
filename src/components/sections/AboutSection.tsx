@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { Briefcase, GraduationCap, ExternalLink, Languages, MapPin, Calendar, User } from "lucide-react";
+import { Briefcase, GraduationCap, Languages, MapPin, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -80,7 +80,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     const handleWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
         e.preventDefault();
-        scrollVelocity += e.deltaY * 1.5;
+        scrollVelocity += e.deltaY * 0.6;
         cancelAnimationFrame(animationId);
         animationId = requestAnimationFrame(smoothScroll);
       }
@@ -163,11 +163,11 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     english: language === 'en' ? 'English' : 'Inglese',
   };
 
-  // Generate asteroids - clustered in carousel area
+  // Generate asteroids - spread across carousel area with more space to the left
   const asteroids = Array.from({ length: 40 }, (_, i) => ({
     id: i,
     top: `${10 + Math.random() * 80}%`,
-    right: `${Math.random() * 12}%`,
+    right: `${Math.random() * 25}%`,
     size: 6 + Math.random() * 24,
     animationDelay: `${Math.random() * 8}s`,
     animationDuration: `${8 + Math.random() * 12}s`,
@@ -191,10 +191,10 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
               <span className="text-sm font-medium text-secondary">{t('nav.about')}</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold italic">
-              Journey Through Space & Time
+              {t('about.workExperience')} & {t('about.education')}
             </h2>
             <p className="text-lg text-muted-foreground mt-2">
-              Scroll horizontally to explore my experience timeline
+              {t('about.careerJourney')}
             </p>
           </div>
           <Button
@@ -238,8 +238,8 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
           }}
         />
 
-        {/* Asteroids in carousel area */}
-        <div className="absolute right-0 top-0 h-full w-[250px] pointer-events-none z-10 overflow-visible">
+        {/* Asteroids in carousel area - wider spread */}
+        <div className="absolute right-0 top-0 h-full w-[400px] pointer-events-none z-10 overflow-visible">
           {asteroids.map((asteroid) => (
             <Asteroid
               key={asteroid.id}
@@ -293,12 +293,14 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
                   }}
                 />
                 
-                {/* Card */}
-                <div 
+                {/* Card - auto height */}
+                <a 
+                  href={exp.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
                   className={`
-                    bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border/50 
+                    block bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border/50 
                     hover:border-${accentColor}/50 transition-all duration-300 hover:scale-[1.02]
-                    h-[280px] flex flex-col
                   `}
                 >
                   {/* Icon */}
@@ -332,24 +334,11 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
 
                   {/* Description (work only) */}
                   {!isEducation && exp.descriptionKeys && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 flex-grow">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
                       {t(exp.descriptionKeys[0])}
                     </p>
                   )}
-
-                  {/* View Link */}
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className={`p-0 h-auto mt-auto ${isEducation ? 'text-secondary' : 'text-primary'}`}
-                    asChild
-                  >
-                    <a href={exp.link} target="_blank" rel="noopener noreferrer">
-                      Click to expand
-                      <ExternalLink className="ml-1 h-3 w-3" />
-                    </a>
-                  </Button>
-                </div>
+                </a>
               </div>
             );
           })}
