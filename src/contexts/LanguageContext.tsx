@@ -39,6 +39,7 @@ const translations = {
     'about.nativeLevel': 'Native',
     'about.viewInstitute': 'View Institute',
     'about.viewPortfolio': 'View Portfolio',
+    'about.viewProject': 'View Project',
     'about.contactCTA': "Interested in working together? Let's connect and discuss your project.",
     'about.getInTouch': 'Get In Touch',
     
@@ -167,6 +168,7 @@ const translations = {
     'about.nativeLevel': 'Madrelingua',
     'about.viewInstitute': 'Visualizza Istituto',
     'about.viewPortfolio': 'Vedi Portfolio',
+    'about.viewProject': 'Vedi Progetto',
     'about.contactCTA': 'Interessato a lavorare insieme? Mettiamoci in contatto per discutere del tuo progetto.',
     'about.getInTouch': 'Contattami',
     
