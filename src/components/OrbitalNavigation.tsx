@@ -167,8 +167,14 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
     <>
       {/* Desktop Solar System Navigation */}
       <nav className="fixed left-0 top-0 h-screen w-[320px] z-[100] hidden lg:flex items-center justify-center">
-        {/* Background fade */}
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent pointer-events-none" />
+        {/* Background shadow - dark gradient on left */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0.4) 70%, transparent 100%)',
+            boxShadow: '20px 0 60px 30px rgba(0,0,0,0.5)',
+          }}
+        />
         
         {/* Solar System Container - centered and contained */}
         <div className="relative w-[340px] h-[340px] flex items-center justify-center" style={{ marginLeft: '10px' }}>
