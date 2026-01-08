@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { Briefcase, GraduationCap, Languages, MapPin, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -7,44 +7,36 @@ interface AboutSectionProps {
   isActive: boolean;
 }
 
-// Realistic asteroid component with craters
-const Asteroid = ({ style, size }: { style: React.CSSProperties; size: number }) => {
-  const craterCount = Math.floor(size / 8);
+// Edgy asteroid component with angular shape
+const Asteroid = ({ style, size, rotation }: { style: React.CSSProperties; size: number; rotation: number }) => {
+  const clipPath = useMemo(() => {
+    const points = 7 + Math.floor(Math.random() * 4);
+    return Array.from({ length: points }, (_, i) => {
+      const angle = (i / points) * 360;
+      const variance = 15 + Math.random() * 25;
+      const r = 50 - variance + Math.random() * variance * 2;
+      const x = 50 + r * Math.cos((angle * Math.PI) / 180);
+      const y = 50 + r * Math.sin((angle * Math.PI) / 180);
+      return `${x}% ${y}%`;
+    }).join(', ');
+  }, []);
+
   return (
     <div
-      className="absolute"
+      className="absolute asteroid-float"
       style={{
         ...style,
         width: size,
-        height: size * 0.8,
-        borderRadius: `${40 + Math.random() * 20}% ${50 + Math.random() * 20}% ${45 + Math.random() * 20}% ${55 + Math.random() * 20}%`,
-        background: `
-          radial-gradient(ellipse at 25% 25%, #9a8a7a 0%, #6b5a4a 40%, #4a3d32 70%, #2d2420 100%)
-        `,
+        height: size,
+        clipPath: `polygon(${clipPath})`,
+        background: `radial-gradient(ellipse at 30% 30%, #8a7a6a 0%, #5a4a3a 30%, #3a2d25 60%, #1d1612 100%)`,
         boxShadow: `
-          inset -${size/3}px -${size/4}px ${size/2}px rgba(0,0,0,0.6),
-          inset ${size/6}px ${size/6}px ${size/4}px rgba(255,255,255,0.08),
-          0 0 ${size/4}px rgba(0,0,0,0.5)
+          inset -${size/4}px -${size/4}px ${size/2}px rgba(0,0,0,0.7),
+          inset ${size/8}px ${size/8}px ${size/4}px rgba(255,255,255,0.1)
         `,
-        transform: `rotate(${Math.random() * 360}deg)`,
+        transform: `rotate(${rotation}deg)`,
       }}
-    >
-      {/* Craters */}
-      {Array.from({ length: craterCount }).map((_, i) => (
-        <div
-          key={i}
-          className="absolute rounded-full"
-          style={{
-            width: size * (0.1 + Math.random() * 0.15),
-            height: size * (0.08 + Math.random() * 0.12),
-            top: `${20 + Math.random() * 60}%`,
-            left: `${15 + Math.random() * 60}%`,
-            background: 'radial-gradient(ellipse at 60% 40%, #3d3027 0%, #2a221c 100%)',
-            boxShadow: `inset ${size * 0.02}px ${size * 0.02}px ${size * 0.03}px rgba(255,255,255,0.05)`,
-          }}
-        />
-      ))}
-    </div>
+    />
   );
 };
 
@@ -52,6 +44,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
   const { t, language } = useLanguage();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   // Trigger animation when section becomes active
   useEffect(() => {
@@ -60,6 +53,19 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
       return () => clearTimeout(timer);
     }
   }, [isActive]);
+
+  // Track scroll position for conditional shadow
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      setScrollPosition(container.scrollLeft);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Smooth horizontal scroll on mouse wheel
   useEffect(() => {
@@ -80,7 +86,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     const handleWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
         e.preventDefault();
-        scrollVelocity += e.deltaY * 0.6;
+        scrollVelocity += e.deltaY * 0.4;
         cancelAnimationFrame(animationId);
         animationId = requestAnimationFrame(smoothScroll);
       }
@@ -93,12 +99,14 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     };
   }, []);
 
+  // Experiences sorted by date (most recent first)
   const experiences = [
     {
       type: "work",
       roleKey: "experience.webDeveloper",
       company: "Colori di Sicilia",
       period: "2025",
+      sortDate: 2025.3,
       location: "Trieste, Italy",
       link: "https://coloridisicilia1.odoo.com/",
       descriptionKeys: ["experience.ceramiche.desc1", "experience.ceramiche.desc2"],
@@ -108,6 +116,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
       roleKey: "experience.webDeveloper",
       company: "Artigiani della Pipa",
       period: "2025",
+      sortDate: 2025.2,
       location: "Trieste, Italy",
       link: "https://artigianidellapipa.odoo.com/",
       descriptionKeys: ["experience.artigiani.desc1", "experience.artigiani.desc2"],
@@ -117,15 +126,26 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
       roleKey: "experience.webDeveloper",
       company: "ViaGlut",
       period: "2025",
+      sortDate: 2025.1,
       location: "Trieste, Italy",
       link: "https://magento-1168665-4085035.cloudwaysapps.com/italiano/index",
       descriptionKeys: ["experience.viaglut.desc1", "experience.viaglut.desc2"],
+    },
+    {
+      type: "education",
+      degreeKey: "education.bachelors",
+      institutionKey: "education.university",
+      periodKey: "education.expectedGraduation",
+      sortDate: 2024,
+      location: "Trieste, Italy",
+      link: "https://lauree.units.it/it/0320106200800001",
     },
     {
       type: "work",
       roleKey: "experience.webDeveloper",
       company: "CIRCOLO AZIENDALE FINCANTIERI - WÄRTSILÄ ITALIA - APS",
       period: "2022 – 2023",
+      sortDate: 2023,
       location: "Trieste, Italy",
       link: "https://www.circolofinwar.it/",
       descriptionKeys: ["experience.circolo.desc1", "experience.circolo.desc2"],
@@ -135,27 +155,21 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
       roleKey: "experience.intern",
       company: "Wärtsilä Italia (School Work Experience - PCTO)",
       period: "January 2022 – February 2022",
+      sortDate: 2022.1,
       location: "Trieste, Italy",
       link: "https://www.wartsila.com/ita",
       descriptionKeys: ["experience.wartsila.desc1", "experience.wartsila.desc2"],
     },
     {
       type: "education",
-      degreeKey: "education.bachelors",
-      institutionKey: "education.university",
-      periodKey: "education.expectedGraduation",
-      location: "Trieste, Italy",
-      link: "https://lauree.units.it/it/0320106200800001",
-    },
-    {
-      type: "education",
       degreeKey: "education.highSchool",
       institutionKey: "education.technicalInstitute",
       periodKey: "education.graduated",
+      sortDate: 2022,
       location: "Trieste, Italy",
       link: "https://www.voltatrieste.edu.it/",
     },
-  ];
+  ].sort((a, b) => b.sortDate - a.sortDate);
 
   // Language names based on current language
   const languageNames = {
@@ -163,15 +177,19 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     english: language === 'en' ? 'English' : 'Inglese',
   };
 
-  // Generate asteroids - spread across carousel area with more space to the left
-  const asteroids = Array.from({ length: 40 }, (_, i) => ({
+  // Generate asteroids with pre-computed values - bigger, more spread to the left
+  const asteroids = useMemo(() => Array.from({ length: 50 }, (_, i) => ({
     id: i,
-    top: `${10 + Math.random() * 80}%`,
-    right: `${Math.random() * 25}%`,
-    size: 6 + Math.random() * 24,
-    animationDelay: `${Math.random() * 8}s`,
-    animationDuration: `${8 + Math.random() * 12}s`,
-  }));
+    top: `${5 + Math.random() * 90}%`,
+    right: `${Math.random() * 50}%`,
+    size: 10 + Math.random() * 35,
+    rotation: Math.random() * 360,
+    animationDelay: `${Math.random() * 10}s`,
+    animationDuration: `${6 + Math.random() * 10}s`,
+  })), []);
+
+  // Show left shadow only when scrolled
+  const showLeftShadow = scrollPosition > 50;
 
   return (
     <section
@@ -182,8 +200,8 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         ${isActive ? "opacity-100" : "opacity-50"}
       `}
     >
-      {/* Header Section */}
-      <div className="lg:pl-40 px-4 md:px-8 mb-8">
+      {/* Header Section - contained width */}
+      <div className="lg:pl-40 px-4 md:px-8 mb-8 max-w-7xl">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/30 mb-4">
@@ -206,7 +224,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
           </Button>
         </div>
 
-        {/* Professional Summary Card */}
+        {/* Professional Summary Card - contained width */}
         <div className="mt-8 max-w-4xl">
           <div className="relative overflow-hidden rounded-2xl bg-card/50 border border-border/50 p-8 md:p-10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-secondary/20 to-transparent rounded-full blur-3xl" />
@@ -220,12 +238,12 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
 
       {/* Full-width Timeline Container */}
       <div className="relative w-full">
-        {/* Left shadow gradient - seamless fade */}
+        {/* Left shadow gradient - only visible when scrolled (near menu) */}
         <div 
-          className="hidden lg:block absolute left-0 top-0 h-full z-20 pointer-events-none"
+          className={`hidden lg:block absolute left-0 top-0 h-full z-20 pointer-events-none transition-opacity duration-500 ${showLeftShadow ? 'opacity-100' : 'opacity-0'}`}
           style={{
-            width: '350px',
-            background: 'linear-gradient(to right, hsl(var(--background)) 0%, hsl(var(--background)) 60%, transparent 100%)',
+            width: '400px',
+            background: 'linear-gradient(to right, hsl(var(--background)) 0%, hsl(var(--background)) 50%, transparent 100%)',
           }}
         />
 
@@ -233,45 +251,48 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         <div 
           className="absolute right-0 top-0 h-full z-20 pointer-events-none"
           style={{
-            width: '150px',
+            width: '180px',
             background: 'linear-gradient(to left, hsl(var(--background)) 0%, transparent 100%)',
           }}
         />
 
-        {/* Asteroids in carousel area - wider spread */}
-        <div className="absolute right-0 top-0 h-full w-[400px] pointer-events-none z-10 overflow-visible">
+        {/* Asteroids in carousel area - wider spread to the left */}
+        <div className="absolute right-0 top-0 h-full pointer-events-none z-10 overflow-visible" style={{ width: '60%' }}>
           {asteroids.map((asteroid) => (
             <Asteroid
               key={asteroid.id}
               size={asteroid.size}
+              rotation={asteroid.rotation}
               style={{
                 top: asteroid.top,
                 right: asteroid.right,
-                animation: `float ${asteroid.animationDuration} ease-in-out infinite`,
                 animationDelay: asteroid.animationDelay,
+                animationDuration: asteroid.animationDuration,
               }}
             />
           ))}
         </div>
 
         {/* Timeline line at TOP */}
-        <div className="absolute top-8 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent z-0" />
+        <div className="absolute top-12 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/60 to-transparent z-0" />
         
         {/* Scrollable container - full width */}
         <div
           ref={scrollContainerRef}
-          className="flex gap-6 overflow-x-auto pb-8 pt-16 hide-scrollbar w-full"
+          className="flex gap-6 overflow-x-auto pb-8 pt-20 hide-scrollbar w-full"
           style={{ 
             scrollbarWidth: 'none', 
             msOverflowStyle: 'none',
             paddingLeft: 'calc(350px)',
-            paddingRight: '200px',
+            paddingRight: '250px',
           }}
         >
           {experiences.map((exp, index) => {
             const isEducation = exp.type === "education";
             const Icon = isEducation ? GraduationCap : Briefcase;
-            const accentColor = isEducation ? "secondary" : "primary";
+            const typeLabel = isEducation 
+              ? (language === 'en' ? 'Education' : 'Istruzione')
+              : (language === 'en' ? 'Work' : 'Lavoro');
             
             return (
               <div
@@ -285,6 +306,13 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
                   transitionDelay: `${index * 80}ms`,
                 }}
               >
+                {/* Pin label above dot */}
+                <div 
+                  className={`absolute -top-[52px] left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider z-10 ${isEducation ? 'bg-secondary/20 text-secondary' : 'bg-primary/20 text-primary'}`}
+                >
+                  {typeLabel}
+                </div>
+
                 {/* Timeline dot at TOP */}
                 <div 
                   className={`absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-4 border-background z-10 ${isEducation ? 'bg-secondary' : 'bg-primary'}`}
@@ -300,7 +328,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
                   rel="noopener noreferrer"
                   className={`
                     block bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border/50 
-                    hover:border-${accentColor}/50 transition-all duration-300 hover:scale-[1.02]
+                    hover:border-${isEducation ? 'secondary' : 'primary'}/50 transition-all duration-300 hover:scale-[1.02]
                   `}
                 >
                   {/* Icon */}
@@ -345,8 +373,8 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         </div>
       </div>
 
-      {/* Languages at Bottom */}
-      <div className="lg:pl-40 px-4 md:px-8 mt-12">
+      {/* Languages at Bottom - contained width, bigger cards */}
+      <div className="lg:pl-40 px-4 md:px-8 mt-12 max-w-4xl">
         <div className="flex items-center gap-3 mb-6 justify-center lg:justify-start">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center">
             <Languages className="w-5 h-5 text-background" />
@@ -354,18 +382,18 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
           <h3 className="text-xl font-bold">{t('about.languages')}</h3>
         </div>
 
-        <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-          <div className="bg-card/30 rounded-xl px-6 py-4 border border-border/30 flex items-center gap-4 hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group">
-            <span className="text-2xl group-hover:scale-110 transition-transform">🇮🇹</span>
+        <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
+          <div className="bg-card/30 rounded-xl px-8 py-6 border border-border/30 flex items-center gap-5 hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group min-w-[200px]">
+            <span className="text-4xl group-hover:scale-110 transition-transform">🇮🇹</span>
             <div>
-              <h4 className="font-semibold">{languageNames.italian}</h4>
+              <h4 className="font-semibold text-lg">{languageNames.italian}</h4>
               <p className="text-sm text-muted-foreground">{t('about.nativeLevel')}</p>
             </div>
           </div>
-          <div className="bg-card/30 rounded-xl px-6 py-4 border border-border/30 flex items-center gap-4 hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group">
-            <span className="text-2xl group-hover:scale-110 transition-transform">🇬🇧</span>
+          <div className="bg-card/30 rounded-xl px-8 py-6 border border-border/30 flex items-center gap-5 hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group min-w-[200px]">
+            <span className="text-4xl group-hover:scale-110 transition-transform">🇬🇧</span>
             <div>
-              <h4 className="font-semibold">{languageNames.english}</h4>
+              <h4 className="font-semibold text-lg">{languageNames.english}</h4>
               <p className="text-sm text-muted-foreground">{t('about.languagesText')}</p>
             </div>
           </div>
