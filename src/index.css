@@ -1,5 +1,27 @@
 @tailwind base;
 
+/* Asteroid floating animation with drift */
+@keyframes asteroid-float {
+  0%, 100% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-8px) translateX(4px) rotate(2deg);
+  }
+  50% {
+    transform: translateY(-4px) translateX(-6px) rotate(-1deg);
+  }
+  75% {
+    transform: translateY(-12px) translateX(2px) rotate(1deg);
+  }
+}
+
+.asteroid-float {
+  animation-name: asteroid-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
 /* Hide scrollbar for horizontal scroll */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
