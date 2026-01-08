@@ -7,14 +7,14 @@ interface AboutSectionProps {
   isActive: boolean;
 }
 
-// Edgy asteroid component with angular shape
+// Natural asteroid component with smoother, rock-like shape
 const Asteroid = ({ style, size, rotation }: { style: React.CSSProperties; size: number; rotation: number }) => {
   const clipPath = useMemo(() => {
-    const points = 7 + Math.floor(Math.random() * 4);
+    const points = 10 + Math.floor(Math.random() * 4);
     return Array.from({ length: points }, (_, i) => {
       const angle = (i / points) * 360;
-      const variance = 15 + Math.random() * 25;
-      const r = 50 - variance + Math.random() * variance * 2;
+      const variance = 8 + Math.random() * 12;
+      const r = 45 + Math.random() * variance;
       const x = 50 + r * Math.cos((angle * Math.PI) / 180);
       const y = 50 + r * Math.sin((angle * Math.PI) / 180);
       return `${x}% ${y}%`;
@@ -28,11 +28,12 @@ const Asteroid = ({ style, size, rotation }: { style: React.CSSProperties; size:
         ...style,
         width: size,
         height: size,
+        borderRadius: '40%',
         clipPath: `polygon(${clipPath})`,
-        background: `radial-gradient(ellipse at 30% 30%, #8a7a6a 0%, #5a4a3a 30%, #3a2d25 60%, #1d1612 100%)`,
+        background: `radial-gradient(ellipse at 35% 35%, #9a8a7a 0%, #6a5a4a 25%, #4a3d32 50%, #2a2018 80%, #1a1410 100%)`,
         boxShadow: `
-          inset -${size/4}px -${size/4}px ${size/2}px rgba(0,0,0,0.7),
-          inset ${size/8}px ${size/8}px ${size/4}px rgba(255,255,255,0.1)
+          inset -${size/5}px -${size/5}px ${size/3}px rgba(0,0,0,0.6),
+          inset ${size/10}px ${size/10}px ${size/5}px rgba(180,160,140,0.15)
         `,
         transform: `rotate(${rotation}deg)`,
       }}
@@ -177,12 +178,12 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     english: language === 'en' ? 'English' : 'Inglese',
   };
 
-  // Generate asteroids with pre-computed values - bigger, more spread to the left
-  const asteroids = useMemo(() => Array.from({ length: 50 }, (_, i) => ({
+  // Generate asteroids with pre-computed values - reduced width by 30%
+  const asteroids = useMemo(() => Array.from({ length: 40 }, (_, i) => ({
     id: i,
     top: `${5 + Math.random() * 90}%`,
-    right: `${Math.random() * 50}%`,
-    size: 10 + Math.random() * 35,
+    right: `${Math.random() * 35}%`,
+    size: 12 + Math.random() * 28,
     rotation: Math.random() * 360,
     animationDelay: `${Math.random() * 10}s`,
     animationDuration: `${6 + Math.random() * 10}s`,
@@ -200,9 +201,9 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         ${isActive ? "opacity-100" : "opacity-50"}
       `}
     >
-      {/* Header Section - contained width */}
-      <div className="lg:pl-40 px-4 md:px-8 mb-8 max-w-7xl">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      {/* Header Section - contained width, aligned with skills container */}
+      <div className="container mx-auto px-4 md:px-8 lg:pl-48 mb-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 max-w-5xl">
           <div>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/30 mb-4">
               <User className="w-4 h-4 text-secondary" />
@@ -256,8 +257,8 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
           }}
         />
 
-        {/* Asteroids in carousel area - wider spread to the left */}
-        <div className="absolute right-0 top-0 h-full pointer-events-none z-10 overflow-visible" style={{ width: '60%' }}>
+        {/* Asteroids in carousel area - reduced width by 30% */}
+        <div className="absolute right-0 top-0 h-full pointer-events-none z-10 overflow-visible" style={{ width: '42%' }}>
           {asteroids.map((asteroid) => (
             <Asteroid
               key={asteroid.id}
@@ -373,24 +374,24 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         </div>
       </div>
 
-      {/* Languages at Bottom - contained width, bigger cards */}
-      <div className="lg:pl-40 px-4 md:px-8 mt-12 max-w-4xl">
-        <div className="flex items-center gap-3 mb-6 justify-center lg:justify-start">
+      {/* Languages at Bottom - contained width, aligned with skills container */}
+      <div className="container mx-auto px-4 md:px-8 lg:pl-48 mt-12">
+        <div className="flex items-center gap-3 mb-6 justify-center lg:justify-start max-w-5xl">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center">
             <Languages className="w-5 h-5 text-background" />
           </div>
           <h3 className="text-xl font-bold">{t('about.languages')}</h3>
         </div>
 
-        <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
-          <div className="bg-card/30 rounded-xl px-8 py-6 border border-border/30 flex items-center gap-5 hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group min-w-[200px]">
+        <div className="flex flex-wrap gap-6 justify-center lg:justify-start max-w-5xl">
+          <div className="bg-card/30 rounded-xl px-8 py-6 border border-border/30 flex items-center gap-5 hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group min-w-[220px]">
             <span className="text-4xl group-hover:scale-110 transition-transform">🇮🇹</span>
             <div>
               <h4 className="font-semibold text-lg">{languageNames.italian}</h4>
               <p className="text-sm text-muted-foreground">{t('about.nativeLevel')}</p>
             </div>
           </div>
-          <div className="bg-card/30 rounded-xl px-8 py-6 border border-border/30 flex items-center gap-5 hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group min-w-[200px]">
+          <div className="bg-card/30 rounded-xl px-8 py-6 border border-border/30 flex items-center gap-5 hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group min-w-[220px]">
             <span className="text-4xl group-hover:scale-110 transition-transform">🇬🇧</span>
             <div>
               <h4 className="font-semibold text-lg">{languageNames.english}</h4>
