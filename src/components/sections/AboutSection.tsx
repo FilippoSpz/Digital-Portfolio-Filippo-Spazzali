@@ -8,19 +8,32 @@ interface AboutSectionProps {
   isActive: boolean;
 }
 
-// 3D-looking rock asteroid component
-const Asteroid = ({ style, size, rotation }: { style: React.CSSProperties; size: number; rotation: number }) => {
-  const clipPath = useMemo(() => {
-    const points = 8 + Math.floor(Math.random() * 3);
-    return Array.from({ length: points }, (_, i) => {
+// 3D realistic asteroid component
+const Asteroid = ({ style, size, rotation, seed }: { style: React.CSSProperties; size: number; rotation: number; seed: number }) => {
+  const shapes = useMemo(() => {
+    // Create organic asteroid shape with smoother curves
+    const points = 10 + Math.floor((seed * 3) % 4);
+    const baseShape = Array.from({ length: points }, (_, i) => {
       const angle = (i / points) * 360;
-      const variance = 10 + Math.random() * 15;
-      const r = 40 + Math.random() * variance;
+      const variance = 8 + ((seed * (i + 1)) % 12);
+      const r = 42 + variance;
       const x = 50 + r * Math.cos((angle * Math.PI) / 180);
       const y = 50 + r * Math.sin((angle * Math.PI) / 180);
       return `${x}% ${y}%`;
     }).join(', ');
-  }, []);
+    
+    return baseShape;
+  }, [seed]);
+
+  // Multiple surface craters for 3D effect
+  const craters = useMemo(() => {
+    const count = 2 + Math.floor(seed % 3);
+    return Array.from({ length: count }, (_, i) => ({
+      x: 25 + ((seed * (i + 2)) % 45),
+      y: 25 + ((seed * (i + 3)) % 45),
+      size: 8 + ((seed * i) % 15),
+    }));
+  }, [seed]);
 
   return (
     <div
@@ -29,16 +42,18 @@ const Asteroid = ({ style, size, rotation }: { style: React.CSSProperties; size:
         ...style,
         width: size,
         height: size,
-        borderRadius: '45%',
-        clipPath: `polygon(${clipPath})`,
+        clipPath: `polygon(${shapes})`,
         background: `
-          radial-gradient(ellipse 60% 50% at 30% 25%, #a89888 0%, transparent 50%),
-          radial-gradient(ellipse 80% 80% at 50% 50%, #7a6a5a 0%, #5a4a3a 40%, #3a2d22 70%, #1a1410 100%)
+          radial-gradient(ellipse 70% 60% at 25% 20%, rgba(180,160,140,0.6) 0%, transparent 45%),
+          radial-gradient(ellipse 50% 40% at 70% 75%, rgba(60,50,40,0.8) 0%, transparent 50%),
+          ${craters.map(c => `radial-gradient(circle at ${c.x}% ${c.y}%, rgba(30,25,20,0.7) 0%, transparent ${c.size}%)`).join(', ')},
+          radial-gradient(ellipse 100% 100% at 50% 50%, #8a7a6a 0%, #6a5a4a 30%, #4a3d32 60%, #2a2018 100%)
         `,
         boxShadow: `
-          inset -${size/4}px -${size/4}px ${size/2}px rgba(0,0,0,0.5),
-          inset ${size/8}px ${size/8}px ${size/4}px rgba(200,180,160,0.2),
-          0 ${size/10}px ${size/5}px rgba(0,0,0,0.3)
+          inset -${size/3}px -${size/3}px ${size/1.5}px rgba(0,0,0,0.6),
+          inset ${size/5}px ${size/5}px ${size/3}px rgba(220,200,170,0.15),
+          0 ${size/8}px ${size/4}px rgba(0,0,0,0.4),
+          0 0 ${size/2}px rgba(100,80,60,0.1)
         `,
         transform: `rotate(${rotation}deg)`,
       }}
@@ -208,15 +223,16 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     english: language === 'en' ? 'English' : 'Inglese',
   };
 
-  // Generate asteroids with pre-computed values
+  // Generate asteroids with pre-computed values and seed
   const asteroids = useMemo(() => Array.from({ length: 35 }, (_, i) => ({
     id: i,
-    top: isMobile ? `${70 + Math.random() * 25}%` : `${5 + Math.random() * 90}%`,
-    right: `${Math.random() * 28}%`,
-    size: 18 + Math.random() * 35,
-    rotation: Math.random() * 360,
-    animationDelay: `${Math.random() * 10}s`,
-    animationDuration: `${6 + Math.random() * 10}s`,
+    seed: (i * 7 + 13) % 100,
+    top: isMobile ? `${70 + ((i * 3) % 25)}%` : `${5 + ((i * 7) % 85)}%`,
+    right: `${(i * 5) % 28}%`,
+    size: 20 + ((i * 4) % 30),
+    rotation: (i * 37) % 360,
+    animationDelay: `${(i * 0.8) % 10}s`,
+    animationDuration: `${6 + (i % 8)}s`,
   })), [isMobile]);
 
   // Show left shadow only when scrolled
@@ -232,9 +248,9 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         ${isActive ? "opacity-100" : "opacity-50"}
       `}
     >
-      {/* Header Section - aligned with skills container */}
-      <div className="pl-4 md:pl-8 lg:pl-48 pr-4 md:pr-8 mb-8">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 max-w-5xl">
+      {/* Header Section - aligned with skills container (same as SkillsSection) */}
+      <div className="container mx-auto px-4 md:px-8 lg:pl-40 mb-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-center lg:text-left">
           <div>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/30 mb-4">
               <User className="w-4 h-4 text-secondary" />
@@ -257,7 +273,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         </div>
 
         {/* Professional Summary Card */}
-        <div className="mt-8 max-w-4xl">
+        <div className="mt-8 max-w-4xl mx-auto lg:mx-0">
           <div className="relative overflow-hidden rounded-2xl bg-card/50 border border-border/50 p-8 md:p-10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-secondary/20 to-transparent rounded-full blur-3xl" />
             <h3 className="text-2xl font-bold gradient-text mb-4">{t('about.professionalSummary')}</h3>
@@ -302,10 +318,11 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
               key={asteroid.id}
               size={asteroid.size}
               rotation={asteroid.rotation}
+              seed={asteroid.seed}
               style={{
                 top: isMobile ? 'auto' : asteroid.top,
-                bottom: isMobile ? `${Math.random() * 30}%` : 'auto',
-                right: isMobile ? `${Math.random() * 90}%` : asteroid.right,
+                bottom: isMobile ? `${(asteroid.seed * 0.3) % 30}%` : 'auto',
+                right: isMobile ? `${(asteroid.seed * 0.9) % 90}%` : asteroid.right,
                 animationDelay: asteroid.animationDelay,
                 animationDuration: asteroid.animationDuration,
               }}
@@ -424,16 +441,16 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         </div>
       </div>
 
-      {/* Languages at Bottom - aligned with skills container */}
-      <div className="pl-4 md:pl-8 lg:pl-48 pr-4 md:pr-8 mt-12">
-        <div className="flex items-center gap-3 mb-6 justify-center lg:justify-start max-w-5xl">
+      {/* Languages at Bottom - aligned with skills container (same as SkillsSection) */}
+      <div className="container mx-auto px-4 md:px-8 lg:pl-40 mt-12">
+        <div className="flex items-center gap-3 mb-6 justify-center lg:justify-start">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center">
             <Languages className="w-5 h-5 text-background" />
           </div>
           <h3 className="text-xl font-bold">{t('about.languages')}</h3>
         </div>
 
-        <div className="flex flex-wrap gap-6 justify-center lg:justify-start max-w-5xl">
+        <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
           <div className="bg-card/30 rounded-xl px-8 py-6 border border-border/30 flex items-center gap-5 hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group min-w-[240px]">
             <span className="text-4xl group-hover:scale-110 transition-transform">🇮🇹</span>
             <div>
