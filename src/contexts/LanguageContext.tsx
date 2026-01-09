@@ -65,6 +65,10 @@ const translations = {
     'education.highSchool': 'High School Diploma',
     'education.technicalInstitute': 'Alessandro Volta Technical Institute',
     'education.graduated': 'July 2022',
+    'education.highSchool.desc1': 'Computer Science and Telecommunications specialization with focus on software development and networking.',
+    'education.highSchool.desc2': 'Achieved Cisco IT Essentials and CCNA certifications during studies.',
+    'education.bachelors.desc1': 'Studying computer engineering with focus on software development, algorithms, and system design.',
+    'education.bachelors.desc2': 'Building strong foundations in programming, databases, and web technologies.',
     
     // Skills
     'skills.title': 'Skills & Technologies',
@@ -195,6 +199,10 @@ const translations = {
     'education.highSchool': 'Diploma di Scuola Superiore',
     'education.technicalInstitute': 'Istituto Tecnico Alessandro Volta',
     'education.graduated': 'Luglio 2022',
+    'education.highSchool.desc1': 'Specializzazione in Informatica e Telecomunicazioni con focus su sviluppo software e networking.',
+    'education.highSchool.desc2': 'Conseguite le certificazioni Cisco IT Essentials e CCNA durante gli studi.',
+    'education.bachelors.desc1': 'Studio di ingegneria informatica con focus su sviluppo software, algoritmi e progettazione di sistemi.',
+    'education.bachelors.desc2': 'Costruzione di solide basi in programmazione, database e tecnologie web.',
     
     // Skills
     'skills.title': 'Competenze & Tecnologie',
