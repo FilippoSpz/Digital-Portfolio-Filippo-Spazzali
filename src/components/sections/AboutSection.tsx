@@ -8,32 +8,26 @@ interface AboutSectionProps {
   isActive: boolean;
 }
 
-// 3D realistic asteroid component
+// Low-poly 3D asteroid component matching reference style
 const Asteroid = ({ style, size, rotation, seed }: { style: React.CSSProperties; size: number; rotation: number; seed: number }) => {
-  const shapes = useMemo(() => {
-    // Create organic asteroid shape with smoother curves
-    const points = 10 + Math.floor((seed * 3) % 4);
+  // Generate low-poly rock shape with fewer, more angular points
+  const shape = useMemo(() => {
+    const points = 6 + Math.floor((seed * 2) % 3); // 6-8 points for low-poly look
     const baseShape = Array.from({ length: points }, (_, i) => {
       const angle = (i / points) * 360;
-      const variance = 8 + ((seed * (i + 1)) % 12);
-      const r = 42 + variance;
+      const variance = 10 + ((seed * (i + 1)) % 18);
+      const r = 38 + variance;
       const x = 50 + r * Math.cos((angle * Math.PI) / 180);
       const y = 50 + r * Math.sin((angle * Math.PI) / 180);
       return `${x}% ${y}%`;
     }).join(', ');
-    
     return baseShape;
   }, [seed]);
 
-  // Multiple surface craters for 3D effect
-  const craters = useMemo(() => {
-    const count = 2 + Math.floor(seed % 3);
-    return Array.from({ length: count }, (_, i) => ({
-      x: 25 + ((seed * (i + 2)) % 45),
-      y: 25 + ((seed * (i + 3)) % 45),
-      size: 8 + ((seed * i) % 15),
-    }));
-  }, [seed]);
+  // Grayish-purple base color matching reference image
+  const baseHue = 235 + (seed % 15); // Purple-gray range
+  const baseSat = 12 + (seed % 10); // Low saturation for gray-purple
+  const baseLightness = 38 + (seed % 12);
 
   return (
     <div
@@ -42,18 +36,19 @@ const Asteroid = ({ style, size, rotation, seed }: { style: React.CSSProperties;
         ...style,
         width: size,
         height: size,
-        clipPath: `polygon(${shapes})`,
+        clipPath: `polygon(${shape})`,
         background: `
-          radial-gradient(ellipse 70% 60% at 25% 20%, rgba(180,160,140,0.6) 0%, transparent 45%),
-          radial-gradient(ellipse 50% 40% at 70% 75%, rgba(60,50,40,0.8) 0%, transparent 50%),
-          ${craters.map(c => `radial-gradient(circle at ${c.x}% ${c.y}%, rgba(30,25,20,0.7) 0%, transparent ${c.size}%)`).join(', ')},
-          radial-gradient(ellipse 100% 100% at 50% 50%, #8a7a6a 0%, #6a5a4a 30%, #4a3d32 60%, #2a2018 100%)
+          linear-gradient(${135 + (seed % 60)}deg, 
+            hsl(${baseHue}, ${baseSat}%, ${baseLightness + 15}%) 0%,
+            hsl(${baseHue}, ${baseSat}%, ${baseLightness}%) 35%,
+            hsl(${baseHue}, ${baseSat + 3}%, ${baseLightness - 10}%) 65%,
+            hsl(${baseHue}, ${baseSat + 5}%, ${baseLightness - 20}%) 100%
+          )
         `,
         boxShadow: `
-          inset -${size/3}px -${size/3}px ${size/1.5}px rgba(0,0,0,0.6),
-          inset ${size/5}px ${size/5}px ${size/3}px rgba(220,200,170,0.15),
-          0 ${size/8}px ${size/4}px rgba(0,0,0,0.4),
-          0 0 ${size/2}px rgba(100,80,60,0.1)
+          inset -${size/4}px -${size/4}px ${size/2}px rgba(0,0,0,0.4),
+          inset ${size/6}px ${size/6}px ${size/3}px rgba(255,255,255,0.08),
+          0 ${size/10}px ${size/5}px rgba(0,0,0,0.3)
         `,
         transform: `rotate(${rotation}deg)`,
       }}
@@ -217,15 +212,19 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
   };
 
   // Generate asteroids with pre-computed values and seed
-  const asteroids = useMemo(() => Array.from({ length: 35 }, (_, i) => ({
+  const asteroids = useMemo(() => Array.from({ length: 28 }, (_, i) => ({
     id: i,
     seed: (i * 7 + 13) % 100,
-    top: isMobile ? `${70 + ((i * 3) % 25)}%` : `${5 + ((i * 7) % 85)}%`,
-    right: `${(i * 5) % 28}%`,
-    size: 20 + ((i * 4) % 30),
-    rotation: (i * 37) % 360,
-    animationDelay: `${(i * 0.8) % 10}s`,
-    animationDuration: `${6 + (i % 8)}s`,
+    // Desktop: scattered on right side, Mobile: scattered casually at bottom
+    top: isMobile ? 'auto' : `${8 + ((i * 11) % 80)}%`,
+    // More random horizontal positioning
+    right: isMobile ? `${5 + ((i * 17 + i * i) % 85)}%` : `${(i * 6) % 30}%`,
+    // Mobile: casual bottom positioning with more variance
+    bottom: isMobile ? `${5 + ((i * 13 + i) % 35)}%` : 'auto',
+    size: 25 + ((i * 5) % 40),
+    rotation: (i * 47 + i * i) % 360,
+    animationDelay: `${(i * 0.9) % 12}s`,
+    animationDuration: `${7 + (i % 9)}s`,
   })), [isMobile]);
 
   // Show left shadow only when scrolled
@@ -252,9 +251,6 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
             <h2 className="text-4xl md:text-5xl font-bold italic">
               {t('about.workExperience')} & {t('about.education')}
             </h2>
-            <p className="text-lg text-muted-foreground mt-2">
-              {t('about.careerJourney')}
-            </p>
           </div>
           <Button
             variant="outline"
@@ -313,9 +309,9 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
               rotation={asteroid.rotation}
               seed={asteroid.seed}
               style={{
-                top: isMobile ? 'auto' : asteroid.top,
-                bottom: isMobile ? `${(asteroid.seed * 0.3) % 30}%` : 'auto',
-                right: isMobile ? `${(asteroid.seed * 0.9) % 90}%` : asteroid.right,
+                top: asteroid.top,
+                bottom: asteroid.bottom,
+                right: asteroid.right,
                 animationDelay: asteroid.animationDelay,
                 animationDuration: asteroid.animationDuration,
               }}
