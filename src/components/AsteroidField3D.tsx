@@ -94,35 +94,35 @@ interface AsteroidFieldProps {
 const AsteroidScene = ({ isMobile }: AsteroidFieldProps) => {
   // Generate asteroid positions
   const asteroids = useMemo(() => {
-    const count = isMobile ? 12 : 18;
+    const count = isMobile ? 10 : 18;
     return Array.from({ length: count }, (_, i) => {
       const seed = i * 7 + 13;
       
       if (isMobile) {
-        // Mobile: scattered at bottom area
+        // Mobile: scattered more spread out, positioned lower in frame
         return {
           id: i,
           position: [
-            (Math.random() - 0.5) * 10,
-            -3 - Math.random() * 2,
-            -2 - Math.random() * 4,
+            (Math.random() - 0.5) * 12,
+            -1.5 - Math.random() * 3,
+            -1 - Math.random() * 3,
           ] as [number, number, number],
-          scale: 0.15 + Math.random() * 0.25,
+          scale: 0.2 + Math.random() * 0.35,
           rotation: [
             Math.random() * Math.PI * 2,
             Math.random() * Math.PI * 2,
             Math.random() * Math.PI * 2,
           ] as [number, number, number],
           rotationSpeed: [
-            (Math.random() - 0.5) * 0.1,
+            (Math.random() - 0.5) * 0.25,
+            (Math.random() - 0.5) * 0.35,
             (Math.random() - 0.5) * 0.15,
-            (Math.random() - 0.5) * 0.05,
           ] as [number, number, number],
           meshIndex: seed % 5,
         };
       }
       
-      // Desktop: scattered on right side
+      // Desktop: scattered on right side with faster rotation
       return {
         id: i,
         position: [
@@ -137,9 +137,9 @@ const AsteroidScene = ({ isMobile }: AsteroidFieldProps) => {
           Math.random() * Math.PI * 2,
         ] as [number, number, number],
         rotationSpeed: [
-          (Math.random() - 0.5) * 0.08,
-          (Math.random() - 0.5) * 0.12,
-          (Math.random() - 0.5) * 0.04,
+          (Math.random() - 0.5) * 0.2,
+          (Math.random() - 0.5) * 0.3,
+          (Math.random() - 0.5) * 0.1,
         ] as [number, number, number],
         meshIndex: seed % 5,
       };
@@ -176,23 +176,27 @@ const AsteroidField3D = ({ isMobile = false }: AsteroidFieldProps) => {
     <div 
       className="absolute pointer-events-none z-10"
       style={{
-        right: isMobile ? 0 : 0,
-        bottom: isMobile ? 0 : 'auto',
+        right: 0,
+        bottom: isMobile ? '-20px' : 'auto',
         top: isMobile ? 'auto' : 0,
         width: isMobile ? '100%' : '40%',
-        height: isMobile ? '35%' : '100%',
+        height: isMobile ? '50%' : '100%',
+        overflow: 'visible',
       }}
     >
       <Canvas
         camera={{ 
-          position: [0, 0, 8], 
-          fov: 45,
+          position: isMobile ? [0, 1, 10] : [0, 0, 8], 
+          fov: isMobile ? 50 : 45,
         }}
         gl={{ 
           antialias: true,
           alpha: true,
         }}
-        style={{ background: 'transparent' }}
+        style={{ 
+          background: 'transparent',
+          overflow: 'visible',
+        }}
       >
         <AsteroidScene isMobile={isMobile} />
       </Canvas>
