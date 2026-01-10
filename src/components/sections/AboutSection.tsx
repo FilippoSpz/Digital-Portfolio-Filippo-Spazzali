@@ -346,7 +346,8 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
       </div>
 
       {/* Languages at Bottom - aligned with skills container (same as SkillsSection) */}
-      <div className="container mx-auto px-4 md:px-8 lg:pl-40 mt-12">
+      {/* Extra margin on mobile to make space for 3D asteroids */}
+      <div className={`container mx-auto px-4 md:px-8 lg:pl-40 ${isMobile ? 'mt-48' : 'mt-12'}`}>
         <div className="flex items-center gap-3 mb-6 justify-center lg:justify-start">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center">
             <Languages className="w-5 h-5 text-background" />
