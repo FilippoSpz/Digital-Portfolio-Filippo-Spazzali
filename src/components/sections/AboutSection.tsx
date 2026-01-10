@@ -1,60 +1,13 @@
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Briefcase, GraduationCap, Languages, MapPin, Calendar, User, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import AsteroidField3D from "@/components/AsteroidField3D";
 
 interface AboutSectionProps {
   isActive: boolean;
 }
-
-// Low-poly 3D asteroid component matching reference style
-const Asteroid = ({ style, size, rotation, seed }: { style: React.CSSProperties; size: number; rotation: number; seed: number }) => {
-  // Generate low-poly rock shape with fewer, more angular points
-  const shape = useMemo(() => {
-    const points = 6 + Math.floor((seed * 2) % 3); // 6-8 points for low-poly look
-    const baseShape = Array.from({ length: points }, (_, i) => {
-      const angle = (i / points) * 360;
-      const variance = 10 + ((seed * (i + 1)) % 18);
-      const r = 38 + variance;
-      const x = 50 + r * Math.cos((angle * Math.PI) / 180);
-      const y = 50 + r * Math.sin((angle * Math.PI) / 180);
-      return `${x}% ${y}%`;
-    }).join(', ');
-    return baseShape;
-  }, [seed]);
-
-  // Grayish-purple base color matching reference image
-  const baseHue = 235 + (seed % 15); // Purple-gray range
-  const baseSat = 12 + (seed % 10); // Low saturation for gray-purple
-  const baseLightness = 38 + (seed % 12);
-
-  return (
-    <div
-      className="absolute asteroid-float"
-      style={{
-        ...style,
-        width: size,
-        height: size,
-        clipPath: `polygon(${shape})`,
-        background: `
-          linear-gradient(${135 + (seed % 60)}deg, 
-            hsl(${baseHue}, ${baseSat}%, ${baseLightness + 15}%) 0%,
-            hsl(${baseHue}, ${baseSat}%, ${baseLightness}%) 35%,
-            hsl(${baseHue}, ${baseSat + 3}%, ${baseLightness - 10}%) 65%,
-            hsl(${baseHue}, ${baseSat + 5}%, ${baseLightness - 20}%) 100%
-          )
-        `,
-        boxShadow: `
-          inset -${size/4}px -${size/4}px ${size/2}px rgba(0,0,0,0.4),
-          inset ${size/6}px ${size/6}px ${size/3}px rgba(255,255,255,0.08),
-          0 ${size/10}px ${size/5}px rgba(0,0,0,0.3)
-        `,
-        transform: `rotate(${rotation}deg)`,
-      }}
-    />
-  );
-};
 
 const AboutSection = ({ isActive }: AboutSectionProps) => {
   const { t, language } = useLanguage();
@@ -211,21 +164,6 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     english: language === 'en' ? 'English' : 'Inglese',
   };
 
-  // Generate asteroids with pre-computed values and seed
-  const asteroids = useMemo(() => Array.from({ length: 28 }, (_, i) => ({
-    id: i,
-    seed: (i * 7 + 13) % 100,
-    // Desktop: scattered on right side, Mobile: scattered casually at bottom
-    top: isMobile ? 'auto' : `${8 + ((i * 11) % 80)}%`,
-    // More random horizontal positioning
-    right: isMobile ? `${5 + ((i * 17 + i * i) % 85)}%` : `${(i * 6) % 30}%`,
-    // Mobile: casual bottom positioning with more variance
-    bottom: isMobile ? `${5 + ((i * 13 + i) % 35)}%` : 'auto',
-    size: 25 + ((i * 5) % 40),
-    rotation: (i * 47 + i * i) % 360,
-    animationDelay: `${(i * 0.9) % 12}s`,
-    animationDuration: `${7 + (i % 9)}s`,
-  })), [isMobile]);
 
   // Show left shadow only when scrolled
   const showLeftShadow = scrollPosition > 50;
@@ -293,31 +231,8 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
           }}
         />
 
-        {/* Asteroids - positioned right side on desktop, bottom on mobile */}
-        <div 
-          className={`absolute pointer-events-none z-10 overflow-visible ${
-            isMobile 
-              ? 'left-0 bottom-0 w-full h-[40%]' 
-              : 'right-0 top-0 h-full'
-          }`} 
-          style={!isMobile ? { width: '35%' } : {}}
-        >
-          {asteroids.map((asteroid) => (
-            <Asteroid
-              key={asteroid.id}
-              size={asteroid.size}
-              rotation={asteroid.rotation}
-              seed={asteroid.seed}
-              style={{
-                top: asteroid.top,
-                bottom: asteroid.bottom,
-                right: asteroid.right,
-                animationDelay: asteroid.animationDelay,
-                animationDuration: asteroid.animationDuration,
-              }}
-            />
-          ))}
-        </div>
+        {/* 3D Asteroids */}
+        <AsteroidField3D isMobile={isMobile} />
 
         {/* Timeline line at TOP */}
         <div className="absolute top-12 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/60 to-transparent z-0" />
