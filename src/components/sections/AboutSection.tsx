@@ -173,7 +173,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
       ref={sectionRef}
       id="about"
       className={`
-        min-h-screen py-24 relative overflow-hidden
+        min-h-screen py-24 relative ${isMobile ? 'overflow-visible' : 'overflow-hidden'}
         transition-all duration-700
         ${isActive ? "opacity-100" : "opacity-50"}
       `}
