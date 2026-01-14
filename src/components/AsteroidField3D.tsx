@@ -174,7 +174,7 @@ const AsteroidScene = ({ isMobile }: AsteroidFieldProps) => {
 const AsteroidField3D = ({ isMobile = false }: AsteroidFieldProps) => {
   return (
     <div 
-      className="absolute pointer-events-none z-10"
+      className="absolute pointer-events-none z-30"
       style={{
         right: 0,
         bottom: isMobile ? 0 : 'auto',
