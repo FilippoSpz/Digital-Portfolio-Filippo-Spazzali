@@ -180,7 +180,7 @@ const AsteroidField3D = ({ isMobile = false }: AsteroidFieldProps) => {
         bottom: isMobile ? '-20px' : 'auto',
         top: isMobile ? 'auto' : 0,
         width: isMobile ? '100%' : '40%',
-        height: isMobile ? '50%' : '100%',
+        height: isMobile ? '70%' : '100%',
         overflow: 'visible',
       }}
     >
