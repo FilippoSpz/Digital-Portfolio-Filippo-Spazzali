@@ -343,6 +343,9 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
             );
           })}
         </div>
+
+        {/* Mobile-only spacer so the asteroid canvas has enough vertical room */}
+        {isMobile && <div className="h-64" aria-hidden="true" />}
       </div>
 
       {/* Languages at Bottom - aligned with skills container (same as SkillsSection) */}

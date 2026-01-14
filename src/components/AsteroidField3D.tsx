@@ -177,10 +177,10 @@ const AsteroidField3D = ({ isMobile = false }: AsteroidFieldProps) => {
       className="absolute pointer-events-none z-10"
       style={{
         right: 0,
-        bottom: isMobile ? '-20px' : 'auto',
+        bottom: isMobile ? 0 : 'auto',
         top: isMobile ? 'auto' : 0,
         width: isMobile ? '100%' : '40%',
-        height: isMobile ? '70%' : '100%',
+        height: isMobile ? '100%' : '100%',
         overflow: 'visible',
       }}
     >
