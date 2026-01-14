@@ -237,10 +237,10 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         {/* Timeline line at TOP */}
         <div className="absolute top-12 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/60 to-transparent z-0" />
         
-        {/* Scrollable container - full width */}
+        {/* Scrollable container - full width, z-30 to ensure cards are above asteroids */}
         <div
           ref={scrollContainerRef}
-          className="flex gap-6 overflow-x-auto pb-8 pt-20 hide-scrollbar w-full"
+          className="flex gap-6 overflow-x-auto pb-8 pt-20 hide-scrollbar w-full relative z-30"
           style={{ 
             scrollbarWidth: 'none', 
             msOverflowStyle: 'none',
