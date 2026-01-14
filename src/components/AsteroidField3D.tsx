@@ -99,7 +99,7 @@ const AsteroidScene = ({ isMobile }: AsteroidFieldProps) => {
       const seed = i * 7 + 13;
       
       if (isMobile) {
-        // Mobile: scattered more spread out, positioned lower in frame
+        // Mobile: scattered more spread out, positioned lower in frame, smaller scale
         return {
           id: i,
           position: [
@@ -107,7 +107,7 @@ const AsteroidScene = ({ isMobile }: AsteroidFieldProps) => {
             -1.5 - Math.random() * 3,
             -1 - Math.random() * 3,
           ] as [number, number, number],
-          scale: 0.2 + Math.random() * 0.35,
+          scale: 0.1 + Math.random() * 0.15,
           rotation: [
             Math.random() * Math.PI * 2,
             Math.random() * Math.PI * 2,
@@ -196,6 +196,7 @@ const AsteroidField3D = ({ isMobile = false }: AsteroidFieldProps) => {
         style={{ 
           background: 'transparent',
           overflow: 'visible',
+          pointerEvents: 'none',
         }}
       >
         <AsteroidScene isMobile={isMobile} />
