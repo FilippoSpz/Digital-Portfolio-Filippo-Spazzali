@@ -89,7 +89,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
             <Briefcase className="w-4 h-4 text-secondary" />
             <span className="text-sm font-medium text-secondary">{t('nav.portfolio')}</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold italic uppercase tracking-wide mb-4">
             {t('portfolio.title')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0">

@@ -65,7 +65,7 @@ const CertificationsSection = ({ isActive }: CertificationsSectionProps) => {
             <Award className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary">{t('nav.certifications')}</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold italic uppercase tracking-wide mb-4">
             {t('certifications.title')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0">

@@ -60,15 +60,9 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
     const stars: Star[] = [];
     const nebulae: Nebula[] = [];
 
-    // Star colors matching planet theme colors
+    // Star colors - white only
     const starColors = [
-      "248, 248, 242", // White
-      "189, 147, 249", // Purple (home)
-      "139, 233, 253", // Cyan (about)
-      "80, 250, 123",  // Green (skills)
-      "255, 184, 108", // Orange (certifications)
-      "255, 121, 198", // Pink (portfolio)
-      "241, 250, 140", // Yellow (contact)
+      "255, 255, 255", // White
     ];
 
     // Create stars
@@ -80,7 +74,7 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
         opacity: Math.random() * 0.8 + 0.2,
         twinkleSpeed: Math.random() * 0.02 + 0.005,
         twinkleOffset: Math.random() * Math.PI * 2,
-        color: starColors[Math.floor(Math.random() * starColors.length)],
+        color: starColors[0],
       });
     }
 
