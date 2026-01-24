@@ -192,7 +192,7 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
             <Code2 className="w-4 h-4 text-accent" />
             <span className="text-sm font-medium text-accent">{t('nav.skills')}</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold italic uppercase tracking-wide mb-4">
             {t('skills.title')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0">

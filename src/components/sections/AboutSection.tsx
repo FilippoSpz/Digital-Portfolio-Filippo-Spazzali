@@ -91,7 +91,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     };
   }, []);
 
-  // Experiences sorted by date (oldest first - Bachelor's first)
+  // Experiences sorted by date (most recent first based on CV)
   const experiences = [
     {
       type: "education",
@@ -105,8 +105,8 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     {
       type: "work",
       roleKey: "experience.webDeveloper",
-      company: "Artigiani della Pipa",
-      period: "2025",
+      company: "Artigiani della Pipa (Freelancer)",
+      period: "Dec 2025 – Jan 2026",
       location: "Trieste, Italy",
       link: "https://artigianidellapipa.odoo.com/",
       descriptionKeys: ["experience.artigiani.desc1", "experience.artigiani.desc2"],
@@ -114,8 +114,8 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     {
       type: "work",
       roleKey: "experience.webDeveloper",
-      company: "Colori di Sicilia",
-      period: "2025",
+      company: "Colori di Sicilia (Freelancer)",
+      period: "Nov 2025 – Dec 2025",
       location: "Trieste, Italy",
       link: "https://coloridisicilia1.odoo.com/",
       descriptionKeys: ["experience.ceramiche.desc1", "experience.ceramiche.desc2"],
@@ -123,8 +123,8 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     {
       type: "work",
       roleKey: "experience.webDeveloper",
-      company: "ViaGlut",
-      period: "2025",
+      company: "ViaGlut (Freelancer)",
+      period: "Oct 2025 – Nov 2025",
       location: "Trieste, Italy",
       link: "https://magento-1168665-4085035.cloudwaysapps.com/italiano/index",
       descriptionKeys: ["experience.viaglut.desc1", "experience.viaglut.desc2"],
@@ -132,8 +132,8 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     {
       type: "work",
       roleKey: "experience.webDeveloper",
-      company: "CIRCOLO AZIENDALE FINCANTIERI - WÄRTSILÄ ITALIA - APS",
-      period: "2022 – 2023",
+      company: "Circolo Aziendale Fincantieri - Wärtsilä Italia - APS",
+      period: "Sep 2022 – Jul 2023",
       location: "Trieste, Italy",
       link: "https://www.circolofinwar.it/",
       descriptionKeys: ["experience.circolo.desc1", "experience.circolo.desc2"],
@@ -150,8 +150,8 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
     {
       type: "work",
       roleKey: "experience.intern",
-      company: "Wärtsilä Italia (School Work Experience - PCTO)",
-      period: "January 2022 – February 2022",
+      company: "Wärtsilä Italia",
+      period: "Jan 2022 – Feb 2022",
       location: "Trieste, Italy",
       link: "https://www.wartsila.com/ita",
       descriptionKeys: ["experience.wartsila.desc1", "experience.wartsila.desc2"],
@@ -186,7 +186,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
               <User className="w-4 h-4 text-secondary" />
               <span className="text-sm font-medium text-secondary">{t('nav.about')}</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold italic">
+            <h2 className="text-4xl md:text-5xl font-bold italic uppercase tracking-wide">
               {t('about.workExperience')} & {t('about.education')}
             </h2>
           </div>
