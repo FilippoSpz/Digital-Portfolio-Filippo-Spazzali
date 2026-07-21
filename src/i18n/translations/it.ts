@@ -1,0 +1,160 @@
+import type { TranslationKey } from './en';
+
+export const it: Record<TranslationKey, string> = {
+  // Navigation
+  'nav.home': 'Home',
+  'nav.about': 'Chi Sono',
+  'nav.skills': 'Competenze',
+  'nav.certifications': 'Certificazioni',
+  'nav.portfolio': 'Portfolio',
+  'nav.contact': 'Contatti',
+  'nav.downloadCV': 'Scarica CV',
+
+  // Home
+  'home.greeting': 'Ciao, sono',
+  'home.name': 'Filippo Spazzali',
+  'home.title': 'Sviluppatore Software & Web',
+  'home.tagline':
+    "Sviluppatore Software con 4 anni di esperienza specializzato nello sviluppo web. Competente in HTML, CSS, JavaScript, TypeScript; noto per guidare la trasformazione digitale incentrata sull'utente.",
+  'home.getInTouch': 'Contattami',
+  'home.downloadCV': 'Scarica CV',
+  'home.scroll': 'Scorri',
+
+  // About
+  'about.title': 'Chi Sono',
+  'about.intro':
+    "Sono uno sviluppatore software appassionato con una solida base nelle tecnologie web e un occhio attento alla creazione di esperienze utente fluide.",
+  'about.professionalSummary': 'Profilo Professionale',
+  'about.professionalSummaryText':
+    "Sviluppatore Software con 4 anni di esperienza specializzato nello sviluppo web. Ho apportato numerosi miglioramenti nella reattività del sito e nell'accessibilità utente ottimizzando interfacce e prestazioni di sistema per clienti tra cui Colori di Sicilia e Wärtsilä Italia, dove sono stato anche stagista. Ho costruito una piattaforma e-commerce completa per Artigiani della Pipa, migliorando l'esperienza utente con soluzioni web personalizzate. Competente in HTML, CSS, JavaScript, TypeScript; noto per guidare la trasformazione digitale incentrata sull'utente.",
+  'about.experience': 'Esperienza Lavorativa',
+  'about.workExperience': 'Esperienza Lavorativa',
+  'about.careerJourney': 'Scorri orizzontalmente per esplorare il mio percorso',
+  'about.education': 'Formazione',
+  'about.languages': 'Lingue',
+  'about.languagesText': 'Livello C1',
+  'about.nativeLevel': 'Madrelingua',
+  'about.viewInstitute': 'Visualizza Istituto',
+  'about.viewPortfolio': 'Vedi Portfolio',
+  'about.contactCTA': 'Interessato a lavorare insieme? Mettiamoci in contatto per discutere del tuo progetto.',
+  'about.getInTouch': 'Contattami',
+  'about.type.education': 'Istruzione',
+  'about.type.work': 'Lavoro',
+
+  // Work Experience
+  'experience.webDeveloper': 'Web Developer',
+  'experience.intern': 'Web Developer Stagista',
+  'experience.ceramiche.desc1':
+    'Ho sviluppato e ottimizzato interfacce user-friendly per Colori di Sicilia, pensate per mettere in mostra ceramiche siciliane tradizionali.',
+  'experience.ceramiche.desc2':
+    "Ho creato pagine web intuitive e orientate all'utente per migliorare l'esperienza di navigazione, gestendo l'intero processo in autonomia.",
+  'experience.artigiani.desc1':
+    'Ho costruito una piattaforma e-commerce completa per Artigiani della Pipa utilizzando Odoo, integrando HTML, CSS e TypeScript personalizzati.',
+  'experience.artigiani.desc2':
+    "Ho fornito soluzioni personalizzate per evidenziare prodotti artigianali con un'esperienza utente elegante e intuitiva.",
+  'experience.viaglut.desc1':
+    "Ho riprogettato il sito web Via Glut, migliorando UI/UX e implementando design responsive per aumentare l'engagement degli utenti.",
+  'experience.viaglut.desc2':
+    'Ho risolto problemi tecnici e rinnovato sezioni del sito utilizzando Magento, HTML e CSS, migliorando le prestazioni del sito.',
+  'experience.circolo.desc1':
+    'Ho sviluppato da zero un software gestionale privato utilizzando HTML, CSS e JavaScript.',
+  'experience.circolo.desc2':
+    "Ho sostituito un vecchio programma migliorando significativamente le prestazioni e l'usabilità.",
+  'experience.wartsila.desc1':
+    "Ho progettato e sviluppato l'interfaccia utente iniziale di un programma gestionale utilizzando HTML, CSS e JavaScript, migliorando l'accessibilità.",
+  'experience.wartsila.desc2':
+    'Ho collaborato nelle riunioni quotidiane del team per raccogliere feedback e migliorare i risultati del progetto.',
+
+  // Education
+  'education.bachelors': 'Laurea Triennale in Ingegneria Informatica',
+  'education.university': 'Università degli Studi di Trieste',
+  'education.expectedGraduation': 'Prevista Luglio 2026',
+  'education.highSchool': 'Diploma di Scuola Superiore',
+  'education.technicalInstitute': 'Istituto Tecnico Alessandro Volta',
+  'education.graduated': 'Luglio 2022',
+  'education.highSchool.desc1':
+    'Specializzazione in Informatica e Telecomunicazioni con focus su sviluppo software e networking.',
+  'education.highSchool.desc2': 'Conseguite le certificazioni Cisco IT Essentials e CCNA durante gli studi.',
+  'education.bachelors.desc1':
+    'Corsi rilevanti: Fondamenti di Informatica, Algoritmi e Strutture Dati, Architettura dei Sistemi Digitali, Programmazione Avanzata.',
+  'education.bachelors.desc2':
+    'Logistica, Reti di Calcolatori, Sistemi Operativi, Sistemi di Basi di Dati, Fondamenti di Controllo Automatico.',
+
+  // Skills
+  'skills.title': 'Competenze & Tecnologie',
+  'skills.subtitle': 'Tecnologie con cui lavoro',
+  'skills.category.softwareProgramming': 'Programmazione Software',
+  'skills.category.webProgramming': 'Programmazione Web',
+  'skills.category.databases': 'Database',
+  'skills.category.hardware': 'Hardware & Networking',
+  'skills.category.office': 'Office & Produttività',
+  'skills.level.expert': 'Esperto',
+  'skills.level.advanced': 'Avanzato',
+
+  // Certifications
+  'certifications.title': 'Certificazioni',
+  'certifications.subtitle': 'Certificazioni professionali e riconoscimenti',
+  'certifications.view': 'Vedi Certificato',
+  'certifications.download': 'Scarica',
+  'certifications.ccna.title': 'Certificazione Cisco CCNA',
+  'certifications.ccna.issuer': 'Cisco Networking Academy',
+  'certifications.ccna.date': 'Aprile 2022',
+  'certifications.ccna.description':
+    'CCNAv7: Introduzione alle Reti - Certificazione completa di networking che copre fondamenti di rete, routing, switching e sicurezza.',
+  'certifications.itEssentials.title': 'Certificazione Cisco IT Essentials',
+  'certifications.itEssentials.issuer': 'Cisco Networking Academy',
+  'certifications.itEssentials.date': 'Novembre 2020',
+  'certifications.itEssentials.description':
+    'Certificazione completa su hardware e software IT che copre assemblaggio computer, risoluzione problemi e manutenzione.',
+  'certifications.safety.title': 'Certificato Corso Sicurezza',
+  'certifications.safety.issuer': 'Wärtsilä Italia / Mega Italia Media',
+  'certifications.safety.date': 'Febbraio 2022',
+  'certifications.safety.description':
+    'Formazione Specifica per Uffici a Rischio Basso - Formazione sulla salute e sicurezza sul lavoro secondo le normative italiane.',
+  'certifications.internship.title': 'Certificato Completamento Stage',
+  'certifications.internship.issuer': 'Wärtsilä Italia S.p.A.',
+  'certifications.internship.date': 'Febbraio 2022',
+  'certifications.internship.description':
+    'Ho completato con successo lo stage presso Wärtsilä Italia R&D Engineering, lavorando sullo sviluppo UI e sulla collaborazione di team.',
+
+  // Portfolio
+  'portfolio.title': 'Portfolio',
+  'portfolio.subtitle': 'Alcuni dei miei progetti recenti',
+  'portfolio.viewProject': 'Scopri di più',
+  'portfolio.viewDetails': 'Vedi Dettagli',
+  'portfolio.moreComingSoon': 'Altri Progetti in Arrivo',
+  'portfolio.moreComingSoonDesc':
+    'Sto costantemente lavorando su nuovi progetti ed espandendo il mio portfolio. Questi progetti rappresentano la mia esperienza professionale e dimostrano la mia capacità di costruire applicazioni scalabili e user-friendly. Non esitare a contattarmi per saperne di più su questi progetti o per discutere potenziali collaborazioni.',
+  'portfolio.technologiesUsed': 'Tecnologie Utilizzate:',
+  'portfolio.viaglut.title': 'Redesign Sito Web ViaGlut',
+  'portfolio.viaglut.description':
+    "Ho riprogettato e ottimizzato parti del sito web ViaGlut utilizzando Magento, HTML e CSS. Mi sono concentrato sulla creazione di interfacce user-friendly e intuitive per migliorare l'esperienza del cliente.",
+  'portfolio.viaglut.category': 'Sviluppo Web',
+  'portfolio.circolo.title': 'Sistema Software Gestionale',
+  'portfolio.circolo.description':
+    "Ho sviluppato da zero un software gestionale privato completo per il CIRCOLO AZIENDALE FINCANTIERI - WÄRTSILÄ ITALIA. Ho sostituito il sistema legacy migliorando significativamente le prestazioni e l'usabilità.",
+  'portfolio.circolo.category': 'Sviluppo Software',
+  'portfolio.circolo.tech': 'HTML, CSS, JavaScript, PHP, MySQL',
+  'portfolio.wartsila.title': 'Sviluppo UI Wärtsilä',
+  'portfolio.wartsila.description':
+    "Ho progettato e sviluppato l'interfaccia utente iniziale per un programma gestionale durante il tirocinio presso Wärtsilä Italia. Ho collaborato con il team di Ingegneria R&D.",
+  'portfolio.wartsila.category': 'Progetto di Stage',
+  'portfolio.ceramiche.title': 'Sviluppo Sito Web Colori di Sicilia',
+  'portfolio.ceramiche.description':
+    'Ho costruito da zero un sito e-commerce per un marchio tradizionale di ceramiche siciliane utilizzando Odoo.',
+  'portfolio.ceramiche.category': 'Sviluppo Web',
+  'portfolio.artigiani.title': 'Sviluppo Sito Web Artigiani della Pipa',
+  'portfolio.artigiani.description':
+    'Ho sviluppato una piattaforma e-commerce completa per artigiani produttori di pipe, creando soluzioni personalizzate con Odoo e tecnologie web moderne.',
+  'portfolio.artigiani.category': 'Sviluppo Web',
+
+  // Contact
+  'contact.title': 'Contattami',
+  'contact.subtitle':
+    'Non esitare a contattarmi utilizzando uno dei metodi qui sotto. Sono sempre aperto a discutere nuovi progetti, idee creative o opportunità per far parte della tua visione.',
+  'contact.email': 'Email',
+  'contact.phone': 'Telefono',
+  'contact.linkedin': 'LinkedIn',
+  'contact.github': 'GitHub',
+  'contact.instagram': 'Instagram',
+};
