@@ -50,12 +50,8 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
 
                   {/* Skill planets */}
                   <div className="flex flex-wrap gap-x-6 gap-y-8 justify-center sm:justify-start">
-                    {category.skills.map((skill, si) => (
-                      <div
-                        key={skill.name}
-                        className="group relative flex flex-col items-center gap-2 w-[92px] animate-float"
-                        style={{ animationDelay: `${(si % 4) * 0.5}s`, animationDuration: `${5 + (si % 3)}s` }}
-                      >
+                    {category.skills.map((skill) => (
+                      <div key={skill.name} className="group relative flex flex-col items-center gap-2 w-[92px]">
                         {/* Gradient-ring node */}
                         <div className={`relative rounded-full bg-gradient-to-br ${category.gradient} p-[2px] transition-transform duration-300 group-hover:scale-110`}>
                           <div className="w-16 h-16 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center">

@@ -60,10 +60,13 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
         <StarfieldFallback />
       )}
 
-      {/* Vignette for depth + text legibility */}
+      {/* Uniform scrim to keep text legible over the moving scene */}
+      <div className="absolute inset-0 bg-background/35" />
+
+      {/* Vignette for depth + edge legibility */}
       <div
         className="absolute inset-0"
-        style={{ background: 'radial-gradient(120% 120% at 50% 40%, transparent 55%, hsl(228 42% 4% / 0.85) 100%)' }}
+        style={{ background: 'radial-gradient(120% 120% at 50% 40%, transparent 42%, hsl(228 42% 4% / 0.9) 100%)' }}
       />
     </div>
   );
