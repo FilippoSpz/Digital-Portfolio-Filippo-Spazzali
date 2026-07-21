@@ -2,6 +2,7 @@ import { Github, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
+import Reveal from '@/components/common/Reveal';
 import { projectGroups, GITHUB_PROFILE } from '@/data/openSourceProjects';
 
 interface ProjectsSectionProps {
@@ -27,14 +28,12 @@ const ProjectsSection = ({ isActive }: ProjectsSectionProps) => {
         />
 
         <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto lg:mx-0">
-          {projectGroups.map((group) => {
+          {projectGroups.map((group, index) => {
             const Icon = group.icon;
             return (
-              <div
-                key={group.titleKey}
-                className="group relative flex flex-col bg-card/30 rounded-2xl border border-border/30 overflow-hidden hover:border-primary/30 transition-all duration-500"
-              >
-                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${group.gradient}`} />
+              <Reveal key={group.titleKey} variant="up" delay={index * 90} className="h-full">
+                <div className="group relative flex flex-col h-full glass border-gradient rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1">
+                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${group.gradient}`} />
                 <div className={`absolute inset-0 bg-gradient-to-br ${group.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
 
                 <div className="relative p-6 flex flex-col h-full">
@@ -71,6 +70,7 @@ const ProjectsSection = ({ isActive }: ProjectsSectionProps) => {
                   </div>
                 </div>
               </div>
+              </Reveal>
             );
           })}
         </div>

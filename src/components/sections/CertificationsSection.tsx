@@ -2,6 +2,7 @@ import { Award, Download, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
+import Reveal from '@/components/common/Reveal';
 import { certifications } from '@/data/certifications';
 
 interface CertificationsSectionProps {
@@ -27,12 +28,10 @@ const CertificationsSection = ({ isActive }: CertificationsSectionProps) => {
         />
 
         <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto lg:mx-0">
-          {certifications.map((cert) => (
-            <div
-              key={cert.titleKey}
-              className="group relative bg-card/30 rounded-2xl border border-border/30 overflow-hidden hover:border-primary/30 transition-all duration-500"
-            >
-              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${cert.gradient}`} />
+          {certifications.map((cert, index) => (
+            <Reveal key={cert.titleKey} variant="up" delay={index * 90}>
+              <div className="group relative glass border-gradient rounded-2xl overflow-hidden h-full transition-all duration-500 hover:-translate-y-1">
+                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${cert.gradient}`} />
               <div className={`absolute inset-0 bg-gradient-to-br ${cert.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
 
               <div className="relative p-6">
@@ -68,6 +67,7 @@ const CertificationsSection = ({ isActive }: CertificationsSectionProps) => {
                 </div>
               </div>
             </div>
+            </Reveal>
           ))}
         </div>
       </div>

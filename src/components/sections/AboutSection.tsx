@@ -63,7 +63,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
 
         {/* Professional summary */}
         <div className="mt-8 max-w-4xl mx-auto lg:mx-0">
-          <div className="relative overflow-hidden rounded-2xl bg-card/50 border border-border/50 p-8 md:p-10">
+          <div className="relative overflow-hidden rounded-2xl glass border-gradient p-8 md:p-10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-secondary/20 to-transparent rounded-full blur-3xl" />
             <h3 className="text-2xl font-bold gradient-text mb-4">{t('about.professionalSummary')}</h3>
             <p className="text-lg text-muted-foreground leading-relaxed relative z-10">{t('about.professionalSummaryText')}</p>
@@ -122,7 +122,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
                 />
 
                 <div
-                  className={`bg-card/50 backdrop-blur-sm rounded-xl p-5 border border-border/50 transition-all duration-300 hover:scale-[1.02] relative ${
+                  className={`glass rounded-xl p-5 transition-all duration-300 hover:scale-[1.02] relative ${
                     isEducation ? 'hover:border-secondary/50' : 'hover:border-primary/50'
                   }`}
                 >
@@ -184,14 +184,14 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         </div>
 
         <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
-          <div className="bg-card/30 rounded-xl px-8 py-6 border border-border/30 flex items-center gap-5 hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group min-w-[240px]">
+          <div className="glass rounded-xl px-8 py-6 flex items-center gap-5 hover:border-accent/40 transition-all duration-300 hover:scale-[1.02] group min-w-[240px]">
             <span className="text-4xl group-hover:scale-110 transition-transform">🇮🇹</span>
             <div>
               <h4 className="font-semibold text-lg">{languageNames.italian}</h4>
               <p className="text-sm text-muted-foreground">{t('about.nativeLevel')}</p>
             </div>
           </div>
-          <div className="bg-card/30 rounded-xl px-8 py-6 border border-border/30 flex items-center gap-5 hover:border-accent/30 transition-all duration-300 hover:scale-[1.02] group min-w-[240px]">
+          <div className="glass rounded-xl px-8 py-6 flex items-center gap-5 hover:border-accent/40 transition-all duration-300 hover:scale-[1.02] group min-w-[240px]">
             <span className="text-4xl group-hover:scale-110 transition-transform">🇬🇧</span>
             <div>
               <h4 className="font-semibold text-lg">{languageNames.english}</h4>

@@ -1,6 +1,7 @@
 import { Code2 } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
+import Reveal from '@/components/common/Reveal';
 import { skillCategories, type SkillCategory, type SkillLevel } from '@/data/skills';
 
 interface SkillsSectionProps {
@@ -27,11 +28,11 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
     return t('skills.level.intermediate');
   };
 
-  const renderCard = (category: SkillCategory) => {
+  const renderCard = (category: SkillCategory, index: number) => {
     const CategoryIcon = category.icon;
     return (
-      <div key={category.categoryKey} className="relative flex-1">
-        <div className="bg-card/30 rounded-2xl border border-border/30 overflow-hidden h-full">
+      <Reveal key={category.categoryKey} variant="up" delay={index * 100} className="relative flex-1">
+        <div className="glass border-gradient rounded-2xl overflow-hidden h-full transition-transform duration-300 hover:-translate-y-1">
           <div className="p-4 lg:p-6 border-b border-border/30">
             <div className="flex items-center gap-4 justify-center lg:justify-start">
               <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-gradient-to-br ${category.gradient} flex items-center justify-center text-background`}>
@@ -59,7 +60,7 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
             </div>
           </div>
         </div>
-      </div>
+      </Reveal>
     );
   };
 

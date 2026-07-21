@@ -2,6 +2,7 @@ import { Briefcase, ArrowUpRight, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
+import Reveal from '@/components/common/Reveal';
 import { projects } from '@/data/projects';
 
 interface PortfolioSectionProps {
@@ -27,15 +28,13 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
         />
 
         <div className="space-y-8 max-w-5xl mx-auto lg:mx-0">
-          {projects.map((project) => {
+          {projects.map((project, index) => {
             const technologies = project.techKey ? t(project.techKey).split(', ') : project.technologies ?? [];
 
             return (
-              <div
-                key={project.titleKey}
-                className="group relative bg-card/30 rounded-2xl border border-border/30 overflow-hidden hover:border-secondary/30 transition-all duration-500"
-              >
-                <div className="grid md:grid-cols-3 gap-0">
+              <Reveal key={project.titleKey} variant="up" delay={index * 90}>
+                <div className="group relative glass border-gradient rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1">
+                  <div className="grid md:grid-cols-3 gap-0">
                   <div className="relative md:col-span-1 aspect-square md:aspect-auto overflow-hidden">
                     <div className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-20`} />
                     <div className="absolute inset-0 flex items-center justify-center p-8">
@@ -93,6 +92,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
                   </div>
                 </div>
               </div>
+              </Reveal>
             );
           })}
         </div>

@@ -1,6 +1,7 @@
 import { Send } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
+import Reveal from '@/components/common/Reveal';
 import { contactMethods } from '@/data/contact';
 
 interface ContactSectionProps {
@@ -26,35 +27,36 @@ const ContactSection = ({ isActive }: ContactSectionProps) => {
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto lg:mx-0">
-          {contactMethods.map((method) => {
+          {contactMethods.map((method, index) => {
             const Icon = method.icon;
             const isExternal = method.link.startsWith('http');
             return (
-              <a
-                key={method.labelKey}
-                href={method.link}
-                target={isExternal ? '_blank' : undefined}
-                rel={isExternal ? 'noopener noreferrer' : undefined}
-                className="group relative bg-card/30 rounded-2xl border border-border/30 p-6 hover:border-primary/30 transition-all duration-500 hover:scale-[1.02]"
-              >
-                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${method.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
-                <div className="relative">
+              <Reveal key={method.labelKey} variant="up" delay={index * 80}>
+                <a
+                  href={method.link}
+                  target={isExternal ? '_blank' : undefined}
+                  rel={isExternal ? 'noopener noreferrer' : undefined}
+                  className="group relative block h-full glass border-gradient rounded-2xl p-6 transition-all duration-500 hover:-translate-y-1 hover:scale-[1.02]"
+                >
+                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${method.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+                  <div className="relative">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${method.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className="w-5 h-5 text-background" />
                   </div>
                   <h3 className="font-semibold mb-1">{t(method.labelKey)}</h3>
                   <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">{method.value}</p>
                 </div>
-              </a>
+                </a>
+              </Reveal>
             );
           })}
         </div>
 
-        <div className="mt-16 max-w-4xl mx-auto lg:mx-0">
-          <div className="bg-card/20 rounded-2xl border border-border/30 p-8 text-center">
+        <Reveal variant="up" className="mt-16 max-w-4xl mx-auto lg:mx-0">
+          <div className="glass border-gradient rounded-2xl p-8 text-center">
             <p className="text-muted-foreground">{t('about.contactCTA')}</p>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

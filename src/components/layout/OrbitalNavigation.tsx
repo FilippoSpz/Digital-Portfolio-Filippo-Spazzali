@@ -13,6 +13,8 @@ type LocalizedNavItem = NavItem & { label: string };
 
 const DEG_PER_SEC = 6;
 const BASE_ANGLE_STEP = 60;
+/** Vertical squash to give the orbital plane a tilted, 3D-like perspective. */
+const ELLIPSE = 0.6;
 
 /** Renders orbit rings + orbiting planets. Positions update imperatively via rAF (no React re-renders). */
 const SolarSystem = ({
@@ -42,7 +44,12 @@ const SolarSystem = ({
         const el = planetRefs.current[i];
         if (!el) return;
         const angle = (rotation * item.speed + i * BASE_ANGLE_STEP) * (Math.PI / 180);
-        el.style.transform = `translate(${Math.cos(angle) * item.orbitRadius}px, ${Math.sin(angle) * item.orbitRadius}px)`;
+        const x = Math.cos(angle) * item.orbitRadius;
+        const y = Math.sin(angle) * item.orbitRadius * ELLIPSE;
+        // Planets nearer the viewer (front of the ellipse) sit slightly larger/brighter.
+        const depth = 0.9 + ((Math.sin(angle) + 1) / 2) * 0.2;
+        el.style.transform = `translate(${x}px, ${y}px) scale(${depth})`;
+        el.style.zIndex = String(10 + Math.round(Math.sin(angle) * 5));
       });
     };
 
@@ -68,13 +75,13 @@ const SolarSystem = ({
         return (
           <div
             key={`orbit-${variant}-${item.id}`}
-            className="absolute rounded-full border transition-all duration-500"
+            className="absolute rounded-[50%] border transition-all duration-500"
             style={{
               width: item.orbitRadius * 2,
-              height: item.orbitRadius * 2,
-              borderColor: isActive ? `${item.color}40` : 'rgba(255,255,255,0.08)',
+              height: item.orbitRadius * 2 * ELLIPSE,
+              borderColor: isActive ? `${item.color}55` : 'rgba(180,190,255,0.10)',
               borderWidth: isActive ? 2 : 1,
-              boxShadow: isActive && isDesktop ? `0 0 20px ${item.color}30, inset 0 0 20px ${item.color}10` : 'none',
+              boxShadow: isActive ? `0 0 24px ${item.color}35, inset 0 0 24px ${item.color}12` : 'none',
             }}
           />
         );
@@ -83,6 +90,9 @@ const SolarSystem = ({
       {items.map((item, index) => {
         const Icon = item.icon;
         const isActive = activeSection === item.id;
+        const baseAngle = index * BASE_ANGLE_STEP * (Math.PI / 180);
+        const initialX = Math.cos(baseAngle) * item.orbitRadius;
+        const initialY = Math.sin(baseAngle) * item.orbitRadius * ELLIPSE;
 
         return (
           <button
@@ -95,6 +105,7 @@ const SolarSystem = ({
             aria-label={item.label}
             aria-current={isActive ? 'true' : undefined}
             className="absolute z-10 group"
+            style={{ transform: `translate(${initialX}px, ${initialY}px)` }}
           >
             <div
               className={`absolute inset-[-5px] rounded-full transition-all duration-500 ${
@@ -126,10 +137,10 @@ const SolarSystem = ({
 
             {isDesktop && (
               <div
-                className={`absolute left-full ml-3 px-3 py-1.5 rounded-lg whitespace-nowrap bg-card/95 backdrop-blur-sm border border-border/50 transition-all duration-300 pointer-events-none ${
+                className={`glass absolute left-full ml-3 px-3 py-1.5 rounded-lg whitespace-nowrap transition-all duration-300 pointer-events-none ${
                   isActive ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0'
                 }`}
-                style={{ boxShadow: `0 0 15px ${item.color}30` }}
+                style={{ boxShadow: `0 0 18px ${item.color}30` }}
               >
                 <span className="text-sm font-medium" style={{ color: item.color }}>
                   {item.label}

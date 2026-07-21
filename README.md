@@ -9,13 +9,14 @@ Live: **https://filippospz.netlify.app/**
 
 - **React 18** + **TypeScript** (strict mode)
 - **Vite** (SWC) as build tool and dev server
-- **Tailwind CSS** for styling + a small design‑system layer
-- **shadcn/ui** (Button) on top of **Radix UI**
-- **lucide-react** for icons
-- Canvas‑based animated **cosmic background** (stars + nebulae), respects `prefers-reduced-motion`
-- Lightweight custom **i18n** with `localStorage` persistence and browser‑language detection
+- **Tailwind CSS** + a small design‑system layer (deep‑space theme)
+- **Space Grotesk** (display) + **Inter** (body)
+- **shadcn/ui** (Button) on top of **Radix UI**, **lucide-react** icons
+- **react-three-fiber / three.js** — a lazy‑loaded WebGL scene (3D starfield + planet) with a graceful 2D canvas fallback; respects `prefers-reduced-motion`
+- Cinematic scroll reveals via IntersectionObserver
+- Lightweight custom **i18n** (EN/IT) with `localStorage` persistence and browser‑language detection
 
-No heavy 3D dependencies, no dead UI kit — only what the site actually uses.
+The 3D bundle is code‑split, so the initial load stays light and only pulls in three.js when WebGL is available.
 
 ---
 
