@@ -5,6 +5,7 @@ export const en = {
   'nav.skills': 'Skills',
   'nav.certifications': 'Certifications',
   'nav.portfolio': 'Portfolio',
+  'nav.projects': 'Projects',
   'nav.contact': 'Contact',
   'nav.downloadCV': 'Download CV',
 
@@ -24,7 +25,7 @@ export const en = {
     "I'm a passionate software developer with a strong foundation in web technologies and a keen eye for creating seamless user experiences.",
   'about.professionalSummary': 'Professional Summary',
   'about.professionalSummaryText':
-    'Software Developer with 4 years of experience specializing in web development. Delivered lots of improvements in site responsiveness and user accessibility by optimizing interfaces and system performance for clients including Colori di Sicilia and Wärtsilä Italia, where I was also an intern. Built a full e-commerce platform for Artigiani della Pipa, enhancing user experience with custom web solutions. Skilled in HTML, CSS, JavaScript, TypeScript; known for driving user-centric digital transformation.',
+    'Software Developer with 4 years of experience specializing in web development. Delivered lots of improvements in site responsiveness and user accessibility by optimizing interfaces and system performance for clients including Colori di Sicilia and Wärtsilä Italia, where I was also an intern. Built full e-commerce platforms for niche craftsmanship, enhancing user experience with custom web solutions. Skilled in HTML, CSS, JavaScript, TypeScript; known for driving user-centric digital transformation.',
   'about.experience': 'Work Experience',
   'about.workExperience': 'Work Experience',
   'about.careerJourney': 'Scroll horizontally to explore my career journey',
@@ -42,14 +43,16 @@ export const en = {
   // Work Experience
   'experience.webDeveloper': 'Web Developer',
   'experience.intern': 'Web Developer Intern',
-  'experience.ceramiche.desc1':
-    'Developed and optimized user-friendly interfaces for Colori di Sicilia, tailored to showcase traditional Sicilian ceramics.',
-  'experience.ceramiche.desc2':
-    'Created intuitive and user-oriented web pages to enhance browsing experience, managing the entire process independently.',
-  'experience.artigiani.desc1':
-    'Built a full e-commerce platform for Artigiani della Pipa using Odoo, integrating custom HTML, CSS, and TypeScript.',
-  'experience.artigiani.desc2':
-    'Delivered custom solutions to highlight handcrafted products with an elegant and intuitive user experience.',
+  'experience.testIntern': 'QA / Test Engineer Intern',
+  'experience.innova.desc1': 'Testing: manual, functional and regression testing of software releases.',
+  'experience.innova.desc2':
+    'Documentation: writing test cases and bug reports, maintaining the test suite and full use-case documentation.',
+  'experience.innova.desc3':
+    'Automation: supporting the development of automated validation scripts. Stack & tools: Git, GitLab, Jira, Playwright.',
+  'experience.volt.desc1':
+    'E-commerce development (Odoo): designed and built two Odoo-based e-commerce platforms from scratch for niche craftsmanship — traditional Sicilian ceramics and artisan pipe makers.',
+  'experience.volt.desc2':
+    'Custom development in HTML, CSS and TypeScript, with elegant, user-friendly UI/UX crafted to showcase handcrafted products online. (Both web projects are currently offline.)',
   'experience.viaglut.desc1':
     'Redesigned the Via Glut website, enhancing UI/UX and implementing responsive design to increase user engagement.',
   'experience.viaglut.desc2':
@@ -65,7 +68,7 @@ export const en = {
   // Education
   'education.bachelors': "Bachelor's Degree in Computer Engineering",
   'education.university': 'University of Trieste',
-  'education.expectedGraduation': 'Expected July 2026',
+  'education.expectedGraduation': 'Expected October 2026',
   'education.highSchool': 'High School Diploma',
   'education.technicalInstitute': 'Alessandro Volta Technical Institute',
   'education.graduated': 'July 2022',
@@ -87,6 +90,7 @@ export const en = {
   'skills.category.office': 'Office & Productivity',
   'skills.level.expert': 'Expert',
   'skills.level.advanced': 'Advanced',
+  'skills.level.intermediate': 'Intermediate',
 
   // Certifications
   'certifications.title': 'Certifications',
@@ -116,34 +120,50 @@ export const en = {
 
   // Portfolio
   'portfolio.title': 'Portfolio',
-  'portfolio.subtitle': 'Some of my recent projects',
+  'portfolio.subtitle': 'Some of my recent professional projects',
   'portfolio.viewProject': 'See More',
   'portfolio.viewDetails': 'View Details',
   'portfolio.moreComingSoon': 'More Projects Coming Soon',
   'portfolio.moreComingSoonDesc':
     "I'm constantly working on new projects and expanding my portfolio. These projects represent my professional experience and demonstrate my ability to build scalable, user-friendly applications. Feel free to contact me to learn more about any of these projects or to discuss potential collaborations.",
   'portfolio.technologiesUsed': 'Technologies Used:',
+  'portfolio.status.offline': 'No longer online',
+  'portfolio.status.private': 'Private project',
+  'portfolio.volt.title': 'VOLT Srl — E-commerce Development',
+  'portfolio.volt.description':
+    'Two Odoo-based e-commerce platforms built from scratch for niche craftsmanship: traditional Sicilian ceramics (Colori di Sicilia) and artisan pipe makers (Artigiani della Pipa). Custom HTML, CSS and TypeScript with tailored, elegant UI/UX to showcase handcrafted products online.',
+  'portfolio.volt.category': 'Web Development',
   'portfolio.viaglut.title': 'ViaGlut Website Redesign',
   'portfolio.viaglut.description':
     'Redesigned and optimized parts of the ViaGlut website using Magento, HTML, and CSS. Focused on creating user-friendly and intuitive interfaces to enhance customer experience.',
   'portfolio.viaglut.category': 'Web Development',
   'portfolio.circolo.title': 'Management Software System',
   'portfolio.circolo.description':
-    'Developed a comprehensive private management software from scratch for CIRCOLO AZIENDALE FINCANTIERI - WÄRTSILÄ ITALIA. Replaced legacy system and significantly improved performance and usability.',
+    'Developed a comprehensive private management software from scratch for CIRCOLO AZIENDALE FINCANTIERI - WÄRTSILÄ ITALIA. Replaced legacy system and significantly improved performance and usability. The software is fully private and internal.',
   'portfolio.circolo.category': 'Software Development',
   'portfolio.circolo.tech': 'HTML, CSS, JavaScript, PHP, MySQL',
   'portfolio.wartsila.title': 'Wärtsilä UI Development',
   'portfolio.wartsila.description':
     'Designed and developed the initial user interface for a management program during internship at Wärtsilä Italia. Collaborated with the R&D Engineering team.',
   'portfolio.wartsila.category': 'Internship Project',
-  'portfolio.ceramiche.title': 'Colori di Sicilia Website Building',
-  'portfolio.ceramiche.description':
-    'Built an e-commerce website from scratch for a traditional Sicilian ceramics brand using Odoo platform.',
-  'portfolio.ceramiche.category': 'Web Development',
-  'portfolio.artigiani.title': 'Artigiani della Pipa Website Building',
-  'portfolio.artigiani.description':
-    'Developed a complete e-commerce platform for artisan pipe makers, crafting custom solutions with Odoo and modern web technologies.',
-  'portfolio.artigiani.category': 'Web Development',
+
+  // Projects (academic & open-source)
+  'projects.title': 'Academic Projects',
+  'projects.subtitle': 'University coursework and personal builds that shaped my engineering foundations',
+  'projects.viewRepo': 'View on GitHub',
+  'projects.viewAll': 'See all repositories on GitHub',
+  'projects.web.title': 'Web Applications',
+  'projects.web.description':
+    'Responsive web apps built during my studies with HTML, CSS, JavaScript and TypeScript — focused on clean, intuitive, user-friendly interfaces.',
+  'projects.os.title': 'Operating Systems',
+  'projects.os.description':
+    'A series of system-programming labs in C and Bash: shell scripting, file management, processes and low-level OS concepts.',
+  'projects.pa.title': 'Advanced Programming',
+  'projects.pa.description':
+    'Java projects exploring socket client–server communication, data structures and algorithmic problem solving.',
+  'projects.db.title': 'Database Design',
+  'projects.db.description':
+    'A normalized MySQL database (1NF–3NF) for a 3D-modeling studio, featuring triggers, stored procedures and views.',
 
   // Contact
   'contact.title': "Let's Connect",

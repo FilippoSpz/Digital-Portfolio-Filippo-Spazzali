@@ -126,17 +126,19 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
                     isEducation ? 'hover:border-secondary/50' : 'hover:border-primary/50'
                   }`}
                 >
-                  <a
-                    href={exp.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={t('about.viewInstitute')}
-                    className={`absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-                      isEducation ? 'bg-secondary/20 hover:bg-secondary/30 text-secondary' : 'bg-primary/20 hover:bg-primary/30 text-primary'
-                    }`}
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
+                  {exp.link && (
+                    <a
+                      href={exp.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={t('about.viewInstitute')}
+                      className={`absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+                        isEducation ? 'bg-secondary/20 hover:bg-secondary/30 text-secondary' : 'bg-primary/20 hover:bg-primary/30 text-primary'
+                      }`}
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  )}
 
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${isEducation ? 'bg-secondary/20' : 'bg-primary/20'}`}>
                     <Icon className={`w-5 h-5 ${isEducation ? 'text-secondary' : 'text-primary'}`} />

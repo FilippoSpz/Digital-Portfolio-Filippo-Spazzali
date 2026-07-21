@@ -3,8 +3,7 @@ import type { TranslationKey } from '@/i18n/translations/en';
 import viaglutImage from '@/assets/portfolio/viaglut.png';
 import wartsilaImage from '@/assets/portfolio/wartsila.webp';
 import circoloImage from '@/assets/portfolio/circolo.webp';
-import ceramicheImage from '@/assets/portfolio/ceramiche.png';
-import artigianiImage from '@/assets/portfolio/artigiani.png';
+import voltImage from '@/assets/portfolio/ceramiche.png';
 
 export interface Project {
   titleKey: TranslationKey;
@@ -14,7 +13,10 @@ export interface Project {
   technologies?: string[];
   techKey?: TranslationKey;
   year: string;
-  link: string;
+  /** Live/repo link. Omitted for private or offline projects. */
+  link?: string;
+  /** Status label shown when there is no link (e.g. private / offline). */
+  statusKey?: TranslationKey;
   image: string;
   /** Full Tailwind gradient classes (kept verbatim for the JIT). */
   gradient: string;
@@ -24,26 +26,14 @@ export interface Project {
 
 export const projects: Project[] = [
   {
-    titleKey: 'portfolio.ceramiche.title',
-    descriptionKey: 'portfolio.ceramiche.description',
-    categoryKey: 'portfolio.ceramiche.category',
+    titleKey: 'portfolio.volt.title',
+    descriptionKey: 'portfolio.volt.description',
+    categoryKey: 'portfolio.volt.category',
     technologies: ['Odoo', 'HTML', 'CSS', 'TypeScript'],
     year: '2025',
-    link: 'https://coloridisicilia1.odoo.com/',
-    image: ceramicheImage,
+    statusKey: 'portfolio.status.offline',
+    image: voltImage,
     gradient: 'from-orange-500 to-amber-500',
-    rounded: true,
-    whiteBg: true,
-  },
-  {
-    titleKey: 'portfolio.artigiani.title',
-    descriptionKey: 'portfolio.artigiani.description',
-    categoryKey: 'portfolio.artigiani.category',
-    technologies: ['Odoo', 'HTML', 'CSS', 'TypeScript'],
-    year: '2025',
-    link: 'https://artigianidellapipa.odoo.com/',
-    image: artigianiImage,
-    gradient: 'from-cyan-500 to-purple-600',
     rounded: true,
     whiteBg: true,
   },
@@ -64,7 +54,7 @@ export const projects: Project[] = [
     categoryKey: 'portfolio.circolo.category',
     techKey: 'portfolio.circolo.tech',
     year: '2022-2023',
-    link: 'https://www.circolofinwar.it/',
+    statusKey: 'portfolio.status.private',
     image: circoloImage,
     gradient: 'from-cyan-500 to-purple-600',
   },

@@ -21,7 +21,11 @@ const ProficiencyDots = ({ level, gradient }: { level: SkillLevel; gradient: str
 const SkillsSection = ({ isActive }: SkillsSectionProps) => {
   const { t } = useLanguage();
 
-  const levelLabel = (level: SkillLevel) => (level === 5 ? t('skills.level.expert') : t('skills.level.advanced'));
+  const levelLabel = (level: SkillLevel) => {
+    if (level === 5) return t('skills.level.expert');
+    if (level === 4) return t('skills.level.advanced');
+    return t('skills.level.intermediate');
+  };
 
   const renderCard = (category: SkillCategory) => {
     const CategoryIcon = category.icon;

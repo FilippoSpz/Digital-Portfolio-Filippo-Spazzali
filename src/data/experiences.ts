@@ -2,8 +2,8 @@ import type { TranslationKey } from '@/i18n/translations/en';
 
 interface BaseExperience {
   location: string;
-  link: string;
-  descriptionKeys: [TranslationKey, TranslationKey];
+  link?: string;
+  descriptionKeys: TranslationKey[];
 }
 
 export interface EducationExperience extends BaseExperience {
@@ -25,6 +25,15 @@ export type Experience = EducationExperience | WorkExperience;
 /** Ordered most-recent first, matching the CV timeline. */
 export const experiences: Experience[] = [
   {
+    type: 'work',
+    roleKey: 'experience.testIntern',
+    company: 'INNOVA',
+    period: '2026 – Present',
+    location: 'Trieste, Italy',
+    link: 'https://www.innovatrieste.it/',
+    descriptionKeys: ['experience.innova.desc1', 'experience.innova.desc2', 'experience.innova.desc3'],
+  },
+  {
     type: 'education',
     degreeKey: 'education.bachelors',
     institutionKey: 'education.university',
@@ -36,20 +45,10 @@ export const experiences: Experience[] = [
   {
     type: 'work',
     roleKey: 'experience.webDeveloper',
-    company: 'Artigiani della Pipa (Freelancer)',
-    period: 'Dec 2025 – Jan 2026',
+    company: 'VOLT Srl',
+    period: 'Nov 2025 – Jan 2026',
     location: 'Trieste, Italy',
-    link: 'https://artigianidellapipa.odoo.com/',
-    descriptionKeys: ['experience.artigiani.desc1', 'experience.artigiani.desc2'],
-  },
-  {
-    type: 'work',
-    roleKey: 'experience.webDeveloper',
-    company: 'Colori di Sicilia (Freelancer)',
-    period: 'Nov 2025 – Dec 2025',
-    location: 'Trieste, Italy',
-    link: 'https://coloridisicilia1.odoo.com/',
-    descriptionKeys: ['experience.ceramiche.desc1', 'experience.ceramiche.desc2'],
+    descriptionKeys: ['experience.volt.desc1', 'experience.volt.desc2'],
   },
   {
     type: 'work',

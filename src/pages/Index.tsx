@@ -5,6 +5,7 @@ import AboutSection from '@/components/sections/AboutSection';
 import SkillsSection from '@/components/sections/SkillsSection';
 import CertificationsSection from '@/components/sections/CertificationsSection';
 import PortfolioSection from '@/components/sections/PortfolioSection';
+import ProjectsSection from '@/components/sections/ProjectsSection';
 import ContactSection from '@/components/sections/ContactSection';
 import { useActiveSection } from '@/hooks/useActiveSection';
 
@@ -26,6 +27,7 @@ const Index = () => {
         <SkillsSection isActive={activeSection === 'skills'} />
         <CertificationsSection isActive={activeSection === 'certifications'} />
         <PortfolioSection isActive={activeSection === 'portfolio'} />
+        <ProjectsSection isActive={activeSection === 'projects'} />
         <ContactSection isActive={activeSection === 'contact'} />
       </main>
     </div>

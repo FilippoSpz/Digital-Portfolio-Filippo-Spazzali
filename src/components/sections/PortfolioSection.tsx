@@ -1,4 +1,4 @@
-import { Briefcase, ArrowUpRight } from 'lucide-react';
+import { Briefcase, ArrowUpRight, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
@@ -74,12 +74,21 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
                     </div>
 
                     <div>
-                      <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 group/btn" asChild>
-                        <a href={project.link} target="_blank" rel="noopener noreferrer">
-                          {t('portfolio.viewProject')}
-                          <ArrowUpRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
-                        </a>
-                      </Button>
+                      {project.link ? (
+                        <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 group/btn" asChild>
+                          <a href={project.link} target="_blank" rel="noopener noreferrer">
+                            {t('portfolio.viewProject')}
+                            <ArrowUpRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                          </a>
+                        </Button>
+                      ) : (
+                        project.statusKey && (
+                          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/40 border border-border/50 text-sm text-muted-foreground">
+                            <Lock className="h-4 w-4" />
+                            {t(project.statusKey)}
+                          </span>
+                        )
+                      )}
                     </div>
                   </div>
                 </div>

@@ -46,6 +46,7 @@ const CosmicBackground = ({ activeSection }: CosmicBackgroundProps) => {
       skills: { h: 135, s: 5, l: 3 },
       certifications: { h: 30, s: 5, l: 3 },
       portfolio: { h: 326, s: 5, l: 3 },
+      projects: { h: 0, s: 5, l: 3 },
       contact: { h: 65, s: 5, l: 3 },
     }),
     [],

@@ -22,9 +22,11 @@ import bashIcon from '@/assets/skills/bash.png';
 import cIcon from '@/assets/skills/c.png';
 import cppIcon from '@/assets/skills/cpp.png';
 import latexIcon from '@/assets/skills/latex.png';
+import pythonIcon from '@/assets/skills/python.svg';
+import playwrightIcon from '@/assets/skills/playwright.svg';
 
-/** 5 = Expert, 4 = Advanced. */
-export type SkillLevel = 4 | 5;
+/** 5 = Expert, 4 = Advanced, 3 = Intermediate. */
+export type SkillLevel = 3 | 4 | 5;
 
 export interface Skill {
   name: string;
@@ -50,6 +52,7 @@ export const skillCategories: SkillCategory[] = [
       { name: 'Java', icon: javaIcon, level: 5 },
       { name: 'C', icon: cIcon, level: 4 },
       { name: 'C++', icon: cppIcon, level: 5 },
+      { name: 'Python', icon: pythonIcon, level: 3 },
       { name: 'Bash', icon: bashIcon, level: 4 },
       { name: 'LaTeX', icon: latexIcon, level: 5 },
     ],
@@ -63,6 +66,7 @@ export const skillCategories: SkillCategory[] = [
       { name: 'CSS', icon: cssIcon, level: 5 },
       { name: 'JavaScript', icon: jsIcon, level: 5 },
       { name: 'TypeScript', icon: typescriptIcon, level: 5 },
+      { name: 'Playwright', icon: playwrightIcon, level: 3 },
     ],
   },
   {
