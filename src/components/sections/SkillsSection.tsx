@@ -69,8 +69,8 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
       id="skills"
       className={`min-h-screen py-24 relative transition-opacity duration-700 ${isActive ? 'opacity-100' : 'opacity-50'}`}
     >
-      <div className="container mx-auto px-4 md:px-8 lg:pl-40">
-        <SectionHeader icon={Code2} badge={t('nav.skills')} title={t('skills.title')} subtitle={t('skills.subtitle')} accent="accent" className="mb-16" />
+      <div className="container mx-auto px-4 md:px-8 lg:pl-[25rem]">
+        <SectionHeader icon={Code2} badge={t('nav.skills')} title={t('skills.title')} subtitle={t('skills.subtitle')} accent="accent" index="02" className="mb-16" />
 
         <div className="space-y-6">
           <div className="flex flex-col lg:flex-row gap-6">{skillCategories.slice(0, 2).map(renderCard)}</div>

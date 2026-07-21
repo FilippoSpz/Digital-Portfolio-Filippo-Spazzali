@@ -14,7 +14,7 @@ type LocalizedNavItem = NavItem & { label: string };
 const DEG_PER_SEC = 6;
 const BASE_ANGLE_STEP = 60;
 /** Vertical squash to give the orbital plane a tilted, 3D-like perspective. */
-const ELLIPSE = 0.6;
+const ELLIPSE = 0.78;
 
 /** Renders orbit rings + orbiting planets. Positions update imperatively via rAF (no React re-renders). */
 const SolarSystem = ({
@@ -117,6 +117,21 @@ const SolarSystem = ({
               }}
             />
 
+            {/* Saturn-like ring */}
+            {item.ring && (
+              <div
+                className="absolute left-1/2 top-1/2 rounded-[50%] pointer-events-none"
+                style={{
+                  width: item.size * 2.5,
+                  height: item.size * 0.95,
+                  transform: 'translate(-50%, -50%) rotate(-20deg)',
+                  border: `1.5px solid ${item.color}70`,
+                  boxShadow: `0 0 10px ${item.color}45`,
+                }}
+              />
+            )}
+
+            {/* Planet body */}
             <div
               className={`relative rounded-full flex items-center justify-center transition-all duration-300 ${
                 isActive ? 'scale-125' : 'group-hover:scale-110'
@@ -124,15 +139,17 @@ const SolarSystem = ({
               style={{
                 width: item.size,
                 height: item.size,
-                background: isActive
-                  ? `linear-gradient(135deg, ${item.color}, ${item.color}99)`
-                  : `linear-gradient(135deg, ${item.color}80, ${item.color}40)`,
+                background: `radial-gradient(circle at 32% 26%, ${item.color}, ${item.color}cc 46%, ${item.color}55 100%)`,
                 boxShadow: isActive
-                  ? `0 0 20px ${item.color}60, inset -3px -3px 10px rgba(0,0,0,0.3), inset 3px 3px 10px rgba(255,255,255,0.2)`
-                  : `inset -2px -2px 8px rgba(0,0,0,0.3), inset 2px 2px 8px rgba(255,255,255,0.1)`,
+                  ? `0 0 28px ${item.color}, 0 0 10px ${item.color}, inset -3px -4px 10px rgba(0,0,0,0.5), inset 3px 3px 9px rgba(255,255,255,0.4)`
+                  : `0 0 14px ${item.color}66, inset -3px -4px 9px rgba(0,0,0,0.45), inset 2px 2px 7px rgba(255,255,255,0.28)`,
               }}
             >
-              <Icon style={{ width: item.size * 0.5, height: item.size * 0.5, color: isActive ? '#282a36' : 'rgba(40,42,54,0.8)' }} />
+              <span
+                className="absolute rounded-full pointer-events-none"
+                style={{ width: '42%', height: '42%', top: '15%', left: '20%', background: 'radial-gradient(circle, rgba(255,255,255,0.9), transparent 70%)' }}
+              />
+              <Icon className="relative" style={{ width: item.size * 0.46, height: item.size * 0.46, color: 'rgba(12,15,40,0.9)' }} />
             </div>
 
             {isDesktop && (
@@ -180,13 +197,13 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
   return (
     <>
       {/* Desktop solar-system navigation */}
-      <nav className="fixed left-0 top-0 h-screen w-[320px] z-[100] hidden lg:flex items-center justify-center">
+      <nav className="fixed left-0 top-0 h-screen w-[400px] z-[100] hidden lg:flex items-center justify-center">
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at -20% 50%, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 40%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse at 20% 50%, hsl(228 42% 4% / 0.9) 0%, hsl(228 42% 4% / 0.6) 45%, transparent 72%)' }}
         />
 
-        <div className="relative w-[340px] h-[340px] flex items-center justify-center" style={{ marginLeft: '10px' }}>
+        <div className="relative w-[420px] h-[460px] flex items-center justify-center">
           <button onClick={() => handleSectionClick('home')} className="absolute z-20 group" type="button" aria-label={t('nav.home')}>
             <div
               className="absolute inset-[-16px] rounded-full animate-pulse"

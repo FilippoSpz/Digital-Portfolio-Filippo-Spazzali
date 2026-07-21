@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-type RevealVariant = 'up' | 'down' | 'left' | 'right' | 'scale' | 'fade';
+type RevealVariant = 'up' | 'down' | 'left' | 'right' | 'scale' | 'zoom' | 'fade' | 'blur';
 
 const hiddenState: Record<RevealVariant, string> = {
-  up: 'opacity-0 translate-y-12',
-  down: 'opacity-0 -translate-y-12',
-  left: 'opacity-0 translate-x-12',
-  right: 'opacity-0 -translate-x-12',
+  up: 'opacity-0 translate-y-16',
+  down: 'opacity-0 -translate-y-16',
+  left: 'opacity-0 translate-x-16',
+  right: 'opacity-0 -translate-x-16',
   scale: 'opacity-0 scale-95',
+  zoom: 'opacity-0 scale-[0.8]',
   fade: 'opacity-0',
+  blur: 'opacity-0 blur-lg translate-y-10',
 };
 
 interface RevealProps {
@@ -23,7 +25,7 @@ interface RevealProps {
 }
 
 /** Reveals its children once they scroll into view (respects prefers-reduced-motion). */
-const Reveal = ({ children, variant = 'up', delay = 0, duration = 700, className }: RevealProps) => {
+const Reveal = ({ children, variant = 'up', delay = 0, duration = 800, className }: RevealProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -55,10 +57,10 @@ const Reveal = ({ children, variant = 'up', delay = 0, duration = 700, className
       ref={ref}
       className={cn(
         'ease-out will-change-transform motion-reduce:transition-none',
-        visible ? 'opacity-100 translate-x-0 translate-y-0 scale-100' : hiddenState[variant],
+        visible ? 'opacity-100 translate-x-0 translate-y-0 scale-100 blur-0' : hiddenState[variant],
         className,
       )}
-      style={{ transitionProperty: 'opacity, transform', transitionDuration: `${duration}ms`, transitionDelay: `${delay}ms` }}
+      style={{ transitionProperty: 'opacity, transform, filter', transitionDuration: `${duration}ms`, transitionDelay: `${delay}ms` }}
     >
       {children}
     </div>

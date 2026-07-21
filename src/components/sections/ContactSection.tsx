@@ -16,13 +16,14 @@ const ContactSection = ({ isActive }: ContactSectionProps) => {
       id="contact"
       className={`min-h-screen py-24 relative flex items-center transition-opacity duration-700 ${isActive ? 'opacity-100' : 'opacity-50'}`}
     >
-      <div className="container mx-auto px-4 md:px-8 lg:pl-40">
+      <div className="container mx-auto px-4 md:px-8 lg:pl-[25rem]">
         <SectionHeader
           icon={Send}
           badge={t('nav.contact')}
           title={t('contact.title')}
           subtitle={t('contact.subtitle')}
           accent="accent"
+          index="06"
           className="mb-16"
         />
 

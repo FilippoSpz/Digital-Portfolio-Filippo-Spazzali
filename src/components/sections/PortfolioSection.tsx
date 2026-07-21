@@ -17,13 +17,14 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
       id="portfolio"
       className={`min-h-screen py-24 relative transition-opacity duration-700 ${isActive ? 'opacity-100' : 'opacity-50'}`}
     >
-      <div className="container mx-auto px-4 md:px-8 lg:pl-40">
+      <div className="container mx-auto px-4 md:px-8 lg:pl-[25rem]">
         <SectionHeader
           icon={Briefcase}
           badge={t('nav.portfolio')}
           title={t('portfolio.title')}
           subtitle={t('portfolio.subtitle')}
           accent="secondary"
+          index="04"
           className="mb-16"
         />
 

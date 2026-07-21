@@ -3,6 +3,8 @@ import { Briefcase, GraduationCap, Languages, MapPin, Calendar, User, ExternalLi
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { experiences } from '@/data/experiences';
+import Reveal from '@/components/common/Reveal';
+import Parallax from '@/components/common/Parallax';
 
 interface AboutSectionProps {
   isActive: boolean;
@@ -41,34 +43,40 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
       className={`min-h-screen py-24 relative overflow-hidden transition-opacity duration-700 ${isActive ? 'opacity-100' : 'opacity-50'}`}
     >
       {/* Header */}
-      <div className="container mx-auto px-4 md:px-8 lg:pl-40 mb-8">
+      <div className="relative container mx-auto px-4 md:px-8 lg:pl-[25rem] mb-8">
+        <Parallax speed={0.3} className="pointer-events-none absolute -top-20 right-0 lg:-right-10 -z-10 select-none">
+          <span className="font-display font-bold text-[26vw] lg:text-[13rem] leading-none tracking-tighter text-foreground/[0.05]">01</span>
+        </Parallax>
+
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-center lg:text-left">
-          <div>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/30 mb-4">
+          <Reveal variant="up">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6">
               <User className="w-4 h-4 text-secondary" />
-              <span className="text-sm font-medium text-secondary">{t('nav.about')}</span>
+              <span className="text-sm font-medium tracking-wide text-secondary">{t('nav.about')}</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold italic uppercase tracking-wide">
+            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold italic uppercase tracking-tight text-glow">
               {t('about.workExperience')} & {t('about.education')}
             </h2>
-          </div>
-          <Button
-            variant="outline"
-            className="border-primary/50 hover:bg-primary/10 text-foreground whitespace-nowrap"
-            onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
-          >
-            {t('about.viewPortfolio')}
-          </Button>
+          </Reveal>
+          <Reveal variant="up" delay={120}>
+            <Button
+              variant="outline"
+              className="glass border-primary/40 hover:border-primary/70 hover:bg-primary/10 text-foreground whitespace-nowrap"
+              onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              {t('about.viewPortfolio')}
+            </Button>
+          </Reveal>
         </div>
 
         {/* Professional summary */}
-        <div className="mt-8 max-w-4xl mx-auto lg:mx-0">
+        <Reveal variant="blur" delay={100} className="mt-8 max-w-4xl mx-auto lg:mx-0">
           <div className="relative overflow-hidden rounded-2xl glass border-gradient p-8 md:p-10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-secondary/20 to-transparent rounded-full blur-3xl" />
-            <h3 className="text-2xl font-bold gradient-text mb-4">{t('about.professionalSummary')}</h3>
+            <h3 className="font-display text-2xl font-bold gradient-text mb-4">{t('about.professionalSummary')}</h3>
             <p className="text-lg text-muted-foreground leading-relaxed relative z-10">{t('about.professionalSummaryText')}</p>
           </div>
-        </div>
+        </Reveal>
       </div>
 
       {/* Horizontal timeline */}
@@ -78,7 +86,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
             showLeftShadow ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
-            width: '350px',
+            width: '400px',
             background: 'radial-gradient(ellipse 100% 100% at 0% 50%, hsl(var(--background)) 0%, hsl(var(--background) / 0.9) 40%, transparent 100%)',
           }}
         />
@@ -103,7 +111,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
                 key={index}
                 className={`flex-shrink-0 relative transition-all duration-700 ease-out ${
                   isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'
-                } ${index === 0 ? 'lg:ml-[350px]' : ''}`}
+                } ${index === 0 ? 'lg:ml-[25rem]' : ''}`}
                 style={{ transitionDelay: `${index * 80}ms`, width: isEducation ? '300px' : '360px' }}
               >
                 <div
@@ -175,7 +183,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
       </div>
 
       {/* Languages */}
-      <div className="container mx-auto px-4 md:px-8 lg:pl-40 mt-12">
+      <div className="container mx-auto px-4 md:px-8 lg:pl-[25rem] mt-12">
         <div className="flex items-center gap-3 mb-6 justify-center lg:justify-start">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center">
             <Languages className="w-5 h-5 text-background" />
