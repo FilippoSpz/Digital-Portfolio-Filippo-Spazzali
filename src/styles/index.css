@@ -163,6 +163,47 @@
     }
   }
 
+  /* Holographic sheen sweep (badges) */
+  .holo-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+  .holo-sheen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      hsl(var(--primary) / 0.16) 44%,
+      hsl(var(--secondary) / 0.22) 50%,
+      hsl(var(--accent) / 0.16) 56%,
+      transparent 70%
+    );
+    background-size: 250% 250%;
+    animation: holo 7s linear infinite;
+    mix-blend-mode: screen;
+  }
+  @keyframes holo {
+    0% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 200% 200%;
+    }
+  }
+
+  /* Terminal caret */
+  .animate-blink {
+    animation: blink 1.1s step-end infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
   /* Twinkle for CSS fallback stars */
   .animate-twinkle {
     animation: twinkle 4s ease-in-out infinite;

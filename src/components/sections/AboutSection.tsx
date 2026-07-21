@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react';
 import { Briefcase, GraduationCap, Languages, MapPin, Calendar, User, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -12,25 +11,6 @@ interface AboutSectionProps {
 
 const AboutSection = ({ isActive }: AboutSectionProps) => {
   const { t, language } = useLanguage();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const [showLeftShadow, setShowLeftShadow] = useState(false);
-
-  // Reveal cards once the section becomes active.
-  useEffect(() => {
-    if (!isActive) return;
-    const timer = setTimeout(() => setIsVisible(true), 100);
-    return () => clearTimeout(timer);
-  }, [isActive]);
-
-  // Show the left fade only once the timeline is scrolled (lightweight, container-scoped).
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    const handleScroll = () => setShowLeftShadow(container.scrollLeft > 50);
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const languageNames = {
     italian: language === 'en' ? 'Italian' : 'Italiano',
@@ -43,7 +23,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
       className={`min-h-screen py-24 relative overflow-hidden transition-opacity duration-700 ${isActive ? 'opacity-100' : 'opacity-50'}`}
     >
       {/* Header */}
-      <div className="relative container mx-auto px-4 md:px-8 lg:pl-[25rem] mb-8">
+      <div className="relative container mx-auto px-4 md:px-8 lg:pl-[25rem] mb-14">
         <Parallax speed={0.3} className="pointer-events-none absolute -top-20 right-0 lg:-right-10 -z-10 select-none">
           <span className="font-display font-bold text-[26vw] lg:text-[13rem] leading-none tracking-tighter text-foreground/[0.05]">01</span>
         </Parallax>
@@ -79,133 +59,123 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
         </Reveal>
       </div>
 
-      {/* Horizontal timeline */}
-      <div className="relative w-full">
-        <div
-          className={`hidden lg:block absolute left-0 top-0 h-full z-20 pointer-events-none transition-opacity duration-500 ${
-            showLeftShadow ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{
-            width: '400px',
-            background: 'radial-gradient(ellipse 100% 100% at 0% 50%, hsl(var(--background)) 0%, hsl(var(--background) / 0.9) 40%, transparent 100%)',
-          }}
-        />
+      {/* Constellation timeline */}
+      <div className="container mx-auto px-4 md:px-8 lg:pl-[25rem]">
+        <p className="lg:hidden text-center text-xs text-muted-foreground mb-8 tracking-widest uppercase">{t('about.careerJourney')}</p>
 
-        {/* Timeline line */}
-        <div className="absolute top-12 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/60 to-transparent z-0" />
+        <div className="relative max-w-4xl mx-auto lg:mx-0">
+          {/* Spine */}
+          <div className="absolute top-0 bottom-0 left-5 md:left-1/2 w-0.5 -translate-x-1/2 bg-gradient-to-b from-transparent via-primary/40 to-transparent" />
 
-        <p className="lg:hidden text-center text-xs text-muted-foreground mb-2">{t('about.careerJourney')}</p>
+          <div className="space-y-10 md:space-y-14">
+            {experiences.map((exp, index) => {
+              const isEducation = exp.type === 'education';
+              const Icon = isEducation ? GraduationCap : Briefcase;
+              const typeLabel = isEducation ? t('about.type.education') : t('about.type.work');
+              const side = index % 2 === 0 ? 'left' : 'right';
+              const enter = side === 'left' ? 'right' : 'left';
+              const accent = isEducation ? 'secondary' : 'primary';
 
-        <div
-          ref={scrollContainerRef}
-          className="flex gap-6 overflow-x-auto pb-8 pt-20 hide-scrollbar w-full relative z-10"
-          style={{ paddingLeft: '24px', paddingRight: '24px' }}
-        >
-          {experiences.map((exp, index) => {
-            const isEducation = exp.type === 'education';
-            const Icon = isEducation ? GraduationCap : Briefcase;
-            const typeLabel = isEducation ? t('about.type.education') : t('about.type.work');
+              return (
+                <div key={index} className="relative pl-16 md:pl-0 md:grid md:grid-cols-2 md:gap-10">
+                  {/* Node */}
+                  <div
+                    className={`absolute left-5 md:left-1/2 -translate-x-1/2 top-1.5 z-10 flex items-center justify-center w-10 h-10 rounded-full border-2 border-background ${
+                      isEducation ? 'bg-secondary' : 'bg-primary'
+                    }`}
+                    style={{ boxShadow: `0 0 18px hsl(var(--${accent}) / 0.8)` }}
+                  >
+                    <Icon className="w-4 h-4 text-background" />
+                  </div>
 
-            return (
-              <div
-                key={index}
-                className={`flex-shrink-0 relative transition-all duration-700 ease-out ${
-                  isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'
-                } ${index === 0 ? 'lg:ml-[25rem]' : ''}`}
-                style={{ transitionDelay: `${index * 80}ms`, width: isEducation ? '300px' : '360px' }}
-              >
-                <div
-                  className={`absolute -top-[52px] left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider z-10 ${
-                    isEducation ? 'bg-secondary/20 text-secondary' : 'bg-primary/20 text-primary'
-                  }`}
-                >
-                  {typeLabel}
-                </div>
-
-                <div
-                  className={`absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-4 border-background z-10 ${
-                    isEducation ? 'bg-secondary' : 'bg-primary'
-                  }`}
-                  style={{ boxShadow: `0 0 15px ${isEducation ? 'hsl(var(--secondary))' : 'hsl(var(--primary))'}` }}
-                />
-
-                <div
-                  className={`glass rounded-xl p-5 transition-all duration-300 hover:scale-[1.02] relative ${
-                    isEducation ? 'hover:border-secondary/50' : 'hover:border-primary/50'
-                  }`}
-                >
-                  {exp.link && (
-                    <a
-                      href={exp.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={t('about.viewInstitute')}
-                      className={`absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-                        isEducation ? 'bg-secondary/20 hover:bg-secondary/30 text-secondary' : 'bg-primary/20 hover:bg-primary/30 text-primary'
+                  <Reveal
+                    variant={enter}
+                    delay={40}
+                    className={side === 'left' ? 'md:col-start-1 md:pr-12' : 'md:col-start-2 md:pl-12'}
+                  >
+                    <div
+                      className={`relative glass rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 ${
+                        isEducation ? 'hover:border-secondary/50' : 'hover:border-primary/50'
                       }`}
                     >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  )}
+                      <div className="flex items-center justify-between gap-3 mb-3">
+                        <span
+                          className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                            isEducation ? 'bg-secondary/20 text-secondary' : 'bg-primary/20 text-primary'
+                          }`}
+                        >
+                          {typeLabel}
+                        </span>
+                        {exp.link && (
+                          <a
+                            href={exp.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={t('about.viewInstitute')}
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+                              isEducation ? 'bg-secondary/15 hover:bg-secondary/30 text-secondary' : 'bg-primary/15 hover:bg-primary/30 text-primary'
+                            }`}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        )}
+                      </div>
 
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${isEducation ? 'bg-secondary/20' : 'bg-primary/20'}`}>
-                    <Icon className={`w-5 h-5 ${isEducation ? 'text-secondary' : 'text-primary'}`} />
-                  </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                        <Calendar className="w-3 h-3" />
+                        <span>{exp.type === 'education' ? t(exp.periodKey) : exp.period}</span>
+                      </div>
 
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                    <Calendar className="w-3 h-3" />
-                    <span>{exp.type === 'education' ? t(exp.periodKey) : exp.period}</span>
-                  </div>
+                      <h4 className={`font-display text-lg font-semibold mb-1 ${isEducation ? 'text-secondary' : 'text-primary'}`}>
+                        {exp.type === 'education' ? t(exp.degreeKey) : t(exp.roleKey)}
+                      </h4>
+                      <p className="text-sm text-foreground mb-2">{exp.type === 'education' ? t(exp.institutionKey) : exp.company}</p>
 
-                  <h4 className={`text-base font-semibold mb-1 ${isEducation ? 'text-secondary' : 'text-primary'}`}>
-                    {exp.type === 'education' ? t(exp.degreeKey) : t(exp.roleKey)}
-                  </h4>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
+                        <MapPin className="w-3 h-3" />
+                        <span>{exp.location}</span>
+                      </div>
 
-                  <p className="text-sm text-foreground mb-2 pr-8">
-                    {exp.type === 'education' ? t(exp.institutionKey) : exp.company}
-                  </p>
-
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
-                    <MapPin className="w-3 h-3" />
-                    <span>{exp.location}</span>
-                  </div>
-
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    {exp.descriptionKeys.map((key) => (
-                      <p key={key}>{t(key)}</p>
-                    ))}
-                  </div>
+                      <div className="text-sm text-muted-foreground space-y-1.5">
+                        {exp.descriptionKeys.map((key) => (
+                          <p key={key}>{t(key)}</p>
+                        ))}
+                      </div>
+                    </div>
+                  </Reveal>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* Languages */}
-      <div className="container mx-auto px-4 md:px-8 lg:pl-[25rem] mt-12">
-        <div className="flex items-center gap-3 mb-6 justify-center lg:justify-start">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center">
-            <Languages className="w-5 h-5 text-background" />
+      <div className="container mx-auto px-4 md:px-8 lg:pl-[25rem] mt-16">
+        <Reveal variant="up">
+          <div className="flex items-center gap-3 mb-6 justify-center lg:justify-start">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center">
+              <Languages className="w-5 h-5 text-background" />
+            </div>
+            <h3 className="font-display text-xl font-bold">{t('about.languages')}</h3>
           </div>
-          <h3 className="text-xl font-bold">{t('about.languages')}</h3>
-        </div>
+        </Reveal>
 
         <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
-          <div className="glass rounded-xl px-8 py-6 flex items-center gap-5 hover:border-accent/40 transition-all duration-300 hover:scale-[1.02] group min-w-[240px]">
-            <span className="text-4xl group-hover:scale-110 transition-transform">🇮🇹</span>
-            <div>
-              <h4 className="font-semibold text-lg">{languageNames.italian}</h4>
-              <p className="text-sm text-muted-foreground">{t('about.nativeLevel')}</p>
-            </div>
-          </div>
-          <div className="glass rounded-xl px-8 py-6 flex items-center gap-5 hover:border-accent/40 transition-all duration-300 hover:scale-[1.02] group min-w-[240px]">
-            <span className="text-4xl group-hover:scale-110 transition-transform">🇬🇧</span>
-            <div>
-              <h4 className="font-semibold text-lg">{languageNames.english}</h4>
-              <p className="text-sm text-muted-foreground">{t('about.languagesText')}</p>
-            </div>
-          </div>
+          {[
+            { flag: '🇮🇹', name: languageNames.italian, level: t('about.nativeLevel') },
+            { flag: '🇬🇧', name: languageNames.english, level: t('about.languagesText') },
+          ].map((lang, i) => (
+            <Reveal key={lang.name} variant="up" delay={i * 100}>
+              <div className="glass rounded-xl px-8 py-6 flex items-center gap-5 hover:border-accent/40 transition-all duration-300 hover:scale-[1.02] group min-w-[240px]">
+                <span className="text-4xl group-hover:scale-110 transition-transform">{lang.flag}</span>
+                <div>
+                  <h4 className="font-semibold text-lg">{lang.name}</h4>
+                  <p className="text-sm text-muted-foreground">{lang.level}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
