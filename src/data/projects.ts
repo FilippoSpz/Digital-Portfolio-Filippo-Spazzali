@@ -1,9 +1,9 @@
+import { CodeXml, type LucideIcon } from 'lucide-react';
 import type { TranslationKey } from '@/i18n/translations/en';
 
 import viaglutImage from '@/assets/portfolio/viaglut.png';
 import wartsilaImage from '@/assets/portfolio/wartsila.webp';
 import circoloImage from '@/assets/portfolio/circolo.webp';
-import voltImage from '@/assets/portfolio/ceramiche.png';
 
 export interface Project {
   titleKey: TranslationKey;
@@ -17,7 +17,12 @@ export interface Project {
   link?: string;
   /** Status label shown when there is no link (e.g. private / offline). */
   statusKey?: TranslationKey;
-  image: string;
+  /** Screenshot/logo. Omit when the card uses an icon instead. */
+  image?: string;
+  /** Icon shown in place of a screenshot (e.g. for web-development work). */
+  icon?: LucideIcon;
+  /** Caption shown under the icon. */
+  iconLabel?: string;
   /** Full Tailwind gradient classes (kept verbatim for the JIT). */
   gradient: string;
   rounded?: boolean;
@@ -32,10 +37,9 @@ export const projects: Project[] = [
     technologies: ['Odoo', 'HTML', 'CSS', 'TypeScript'],
     year: '2025',
     statusKey: 'portfolio.status.offline',
-    image: voltImage,
-    gradient: 'from-orange-500 to-amber-500',
-    rounded: true,
-    whiteBg: true,
+    icon: CodeXml,
+    iconLabel: 'VOLT Srl',
+    gradient: 'from-sky-400 to-cyan-500',
   },
   {
     titleKey: 'portfolio.viaglut.title',

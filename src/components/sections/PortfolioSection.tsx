@@ -33,6 +33,7 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
           {projects.map((project, index) => {
             const technologies = project.techKey ? t(project.techKey).split(', ') : project.technologies ?? [];
             const imageLeft = index % 2 === 0;
+            const CardIcon = project.icon;
 
             return (
               <Reveal key={project.titleKey} variant={imageLeft ? 'right' : 'left'} duration={900}>
@@ -43,14 +44,29 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
                       <div className="group relative aspect-[4/3] rounded-3xl overflow-hidden glass border-gradient">
                         <div className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-25`} />
                         <div className="absolute inset-0 flex items-center justify-center p-10">
-                          <img
-                            src={project.image}
-                            alt={t(project.titleKey)}
-                            loading="lazy"
-                            className={`max-w-[62%] max-h-[62%] object-contain transition-transform duration-500 group-hover:scale-105 ${
-                              project.rounded ? 'rounded-2xl' : ''
-                            } ${project.whiteBg ? 'bg-white p-3' : ''}`}
-                          />
+                          {CardIcon ? (
+                            <div className="flex flex-col items-center justify-center gap-5 transition-transform duration-500 group-hover:scale-105">
+                              <div
+                                className={`flex items-center justify-center w-28 h-28 md:w-32 md:h-32 rounded-[1.75rem] bg-gradient-to-br ${project.gradient} shadow-2xl`}
+                              >
+                                <CardIcon className="w-14 h-14 md:w-16 md:h-16 text-background" strokeWidth={1.5} />
+                              </div>
+                              {project.iconLabel && (
+                                <span className="font-display text-2xl font-bold tracking-wide text-foreground">
+                                  {project.iconLabel}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <img
+                              src={project.image}
+                              alt={t(project.titleKey)}
+                              loading="lazy"
+                              className={`max-w-[62%] max-h-[62%] object-contain transition-transform duration-500 group-hover:scale-105 ${
+                                project.rounded ? 'rounded-2xl' : ''
+                              } ${project.whiteBg ? 'bg-white p-3' : ''}`}
+                            />
+                          )}
                         </div>
                         <div className="absolute top-4 left-4 px-3 py-1 glass rounded-full text-xs font-semibold">{project.year}</div>
                         <div className={`absolute bottom-0 right-0 font-display font-bold text-[7rem] leading-none pr-4 pb-1 text-transparent bg-clip-text bg-gradient-to-br ${project.gradient} opacity-20`}>
@@ -65,7 +81,15 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
                     <span className={`inline-block px-3 py-1 bg-gradient-to-r ${project.gradient} text-background rounded-full text-xs font-semibold mb-4`}>
                       {t(project.categoryKey)}
                     </span>
-                    <h3 className="font-display text-3xl md:text-4xl font-bold mb-4 leading-tight">{t(project.titleKey)}</h3>
+                    <h3 className="font-display text-3xl md:text-4xl font-bold mb-4 leading-tight">
+                      {t(project.titleKey)
+                        .split(' — ')
+                        .map((line) => (
+                          <span key={line} className="block">
+                            {line}
+                          </span>
+                        ))}
+                    </h3>
                     <p className="text-muted-foreground mb-6 leading-relaxed">{t(project.descriptionKey)}</p>
 
                     <div className="flex flex-wrap gap-2 mb-6">
