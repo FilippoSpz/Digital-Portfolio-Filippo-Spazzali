@@ -12,22 +12,21 @@ export interface NavItem {
   color: string;
   /** Planet diameter in px. */
   size: number;
-  /** Orbit radius in px. */
-  orbitRadius: number;
-  /** Relative angular speed. */
-  speed: number;
   /** Whether the planet has a Saturn-like ring. */
   ring?: boolean;
+  /** Constellation node position on the desktop nav, as a percentage of the column. */
+  x: number;
+  y: number;
 }
 
 export const navItems: NavItem[] = [
-  { id: 'home', icon: Home, labelKey: 'nav.home', color: '#a78bfa', size: 34, orbitRadius: 52, speed: 1 },
-  { id: 'about', icon: User, labelKey: 'nav.about', color: '#38bdf8', size: 32, orbitRadius: 76, speed: 0.82 },
-  { id: 'skills', icon: Code2, labelKey: 'nav.skills', color: '#34d399', size: 30, orbitRadius: 100, speed: 0.68 },
-  { id: 'certifications', icon: Award, labelKey: 'nav.certifications', color: '#fbbf24', size: 28, orbitRadius: 124, speed: 0.58, ring: true },
-  { id: 'portfolio', icon: Briefcase, labelKey: 'nav.portfolio', color: '#f472b6', size: 27, orbitRadius: 148, speed: 0.5 },
-  { id: 'projects', icon: Github, labelKey: 'nav.projects', color: '#fb7185', size: 26, orbitRadius: 170, speed: 0.44 },
-  { id: 'contact', icon: Mail, labelKey: 'nav.contact', color: '#22d3ee', size: 26, orbitRadius: 182, speed: 0.36, ring: true },
+  { id: 'home', icon: Home, labelKey: 'nav.home', color: '#a78bfa', size: 64, x: 33, y: 9 },
+  { id: 'about', icon: User, labelKey: 'nav.about', color: '#38bdf8', size: 52, x: 50, y: 22 },
+  { id: 'skills', icon: Code2, labelKey: 'nav.skills', color: '#34d399', size: 48, x: 29, y: 35 },
+  { id: 'certifications', icon: Award, labelKey: 'nav.certifications', color: '#fbbf24', size: 50, ring: true, x: 47, y: 48 },
+  { id: 'portfolio', icon: Briefcase, labelKey: 'nav.portfolio', color: '#f472b6', size: 52, x: 30, y: 61 },
+  { id: 'projects', icon: Github, labelKey: 'nav.projects', color: '#fb7185', size: 48, x: 48, y: 74 },
+  { id: 'contact', icon: Mail, labelKey: 'nav.contact', color: '#22d3ee', size: 50, ring: true, x: 33, y: 86 },
 ];
 
 export const RESUME_URL = '/certificates/Filippo_Spazzali_Resume.pdf';

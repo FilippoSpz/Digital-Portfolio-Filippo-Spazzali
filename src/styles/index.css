@@ -271,6 +271,30 @@
       opacity: 0;
     }
   }
+
+  /* A pulse of light travelling along the constellation path */
+  .animate-constellation-flow {
+    animation: constellation-flow 7s linear infinite;
+  }
+  @keyframes constellation-flow {
+    to {
+      stroke-dashoffset: -1000;
+    }
+  }
+
+  /* Gentle drift so the planets feel like they float in space */
+  .animate-float-soft {
+    animation: float-soft 7s ease-in-out infinite;
+  }
+  @keyframes float-soft {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
 }
 
 /* Respect users who prefer reduced motion. */
