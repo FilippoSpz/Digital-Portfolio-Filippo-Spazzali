@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <radialGradient id="bg" cx="42%" cy="34%" r="80%">
+      <stop offset="0%" stop-color="#141a40"/>
+      <stop offset="100%" stop-color="#06070f"/>
+    </radialGradient>
+    <radialGradient id="planet" cx="37%" cy="31%" r="78%">
+      <stop offset="0%" stop-color="#9a8cff"/>
+      <stop offset="42%" stop-color="#5a45bd"/>
+      <stop offset="100%" stop-color="#241a5e"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="58%" stop-color="#7c8cff" stop-opacity="0"/>
+      <stop offset="84%" stop-color="#7c8cff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#7c8cff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8ab4ff" stop-opacity="0.08"/>
+      <stop offset="48%" stop-color="#cfe0ff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#8ab4ff" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="15" fill="url(#bg)"/>
+
+  <!-- stars -->
+  <circle cx="12" cy="13" r="1" fill="#eaf0ff" opacity="0.9"/>
+  <circle cx="53" cy="11" r="0.8" fill="#bcd0ff" opacity="0.8"/>
+  <circle cx="51" cy="52" r="0.9" fill="#eaf0ff" opacity="0.75"/>
+  <circle cx="15" cy="49" r="0.7" fill="#a9b8ff" opacity="0.7"/>
+  <circle cx="44" cy="46" r="0.6" fill="#cfe0ff" opacity="0.6"/>
+
+  <!-- atmosphere glow -->
+  <circle cx="31" cy="30" r="20" fill="url(#glow)"/>
+
+  <!-- ring back half -->
+  <path d="M 9 33 A 26 8.5 -24 0 0 53 27" fill="none" stroke="url(#ring)" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- planet -->
+  <circle cx="31" cy="30" r="14.5" fill="url(#planet)"/>
+  <ellipse cx="25" cy="23" rx="4.6" ry="3.6" fill="#ffffff" opacity="0.3"/>
+
+  <!-- ring front half -->
+  <path d="M 53 27 A 26 8.5 -24 0 1 9 33" fill="none" stroke="url(#ring)" stroke-width="2.6" stroke-linecap="round"/>
+</svg>

@@ -16,7 +16,19 @@ const BASE_ANGLE_STEP = 60;
 /** Vertical squash to give the orbital plane a tilted, 3D-like perspective. */
 const ELLIPSE = 0.78;
 /** Orbit speed multiplier while the pointer hovers the nav (lets the user aim planets). */
-const HOVER_SLOWDOWN = 0.15;
+const HOVER_SLOWDOWN = 0.18;
+
+/** Decorative twinkling specks scattered behind the system. */
+const SPARKS = [
+  { x: '12%', y: '20%', s: 2, d: '0s' },
+  { x: '82%', y: '16%', s: 3, d: '1.4s' },
+  { x: '90%', y: '62%', s: 2, d: '0.6s' },
+  { x: '18%', y: '78%', s: 2, d: '2.1s' },
+  { x: '70%', y: '86%', s: 3, d: '0.9s' },
+  { x: '8%', y: '52%', s: 2, d: '1.8s' },
+  { x: '52%', y: '8%', s: 2, d: '2.6s' },
+  { x: '44%', y: '94%', s: 2, d: '1.1s' },
+];
 
 /** Central avatar: photo framed by counter-rotating gradient arcs and a breathing glow. */
 const HubAvatar = ({
@@ -69,8 +81,9 @@ const HubAvatar = ({
 };
 
 /**
- * Renders the orbit rings (SVG) + orbiting planets.
- * Positions, depth, bob and blur are updated imperatively via rAF (no React re-renders).
+ * Renders the orbit rings (SVG) + orbiting planets. Every planet stays fully lit and crisp
+ * (no dimming/blur) so all sections remain readable. Positions, bob, comet-trail angle and
+ * depth-scale are updated imperatively via rAF (no React re-renders).
  */
 const SolarSystem = ({
   items,
@@ -88,6 +101,7 @@ const SolarSystem = ({
   speedRef?: MutableRefObject<number>;
 }) => {
   const planetRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const tailRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const rotationRef = useRef(0);
   const activeRef = useRef(activeSection);
   activeRef.current = activeSection;
@@ -108,14 +122,18 @@ const SolarSystem = ({
         const y = Math.sin(angle) * item.orbitRadius * ELLIPSE;
         const bob = Math.sin((time / 1000) * (0.8 + item.speed) + i) * 3;
         const sin = Math.sin(angle);
-        // 0 = far side of the ellipse (behind the hub), 1 = near side (toward viewer).
-        const frontness = (sin + 1) / 2;
         const isActive = item.id === active;
-        const depth = 0.86 + frontness * 0.3;
+        // Subtle depth via scale + stacking only — brightness stays full so no option is obscured.
+        const depth = 0.94 + ((sin + 1) / 2) * 0.16;
         el.style.transform = `translate(${x}px, ${y + bob}px) scale(${depth})`;
         el.style.zIndex = isActive ? '40' : String(12 + Math.round(sin * 6));
-        el.style.filter = isActive ? 'none' : `blur(${((1 - frontness) * 2.2).toFixed(2)}px)`;
-        el.style.opacity = isActive ? '1' : (0.55 + frontness * 0.45).toFixed(3);
+
+        const tail = tailRefs.current[i];
+        if (tail) {
+          // Point the comet trail opposite the direction of travel (the orbit tangent).
+          const deg = (Math.atan2(-ELLIPSE * Math.cos(angle), Math.sin(angle)) * 180) / Math.PI;
+          tail.style.transform = `translateY(-50%) rotate(${deg.toFixed(1)}deg)`;
+        }
       });
     };
 
@@ -143,7 +161,7 @@ const SolarSystem = ({
           {items.map((item) => (
             <linearGradient key={`grad-${variant}-${item.id}`} id={`orbit-${variant}-${item.id}`} x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor={item.color} stopOpacity="0" />
-              <stop offset="50%" stopColor={item.color} stopOpacity="0.9" />
+              <stop offset="50%" stopColor={item.color} stopOpacity="0.95" />
               <stop offset="100%" stopColor={item.color} stopOpacity="0" />
             </linearGradient>
           ))}
@@ -158,8 +176,8 @@ const SolarSystem = ({
               rx={item.orbitRadius}
               ry={item.orbitRadius * ELLIPSE}
               fill="none"
-              stroke={isActive ? `url(#orbit-${variant}-${item.id})` : 'rgba(180,190,255,0.12)'}
-              strokeWidth={isActive ? 1.8 : 1}
+              stroke={isActive ? `url(#orbit-${variant}-${item.id})` : 'rgba(180,190,255,0.16)'}
+              strokeWidth={isActive ? 1.9 : 1}
               strokeDasharray={isActive ? '5 9' : undefined}
               className={isActive ? 'animate-orbit-flow' : undefined}
               style={isActive ? { filter: `drop-shadow(0 0 6px ${item.color})` } : undefined}
@@ -189,10 +207,25 @@ const SolarSystem = ({
             className="absolute z-10 group"
             style={{ transform: `translate(${initialX}px, ${initialY}px)` }}
           >
+            {/* Comet trail (drawn behind the body) */}
+            <span
+              ref={(el) => {
+                tailRefs.current[index] = el;
+              }}
+              className="absolute left-1/2 top-1/2 rounded-full pointer-events-none"
+              style={{
+                width: item.size * 2,
+                height: Math.max(2, item.size * 0.16),
+                transformOrigin: 'left center',
+                background: `linear-gradient(to right, ${item.color}, ${item.color}00)`,
+                opacity: 0.45,
+              }}
+            />
+
             {/* Soft hover/active glow */}
             <div
               className={`absolute inset-[-6px] rounded-full transition-opacity duration-500 ${
-                isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-70'
+                isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-80'
               }`}
               style={{ background: `radial-gradient(circle, ${item.color}66 0%, ${item.color}22 55%, transparent 72%)` }}
             />
@@ -213,8 +246,8 @@ const SolarSystem = ({
                   width: item.size * 2.6,
                   height: item.size * 0.95,
                   transform: 'translate(-50%, -50%) rotate(-22deg)',
-                  border: `1.5px solid ${item.color}70`,
-                  boxShadow: `0 0 10px ${item.color}45`,
+                  border: `1.5px solid ${item.color}80`,
+                  boxShadow: `0 0 10px ${item.color}50`,
                 }}
               />
             )}
@@ -227,10 +260,10 @@ const SolarSystem = ({
               style={{
                 width: item.size,
                 height: item.size,
-                background: `radial-gradient(circle at 32% 26%, ${item.color}, ${item.color}cc 46%, ${item.color}55 100%)`,
+                background: `radial-gradient(circle at 32% 26%, ${item.color}, ${item.color}cc 46%, ${item.color}66 100%)`,
                 boxShadow: isActive
                   ? `0 0 30px ${item.color}, inset -3px -4px 10px rgba(0,0,0,0.55), inset 3px 3px 9px rgba(255,255,255,0.45)`
-                  : `0 0 14px ${item.color}66, inset -3px -4px 9px rgba(0,0,0,0.45), inset 2px 2px 7px rgba(255,255,255,0.3)`,
+                  : `0 0 16px ${item.color}80, inset -3px -4px 9px rgba(0,0,0,0.45), inset 2px 2px 7px rgba(255,255,255,0.32)`,
               }}
             >
               {/* Rotating surface sheen */}
@@ -249,7 +282,7 @@ const SolarSystem = ({
               <Icon className="relative z-10" style={{ width: item.size * 0.46, height: item.size * 0.46, color: 'rgba(10,12,32,0.92)' }} />
             </div>
 
-            {/* Desktop label pill (index + name) */}
+            {/* Desktop label pill (index + name) — appears on hover, pinned open when active */}
             {isDesktop && (
               <div
                 className={`absolute left-full ml-4 top-1/2 -translate-y-1/2 flex items-center gap-2.5 pl-2.5 pr-3.5 py-1.5 rounded-full glass whitespace-nowrap transition-all duration-300 pointer-events-none ${
@@ -285,6 +318,7 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
   const { language, toggleLanguage, t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const speedRef = useRef(1);
+  const planeRef = useRef<HTMLDivElement>(null);
 
   const items: LocalizedNavItem[] = useMemo(
     () => navItems.map((item) => ({ ...item, label: t(item.labelKey) })),
@@ -301,6 +335,21 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
     [onSectionChange],
   );
 
+  // Cursor-reactive 3D tilt of the whole orbital plane.
+  const applyTilt = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const mx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const my = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+    if (planeRef.current) {
+      planeRef.current.style.transform = `rotateX(${(-my * 8).toFixed(2)}deg) rotateY(${(mx * 11).toFixed(2)}deg)`;
+    }
+  }, []);
+
+  const resetTilt = useCallback(() => {
+    speedRef.current = 1;
+    if (planeRef.current) planeRef.current.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  }, []);
+
   return (
     <>
       {/* Desktop solar-system navigation */}
@@ -311,16 +360,29 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
         />
 
         <div
-          className="relative w-[420px] h-[460px] shrink-0 flex items-center justify-center"
+          className="relative w-[420px] h-[460px] shrink-0"
+          style={{ perspective: '1000px' }}
           onMouseEnter={() => {
             speedRef.current = HOVER_SLOWDOWN;
           }}
-          onMouseLeave={() => {
-            speedRef.current = 1;
-          }}
+          onMouseMove={applyTilt}
+          onMouseLeave={resetTilt}
         >
-          <HubAvatar variant="desktop" size={76} label={t('nav.home')} onClick={() => handleSectionClick('home')} />
-          <SolarSystem items={items} activeSection={activeSection} onSelect={handleSectionClick} variant="desktop" speedRef={speedRef} />
+          <div
+            ref={planeRef}
+            className="absolute inset-0 flex items-center justify-center transition-transform duration-500 ease-out"
+          >
+            {SPARKS.map((s, i) => (
+              <span
+                key={i}
+                className="absolute rounded-full bg-white animate-twinkle pointer-events-none"
+                style={{ left: s.x, top: s.y, width: s.s, height: s.s, animationDelay: s.d }}
+              />
+            ))}
+
+            <HubAvatar variant="desktop" size={76} label={t('nav.home')} onClick={() => handleSectionClick('home')} />
+            <SolarSystem items={items} activeSection={activeSection} onSelect={handleSectionClick} variant="desktop" speedRef={speedRef} />
+          </div>
         </div>
 
         {/* Floating controls dock */}
