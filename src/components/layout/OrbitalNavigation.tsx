@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Languages, Menu, X, FileDown } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { navItems, RESUME_URL, type NavItem, type SectionId } from '@/data/navigation';
+import Planet from '@/components/layout/Planet';
 import profilePhoto from '@/assets/images/profile-photo.jpeg';
 
 interface OrbitalNavigationProps {
@@ -21,69 +22,6 @@ const SPARKS = [
   { x: '16%', y: '80%', s: 3, d: '1.8s' },
   { x: '66%', y: '90%', s: 2, d: '2.6s' },
 ];
-
-/** A premium pseudo-3D planet: lit sphere + atmosphere + rotating sheen + optional ring + section icon. */
-const Planet = ({ item, size, active }: { item: LocalizedNavItem; size: number; active: boolean }) => {
-  const Icon = item.icon;
-  const c = item.color;
-  return (
-    <div className="relative" style={{ width: size, height: size }}>
-      {/* Atmosphere glow */}
-      <div
-        className="absolute rounded-full pointer-events-none transition-all duration-300"
-        style={{ inset: active ? '-46%' : '-32%', background: `radial-gradient(circle, ${c}66 0%, ${c}22 45%, transparent 70%)` }}
-      />
-
-      {/* Active halo pulse */}
-      {active && (
-        <span
-          className="absolute inset-[-12%] rounded-full pointer-events-none animate-halo"
-          style={{ border: `2px solid ${c}`, boxShadow: `0 0 16px ${c}` }}
-        />
-      )}
-
-      {/* Saturn-like ring (sits behind the sphere so it reads as two side arcs) */}
-      {item.ring && (
-        <div
-          className="absolute left-1/2 top-1/2 rounded-[50%] pointer-events-none"
-          style={{
-            width: size * 2.4,
-            height: size * 0.86,
-            transform: 'translate(-50%, -50%) rotate(-24deg)',
-            border: `2px solid ${c}90`,
-            boxShadow: `0 0 12px ${c}55`,
-          }}
-        />
-      )}
-
-      {/* Sphere body */}
-      <div
-        className="absolute inset-0 rounded-full overflow-hidden"
-        style={{
-          background: `radial-gradient(circle at 30% 24%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.12) 20%, transparent 44%), radial-gradient(circle at 72% 80%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.18) 40%, transparent 64%), radial-gradient(circle at 50% 46%, ${c} 0%, ${c} 52%, ${c}b3 100%)`,
-          boxShadow: `inset -3px -5px 11px rgba(0,0,0,0.5), inset 3px 4px 9px rgba(255,255,255,0.28), 0 0 ${active ? 26 : 15}px ${c}${active ? '' : 'aa'}`,
-        }}
-      >
-        {/* Slowly rotating surface sheen */}
-        <span
-          className="absolute inset-0 animate-surface"
-          style={{ background: `conic-gradient(from 0deg, transparent 0deg, ${c}77 60deg, transparent 150deg)`, mixBlendMode: 'screen' }}
-        />
-      </div>
-
-      {/* Specular highlight */}
-      <span
-        className="absolute rounded-full pointer-events-none"
-        style={{ width: '30%', height: '30%', top: '15%', left: '20%', background: 'radial-gradient(circle, rgba(255,255,255,0.95), transparent 70%)' }}
-      />
-
-      {/* Section icon */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <Icon style={{ width: size * 0.42, height: size * 0.42, color: 'rgba(9,11,28,0.9)' }} strokeWidth={2.2} />
-      </div>
-    </div>
-  );
-};
 
 /** The home node: the profile photo framed by a rotating gradient arc + breathing glow. */
 const AvatarOrb = ({ size, active }: { size: number; active: boolean }) => (
@@ -140,7 +78,11 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
 
   const renderNode = (item: LocalizedNavItem) => {
     const isActive = activeSection === item.id;
-    return item.id === 'home' ? <AvatarOrb size={item.size} active={isActive} /> : <Planet item={item} size={item.size} active={isActive} />;
+    return item.id === 'home' || !item.planet ? (
+      <AvatarOrb size={item.size} active={isActive} />
+    ) : (
+      <Planet variant={item.planet} size={item.size} color={item.color} active={isActive} />
+    );
   };
 
   return (

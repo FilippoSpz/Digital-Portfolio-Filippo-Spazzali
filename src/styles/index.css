@@ -244,16 +244,6 @@
     }
   }
 
-  /* Slowly rotating surface sheen on the planets */
-  .animate-surface {
-    animation: surface-spin 8s linear infinite;
-  }
-  @keyframes surface-spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   /* Expanding halo ring around the active planet */
   .animate-halo {
     animation: halo-pulse 2.6s ease-out infinite;
