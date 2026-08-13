@@ -13,6 +13,15 @@ export interface Certification {
 
 export const certifications: Certification[] = [
   {
+    titleKey: 'certifications.innova.title',
+    issuerKey: 'certifications.innova.issuer',
+    dateKey: 'certifications.innova.date',
+    descriptionKey: 'certifications.innova.description',
+    file: '/certificates/Lettera_INNOVA.pdf',
+    gradient: 'from-secondary to-primary',
+    iconBg: 'bg-secondary',
+  },
+  {
     titleKey: 'certifications.ccna.title',
     issuerKey: 'certifications.ccna.issuer',
     dateKey: 'certifications.ccna.date',

@@ -97,6 +97,11 @@ export const en = {
   'certifications.subtitle': 'Professional certifications and achievements',
   'certifications.view': 'View Certificate',
   'certifications.download': 'Download',
+  'certifications.innova.title': 'Internship Certificate & Skills Assessment',
+  'certifications.innova.issuer': 'INNOVA — Trieste',
+  'certifications.innova.date': 'August 2026',
+  'certifications.innova.description':
+    'Internship certificate with an assessment of the skills gained as a QA / Test Engineer: manual, functional and regression testing, test case and bug report writing, and support for test automation.',
   'certifications.ccna.title': 'Cisco CCNA Certification',
   'certifications.ccna.issuer': 'Cisco Networking Academy',
   'certifications.ccna.date': 'April 2022',

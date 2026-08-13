@@ -100,6 +100,11 @@ export const it: Record<TranslationKey, string> = {
   'certifications.subtitle': 'Certificazioni professionali e riconoscimenti',
   'certifications.view': 'Vedi Certificato',
   'certifications.download': 'Scarica',
+  'certifications.innova.title': 'Attestato di Tirocinio e Valutazione Competenze',
+  'certifications.innova.issuer': 'INNOVA — Trieste',
+  'certifications.innova.date': 'Agosto 2026',
+  'certifications.innova.description':
+    'Attestato di tirocinio con valutazione delle competenze acquisite come QA / Test Engineer: testing manuale, funzionale e di regressione, redazione di test case e bug report, supporto allo sviluppo di test automatizzati.',
   'certifications.ccna.title': 'Certificazione Cisco CCNA',
   'certifications.ccna.issuer': 'Cisco Networking Academy',
   'certifications.ccna.date': 'Aprile 2022',
