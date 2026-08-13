@@ -137,6 +137,10 @@ export const it: Record<TranslationKey, string> = {
   'portfolio.technologiesUsed': 'Tecnologie Utilizzate:',
   'portfolio.status.offline': 'Non più online',
   'portfolio.status.private': 'Progetto privato',
+  'portfolio.sales.title': 'Cliente Riservato — Piattaforma Gestionale Vendite',
+  'portfolio.sales.description':
+    "Piattaforma web privata realizzata per la rete vendita di un'azienda del Friuli-Venezia Giulia. Centralizza il flusso commerciale — proposte di acquisto, gestione delle vendite e archivio strutturato dei dati dei compratori — e integra un sistema di mappatura delle aziende che le geolocalizza e ne risolve automaticamente la presenza online (integrazione maps + URL resolver). Il progetto è coperto da riservatezza, quindi i dettagli implementativi sono volutamente limitati.",
+  'portfolio.sales.category': 'Sviluppo Software',
   'portfolio.volt.title': 'VOLT Srl — Sviluppo E-commerce',
   'portfolio.volt.description':
     "Due piattaforme e-commerce su Odoo sviluppate da zero per l'artigianato di nicchia: ceramiche siciliane tradizionali (Colori di Sicilia) e produttori di pipe (Artigiani della Pipa). HTML, CSS e TypeScript personalizzati con UI/UX eleganti e su misura per valorizzare i prodotti artigianali online.",

@@ -60,7 +60,7 @@ const ProjectsSection = ({ isActive }: ProjectsSectionProps) => {
                         className="group/repo flex items-center gap-3 rounded-lg bg-background/50 border border-border/50 px-3 py-2 transition-all hover:border-primary/50 hover:bg-primary/10"
                       >
                         <GitBranch className="w-4 h-4 text-muted-foreground group-hover/repo:text-primary transition-colors" />
-                        <span className="text-sm font-medium flex-1 truncate">{repo.name}</span>
+                        <span className="text-sm font-medium flex-1 min-w-0 break-words">{repo.name}</span>
                         <ArrowUpRight className="w-4 h-4 text-muted-foreground opacity-0 -translate-x-1 group-hover/repo:opacity-100 group-hover/repo:translate-x-0 transition-all" />
                       </a>
                     ))}

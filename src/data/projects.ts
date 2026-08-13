@@ -1,4 +1,4 @@
-import { CodeXml, type LucideIcon } from 'lucide-react';
+import { CodeXml, MapPinned, type LucideIcon } from 'lucide-react';
 import type { TranslationKey } from '@/i18n/translations/en';
 
 import viaglutImage from '@/assets/portfolio/viaglut.png';
@@ -30,6 +30,17 @@ export interface Project {
 }
 
 export const projects: Project[] = [
+  {
+    titleKey: 'portfolio.sales.title',
+    descriptionKey: 'portfolio.sales.description',
+    categoryKey: 'portfolio.sales.category',
+    technologies: ['PHP', 'MySQL', 'TypeScript', 'JavaScript', 'CSS', 'Aruba'],
+    year: '2026',
+    statusKey: 'portfolio.status.private',
+    icon: MapPinned,
+    iconLabel: 'Sales Suite',
+    gradient: 'from-emerald-500 to-teal-500',
+  },
   {
     titleKey: 'portfolio.volt.title',
     descriptionKey: 'portfolio.volt.description',

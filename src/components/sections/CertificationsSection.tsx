@@ -48,10 +48,10 @@ const CertificationsSection = ({ isActive }: CertificationsSectionProps) => {
                     <div className={`absolute inset-2 rounded-full blur-lg opacity-50 bg-gradient-to-br ${cert.gradient}`} />
                   </div>
 
-                  <h3 className="font-display text-lg font-bold mb-1 line-clamp-2">{t(cert.titleKey)}</h3>
+                  <h3 className="font-display text-lg font-bold mb-1 text-balance">{t(cert.titleKey)}</h3>
                   <p className="text-sm text-muted-foreground mb-3">{t(cert.issuerKey)}</p>
                   <span className="inline-block px-3 py-1 mb-4 glass rounded-full text-xs font-semibold text-primary">{t(cert.dateKey)}</span>
-                  <p className="text-sm text-muted-foreground mb-6 line-clamp-3">{t(cert.descriptionKey)}</p>
+                  <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{t(cert.descriptionKey)}</p>
                 </div>
 
                 <div className="flex gap-3 mt-auto">

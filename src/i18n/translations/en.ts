@@ -134,6 +134,10 @@ export const en = {
   'portfolio.technologiesUsed': 'Technologies Used:',
   'portfolio.status.offline': 'No longer online',
   'portfolio.status.private': 'Private project',
+  'portfolio.sales.title': 'Confidential Client — Sales Management Platform',
+  'portfolio.sales.description':
+    'A private web platform built for the sales network of a company in Friuli-Venezia Giulia. It centralises the commercial workflow — purchase proposals, sales tracking and a structured archive of buyer records — and adds a company-mapping module that geolocates businesses and automatically resolves their web presence (maps integration + URL resolver). The project is covered by a confidentiality agreement, so implementation details are intentionally limited.',
+  'portfolio.sales.category': 'Software Development',
   'portfolio.volt.title': 'VOLT Srl — E-commerce Development',
   'portfolio.volt.description':
     'Two Odoo-based e-commerce platforms built from scratch for niche craftsmanship: traditional Sicilian ceramics (Colori di Sicilia) and artisan pipe makers (Artigiani della Pipa). Custom HTML, CSS and TypeScript with tailored, elegant UI/UX to showcase handcrafted products online.',

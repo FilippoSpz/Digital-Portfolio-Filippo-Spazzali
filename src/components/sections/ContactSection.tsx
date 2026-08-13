@@ -60,7 +60,7 @@ const ContactSection = ({ isActive }: ContactSectionProps) => {
                       </div>
                       <div className="relative min-w-0 flex-1">
                         <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{t(method.labelKey)}</div>
-                        <div className="font-medium truncate">{method.value}</div>
+                        <div className="font-medium break-words">{method.value}</div>
                       </div>
                       <ArrowUpRight className="relative w-4 h-4 text-muted-foreground opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                     </a>
