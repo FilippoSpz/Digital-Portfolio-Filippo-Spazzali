@@ -97,6 +97,10 @@ export const it: Record<TranslationKey, string> = {
   'skills.category.office': 'Office & Produttività',
   'skills.level.expert': 'Esperto',
   'skills.level.advanced': 'Avanzato',
+  'skills.playground.hintMouse': 'Prendi le mie competenze e lanciale',
+  'skills.playground.hintTouch': 'Tocca un gettone per farlo saltare',
+  'skills.playground.shake': 'Rilancia',
+  'skills.playground.start': 'Gioca con le mie competenze',
   'skills.level.intermediate': 'Intermedio',
 
   // Certifications

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { scrollToTop } from '@/lib/motion';
 
 const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -16,7 +17,7 @@ const ScrollToTop = () => {
 
   return (
     <Button
-      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      onClick={scrollToTop}
       size="icon"
       className="fixed bottom-8 right-8 z-50 rounded-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 shadow-lg hover-lift"
       aria-label="Scroll to top"

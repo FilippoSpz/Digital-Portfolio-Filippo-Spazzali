@@ -15,6 +15,8 @@ const Parallax = ({ children, speed = 0.15, className }: ParallaxProps) => {
     const el = ref.current;
     if (!el) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Phones stack everything in one column: a drifting card would slide over the text below it.
+    if (window.matchMedia('(max-width: 767px)').matches) return;
 
     let raf = 0;
     const update = () => {

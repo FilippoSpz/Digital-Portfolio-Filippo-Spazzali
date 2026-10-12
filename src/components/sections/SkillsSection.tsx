@@ -1,8 +1,13 @@
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Code2 } from 'lucide-react';
+import { Play } from 'lucide-react';
+import { lowPower, rich3D } from '@/lib/motion';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
 import Reveal from '@/components/common/Reveal';
 import { skillCategories, type SkillLevel } from '@/data/skills';
+
+const SkillPlayground = lazy(() => import('@/components/skills/SkillPlayground'));
 
 interface SkillsSectionProps {
   isActive: boolean;
@@ -25,6 +30,20 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
     return t('skills.level.intermediate');
   };
 
+  // The physics tray loads only when the section gets close (it brings its own physics engine).
+  const [playground] = useState(rich3D);
+  // On phones the physics engine (about 0.8 MB) is downloaded only if you ask to play.
+  const [onTap] = useState(lowPower);
+  const [near, setNear] = useState(false);
+  const anchor = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!playground || onTap || !anchor.current) return;
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: '600px 0px' });
+    io.observe(anchor.current);
+    return () => io.disconnect();
+  }, [playground, onTap]);
+  const touch = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+
   return (
     <section
       id="skills"
@@ -32,6 +51,33 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
     >
       <div className="container mx-auto px-4 md:px-8 lg:pl-[25rem]">
         <SectionHeader icon={Code2} badge={t('nav.skills')} title={t('skills.title')} subtitle={t('skills.subtitle')} accent="accent" index="02" className="mb-14" />
+
+        {playground && (
+          <div ref={anchor} className="mb-14 min-h-[360px] md:min-h-[440px]">
+            {!near && onTap && (
+              <button
+                type="button"
+                onClick={() => setNear(true)}
+                className="w-full h-[360px] rounded-3xl glass flex flex-col items-center justify-center gap-4 active:bg-primary/10 transition-colors"
+              >
+                <span className="w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30">
+                  <Play className="w-7 h-7 text-background ml-1" />
+                </span>
+                <span className="font-display text-lg font-semibold">{t('skills.playground.start')}</span>
+                <span className="text-sm text-muted-foreground">{t('skills.playground.hintTouch')}</span>
+              </button>
+            )}
+            {near && (
+              <Suspense fallback={<div className="h-[360px] md:h-[440px] rounded-3xl glass animate-pulse" />}>
+                <SkillPlayground
+                  hint={t(touch ? 'skills.playground.hintTouch' : 'skills.playground.hintMouse')}
+                  shakeLabel={t('skills.playground.shake')}
+                  levelLabel={levelLabel}
+                />
+              </Suspense>
+            )}
+          </div>
+        )}
 
         <div className="space-y-12">
           {skillCategories.map((category, ci) => {

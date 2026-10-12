@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowRight, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -6,6 +6,10 @@ import { RESUME_URL } from '@/data/navigation';
 import { socialIconLinks } from '@/data/contact';
 import Reveal from '@/components/common/Reveal';
 import profilePhoto from '@/assets/images/profile-photo.jpeg';
+import { gsap, reducedMotion, rich3D, scrollToSection } from '@/lib/motion';
+import Magnetic from '@/components/common/Magnetic';
+
+const ParticlePortrait = lazy(() => import('@/components/home/ParticlePortrait'));
 
 interface HomeSectionProps {
   isActive: boolean;
@@ -35,7 +39,32 @@ const AnimatedLetter = ({ letter }: { letter: string }) => {
 const HomeSection = ({ isActive }: HomeSectionProps) => {
   const { t } = useLanguage();
 
-  const scrollToContact = () => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToContact = () => scrollToSection('contact');
+  const [particles] = useState(rich3D);
+  const [particlesReady, setParticlesReady] = useState(false);
+  const onParticlesReady = useCallback(() => setParticlesReady(true), []);
+
+  // The name assembles itself letter by letter when the page opens.
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  useLayoutEffect(() => {
+    const el = nameRef.current;
+    if (!el || reducedMotion()) return;
+    const ctx = gsap.context(() => {
+      gsap.from(el.querySelectorAll(':scope > span'), {
+        opacity: 0,
+        yPercent: 90,
+        rotationX: -90,
+        filter: 'blur(12px)',
+        transformOrigin: '50% 100%',
+        stagger: 0.045,
+        duration: 1.2,
+        delay: 0.25,
+        ease: 'expo.out',
+        clearProps: 'filter,transform',
+      });
+    }, el);
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section
@@ -49,18 +78,34 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
           {/* Portrait (first on mobile/tablet for impact) */}
           <div className="order-1 xl:order-2 flex justify-center">
             <Reveal variant="zoom" delay={150} duration={900}>
-              <div className="relative w-56 h-56 sm:w-72 sm:h-72 xl:w-[22rem] xl:h-[22rem]">
-                <div className="absolute inset-[-16px] rounded-full bg-gradient-to-tr from-primary via-secondary to-accent opacity-70 blur-md animate-spin-slow" />
-                <div className="absolute inset-[-8px] rounded-full bg-gradient-to-br from-primary/40 to-secondary/40 blur-2xl animate-pulse" />
+              <div className="relative w-60 h-60 sm:w-72 sm:h-72 xl:w-[24rem] xl:h-[24rem]">
+                {!particles && (
+                  <>
+                    <div className="absolute inset-[-16px] rounded-full bg-gradient-to-tr from-primary via-secondary to-accent opacity-70 blur-md animate-spin-slow" />
+                    <div className="absolute inset-[-8px] rounded-full bg-gradient-to-br from-primary/40 to-secondary/40 blur-2xl animate-pulse" />
+                  </>
+                )}
+                {particles && (
+                  // Dark sky right behind the points: the face reads even with the Sun nearby.
+                  <div className="absolute inset-[-14%] rounded-full bg-[radial-gradient(circle,rgba(4,5,12,0.9)_42%,rgba(4,5,12,0.55)_58%,transparent_72%)]" />
+                )}
                 <div className="absolute inset-[-34px] rounded-full border border-primary/20 animate-spin-reverse" />
                 <div className="absolute inset-[-54px] rounded-full border border-secondary/10 animate-spin-slow" style={{ animationDuration: '40s' }} />
+                {/* The photo stays until the particles are ready, then they take its place. */}
                 <img
                   src={profilePhoto}
                   alt="Filippo Spazzali"
-                  width={352}
-                  height={352}
-                  className="relative w-full h-full rounded-full object-cover border-2 border-white/10 shadow-2xl"
+                  width={384}
+                  height={384}
+                  className={`relative w-full h-full rounded-full object-cover border-2 border-white/10 shadow-2xl transition-opacity duration-1000 ${
+                    particlesReady ? 'opacity-0' : 'opacity-100'
+                  }`}
                 />
+                {particles && (
+                  <Suspense fallback={null}>
+                    <ParticlePortrait photo={profilePhoto} onReady={onParticlesReady} />
+                  </Suspense>
+                )}
                 <div className="absolute inset-[-34px] animate-spin-slow">
                   <span className="absolute left-1/2 top-0 w-3 h-3 -translate-x-1/2 rounded-full bg-secondary shadow-[0_0_14px_hsl(var(--secondary))]" />
                 </div>
@@ -81,7 +126,10 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
             </Reveal>
 
             <Reveal variant="up" delay={80}>
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold italic uppercase tracking-tight leading-[0.95] text-foreground text-glow whitespace-nowrap">
+              <h1
+                ref={nameRef}
+                className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold italic uppercase tracking-tight leading-[0.95] text-foreground text-glow whitespace-nowrap [perspective:700px]"
+              >
                 {t('home.name')
                   .split('')
                   .map((letter, i) => (
@@ -103,20 +151,24 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
 
             <Reveal variant="up" delay={320}>
               <div className="flex flex-wrap gap-4 justify-center xl:justify-start">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-primary-foreground font-semibold px-8 group shadow-lg shadow-primary/25"
-                  onClick={scrollToContact}
-                >
-                  {t('home.getInTouch')}
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-                <Button size="lg" variant="outline" className="glass border-primary/40 hover:border-primary/70 hover:bg-primary/10 px-8 group" asChild>
-                  <a href={RESUME_URL} download className="text-foreground">
-                    <FileDown className="mr-2 h-5 w-5 group-hover:animate-bounce text-foreground" />
-                    <span className="text-foreground">{t('home.downloadCV')}</span>
-                  </a>
-                </Button>
+                <Magnetic>
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-primary-foreground font-semibold px-8 group shadow-lg shadow-primary/25"
+                    onClick={scrollToContact}
+                  >
+                    {t('home.getInTouch')}
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Magnetic>
+                <Magnetic>
+                  <Button size="lg" variant="outline" className="glass border-primary/40 hover:border-primary/70 hover:bg-primary/10 px-8 group" asChild>
+                    <a href={RESUME_URL} download className="text-foreground">
+                      <FileDown className="mr-2 h-5 w-5 group-hover:animate-bounce text-foreground" />
+                      <span className="text-foreground">{t('home.downloadCV')}</span>
+                    </a>
+                  </Button>
+                </Magnetic>
               </div>
             </Reveal>
 

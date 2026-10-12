@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { SECTION_IDS, type SectionId } from '@/data/navigation';
+import { scrollToSection as smoothScrollTo } from '@/lib/motion';
 
 /**
  * Scroll-spy built on IntersectionObserver (no per-scroll-event work).
@@ -29,7 +30,7 @@ export function useActiveSection() {
   }, []);
 
   const scrollToSection = useCallback((id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    smoothScrollTo(id);
   }, []);
 
   return { activeSection, scrollToSection };

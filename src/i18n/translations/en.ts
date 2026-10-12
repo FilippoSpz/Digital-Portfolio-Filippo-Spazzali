@@ -94,6 +94,10 @@ export const en = {
   'skills.category.office': 'Office & Productivity',
   'skills.level.expert': 'Expert',
   'skills.level.advanced': 'Advanced',
+  'skills.playground.hintMouse': 'Grab my skills and throw them around',
+  'skills.playground.hintTouch': 'Tap a token to make it jump',
+  'skills.playground.shake': 'Throw again',
+  'skills.playground.start': 'Play with my skills',
   'skills.level.intermediate': 'Intermediate',
 
   // Certifications

@@ -8,15 +8,20 @@ import PortfolioSection from '@/components/sections/PortfolioSection';
 import ProjectsSection from '@/components/sections/ProjectsSection';
 import ContactSection from '@/components/sections/ContactSection';
 import { useActiveSection } from '@/hooks/useActiveSection';
+import { useEffect } from 'react';
+import { jumpToSection, startMotion } from '@/lib/motion';
 
 const Index = () => {
   const { activeSection } = useActiveSection();
+
+  // Smooth scrolling and the camera's trip through the solar system follow the page.
+  useEffect(() => startMotion(), []);
 
   return (
     <div className="relative">
       <CosmicBackground activeSection={activeSection} />
 
-      <OrbitalNavigation activeSection={activeSection} onSectionChange={(id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })} />
+      <OrbitalNavigation activeSection={activeSection} onSectionChange={jumpToSection} />
 
       {/* Mobile/tablet header spacer */}
       <div className="lg:hidden h-16" />

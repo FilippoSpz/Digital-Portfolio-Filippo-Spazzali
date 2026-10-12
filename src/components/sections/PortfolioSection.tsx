@@ -1,4 +1,7 @@
+import { lazy, Suspense, useState } from 'react';
 import { Briefcase, ArrowUpRight, Lock } from 'lucide-react';
+import { rich3D } from '@/lib/motion';
+import { gradientColors } from '@/lib/tailwindColors';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
@@ -6,12 +9,15 @@ import Reveal from '@/components/common/Reveal';
 import Parallax from '@/components/common/Parallax';
 import { projects } from '@/data/projects';
 
+const Laptop3D = lazy(() => import('@/components/portfolio/Laptop3D'));
+
 interface PortfolioSectionProps {
   isActive: boolean;
 }
 
 const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
   const { t } = useLanguage();
+  const [laptops] = useState(rich3D);
 
   return (
     <section
@@ -43,31 +49,44 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
                     <Parallax speed={0.1}>
                       <div className="group relative aspect-[4/3] rounded-3xl overflow-hidden glass border-gradient">
                         <div className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-25`} />
-                        <div className="absolute inset-0 flex items-center justify-center p-10">
-                          {CardIcon ? (
-                            <div className="flex flex-col items-center justify-center gap-5 transition-transform duration-500 group-hover:scale-105">
-                              <div
-                                className={`flex items-center justify-center w-28 h-28 md:w-32 md:h-32 rounded-[1.75rem] bg-gradient-to-br ${project.gradient} shadow-2xl`}
-                              >
-                                <CardIcon className="w-14 h-14 md:w-16 md:h-16 text-background" strokeWidth={1.5} />
-                              </div>
-                              {project.iconLabel && (
-                                <span className="font-display text-2xl font-bold tracking-wide text-foreground">
-                                  {project.iconLabel}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            <img
-                              src={project.image}
-                              alt={t(project.titleKey)}
-                              loading="lazy"
-                              className={`max-w-[62%] max-h-[62%] object-contain transition-transform duration-500 group-hover:scale-105 ${
-                                project.rounded ? 'rounded-2xl' : ''
-                              } ${project.whiteBg ? 'bg-white p-3' : ''}`}
+                        {laptops ? (
+                          <Suspense fallback={null}>
+                            <Laptop3D
+                              image={project.image}
+                              label={project.iconLabel}
+                              title={t(project.titleKey).split(' — ')[0]}
+                              colors={gradientColors(project.gradient)}
+                              whiteBg={project.whiteBg}
+                              flip={!imageLeft}
                             />
-                          )}
-                        </div>
+                          </Suspense>
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center p-10">
+                            {CardIcon ? (
+                              <div className="flex flex-col items-center justify-center gap-5 transition-transform duration-500 group-hover:scale-105">
+                                <div
+                                  className={`flex items-center justify-center w-28 h-28 md:w-32 md:h-32 rounded-[1.75rem] bg-gradient-to-br ${project.gradient} shadow-2xl`}
+                                >
+                                  <CardIcon className="w-14 h-14 md:w-16 md:h-16 text-background" strokeWidth={1.5} />
+                                </div>
+                                {project.iconLabel && (
+                                  <span className="font-display text-2xl font-bold tracking-wide text-foreground">
+                                    {project.iconLabel}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <img
+                                src={project.image}
+                                alt={t(project.titleKey)}
+                                loading="lazy"
+                                className={`max-w-[62%] max-h-[62%] object-contain transition-transform duration-500 group-hover:scale-105 ${
+                                  project.rounded ? 'rounded-2xl' : ''
+                                } ${project.whiteBg ? 'bg-white p-3' : ''}`}
+                              />
+                            )}
+                          </div>
+                        )}
                         <div className="absolute top-4 left-4 px-3 py-1 glass rounded-full text-xs font-semibold">{project.year}</div>
                         <div className={`absolute bottom-0 right-0 font-display font-bold text-[7rem] leading-none pr-4 pb-1 text-transparent bg-clip-text bg-gradient-to-br ${project.gradient} opacity-20`}>
                           {String(index + 1).padStart(2, '0')}

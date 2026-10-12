@@ -4,6 +4,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { experiences } from '@/data/experiences';
 import Reveal from '@/components/common/Reveal';
 import Parallax from '@/components/common/Parallax';
+import { scrollToSection } from '@/lib/motion';
 
 interface AboutSectionProps {
   isActive: boolean;
@@ -42,7 +43,7 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
             <Button
               variant="outline"
               className="glass border-primary/40 hover:border-primary/70 hover:bg-primary/10 text-foreground whitespace-nowrap"
-              onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => scrollToSection('portfolio')}
             >
               {t('about.viewPortfolio')}
             </Button>
