@@ -72,7 +72,7 @@ export const en = {
   // Education
   'education.bachelors': "Bachelor's Degree in Computer Engineering",
   'education.university': 'University of Trieste',
-  'education.expectedGraduation': 'Expected October 2026',
+  'education.expectedGraduation': 'Expected March 2027',
   'education.highSchool': 'High School Diploma',
   'education.technicalInstitute': 'Alessandro Volta Technical Institute',
   'education.graduated': 'July 2022',

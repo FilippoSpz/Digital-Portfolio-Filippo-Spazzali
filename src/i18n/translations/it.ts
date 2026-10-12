@@ -75,7 +75,7 @@ export const it: Record<TranslationKey, string> = {
   // Education
   'education.bachelors': 'Laurea Triennale in Ingegneria Informatica',
   'education.university': 'Università degli Studi di Trieste',
-  'education.expectedGraduation': 'Prevista Ottobre 2026',
+  'education.expectedGraduation': 'Prevista Marzo 2027',
   'education.highSchool': 'Diploma di Scuola Superiore',
   'education.technicalInstitute': 'Istituto Tecnico Alessandro Volta',
   'education.graduated': 'Luglio 2022',
