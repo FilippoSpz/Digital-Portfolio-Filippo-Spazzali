@@ -26,9 +26,18 @@ export type Experience = EducationExperience | WorkExperience;
 export const experiences: Experience[] = [
   {
     type: 'work',
+    roleKey: 'experience.testAutomationEngineer',
+    company: 'INNOVA',
+    period: 'Oct 2026 – Present',
+    location: 'Trieste, Italy',
+    link: 'https://www.innovatrieste.it/',
+    descriptionKeys: ['experience.innovaJob.desc1', 'experience.innovaJob.desc2'],
+  },
+  {
+    type: 'work',
     roleKey: 'experience.testIntern',
     company: 'INNOVA',
-    period: '2026 – Present',
+    period: '2026 – Oct 2026',
     location: 'Trieste, Italy',
     link: 'https://www.innovatrieste.it/',
     descriptionKeys: ['experience.innova.desc1', 'experience.innova.desc2', 'experience.innova.desc3'],

@@ -44,6 +44,10 @@ export const en = {
   'experience.webDeveloper': 'Web Developer',
   'experience.intern': 'Web Developer Intern',
   'experience.testIntern': 'QA / Test Engineer Intern',
+  'experience.testAutomationEngineer': 'Test Automation Engineer',
+  'experience.innovaJob.desc1': 'Hired by INNOVA as a Test Automation Engineer after completing my internship.',
+  'experience.innovaJob.desc2':
+    'Developing and maintaining automated tests to validate software releases. Stack & tools: Playwright, Git, GitLab, Jira.',
   'experience.innova.desc1': 'Testing: manual, functional and regression testing of software releases.',
   'experience.innova.desc2':
     'Documentation: writing test cases and bug reports, maintaining the test suite and full use-case documentation.',

@@ -46,6 +46,10 @@ export const it: Record<TranslationKey, string> = {
   'experience.webDeveloper': 'Web Developer',
   'experience.intern': 'Web Developer Stagista',
   'experience.testIntern': 'Tirocinante QA / Test',
+  'experience.testAutomationEngineer': 'Test Automation Engineer',
+  'experience.innovaJob.desc1': 'Assunto da INNOVA come Test Automation Engineer dopo aver concluso il tirocinio.',
+  'experience.innovaJob.desc2':
+    'Sviluppo e manutenzione di test automatizzati per la validazione del software. Stack e strumenti: Playwright, Git, GitLab, Jira.',
   'experience.innova.desc1': 'Testing: esecuzione di test manuali, funzionali e di regressione.',
   'experience.innova.desc2':
     "Documentazione: redazione di test case e bug report, aggiornamento della test suite e documentazione completa dei casi d'uso.",
