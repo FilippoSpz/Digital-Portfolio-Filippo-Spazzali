@@ -37,7 +37,7 @@ export const experiences: Experience[] = [
     type: 'work',
     roleKey: 'experience.testIntern',
     company: 'INNOVA',
-    period: '2026 – Oct 2026',
+    period: 'May 2026 – Oct 2026',
     location: 'Trieste, Italy',
     link: 'https://www.innovatrieste.it/',
     descriptionKeys: ['experience.innova.desc1', 'experience.innova.desc2', 'experience.innova.desc3'],
