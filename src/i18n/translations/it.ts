@@ -16,9 +16,9 @@ export const it: Record<TranslationKey, string> = {
   // Home
   'home.greeting': 'Ciao, sono',
   'home.name': 'Filippo Spazzali',
-  'home.title': 'Sviluppatore Software & Web',
+  'home.title': 'Test Automation Engineer & Sviluppatore Web',
   'home.tagline':
-    "Sviluppatore Software con 4 anni di esperienza specializzato nello sviluppo web. Competente in HTML, CSS, JavaScript, TypeScript; noto per guidare la trasformazione digitale incentrata sull'utente.",
+    "Scrivo test automatizzati in INNOVA S.p.A. e sviluppo per il web dal 2022, mentre finisco Ingegneria Informatica all'Università di Trieste. Testo il software con l'occhio di chi lo sviluppa.",
   'home.getInTouch': 'Contattami',
   'home.downloadCV': 'Scarica CV',
   'home.scroll': 'Scorri',
@@ -26,7 +26,7 @@ export const it: Record<TranslationKey, string> = {
   // About
   'about.title': 'Chi Sono',
   'about.intro':
-    "Sono uno sviluppatore software appassionato con una solida base nelle tecnologie web e un occhio attento alla creazione di esperienze utente fluide.",
+    "Ho iniziato sviluppando siti e gestionali; oggi mi assicuro che il software funzioni prima che arrivi a chi lo usa.",
   'about.professionalSummary': 'Profilo Professionale',
   'about.professionalSummaryText':
     "Sono Test Automation Engineer in INNOVA S.p.A., a Trieste, dove sono stato assunto dopo il tirocinio in QA, e studio Ingegneria Informatica all'Università degli Studi di Trieste (laurea prevista a marzo 2027). Il mio lavoro è assicurarmi che i rilasci software funzionino: scrivo test automatizzati con Playwright, eseguo test manuali, funzionali e di regressione, redigo test case e bug report e lavoro con Git, GitLab e Jira. Prima del testing ho fatto lo sviluppatore: dal 2022 ho realizzato un gestionale che ha sostituito un vecchio programma, due piattaforme e-commerce su Odoo per marchi artigianali e il rinnovo di un sito Magento, in HTML, CSS, JavaScript e TypeScript. Avendo visto entrambi i lati, scrivo i test con l'occhio di chi sviluppa e il codice con quello di chi testa: mi interessa che il software funzioni davvero per chi lo usa.",

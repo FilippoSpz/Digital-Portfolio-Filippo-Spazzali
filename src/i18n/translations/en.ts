@@ -14,9 +14,9 @@ export const en = {
   // Home
   'home.greeting': "Hi, I'm",
   'home.name': 'Filippo Spazzali',
-  'home.title': 'Software & Web Developer',
+  'home.title': 'Test Automation Engineer & Web Developer',
   'home.tagline':
-    'Software Developer with 4 years of experience specializing in web development. Skilled in HTML, CSS, JavaScript, TypeScript; known for driving user-centric digital transformation.',
+    "I write automated tests at INNOVA S.p.A. and have been building for the web since 2022, while finishing my Computer Engineering degree at the University of Trieste. I test software with a developer's eye.",
   'home.getInTouch': 'Get In Touch',
   'home.downloadCV': 'Download CV',
   'home.scroll': 'Scroll',
@@ -24,7 +24,7 @@ export const en = {
   // About
   'about.title': 'About Me',
   'about.intro':
-    "I'm a passionate software developer with a strong foundation in web technologies and a keen eye for creating seamless user experiences.",
+    'I started out building websites and management software; today I make sure software works before it reaches the people who use it.',
   'about.professionalSummary': 'Professional Summary',
   'about.professionalSummaryText':
     "I'm a Test Automation Engineer at INNOVA S.p.A. in Trieste, hired after my QA internship there, and a Computer Engineering student at the University of Trieste (graduating in March 2027). My job is making sure software releases work: I write automated tests with Playwright, run manual, functional and regression tests, write test cases and bug reports, and work with Git, GitLab and Jira. Before testing, I was a developer: since 2022 I have built a management application that replaced a legacy tool, two Odoo e-commerce platforms for artisan brands and a Magento site redesign, using HTML, CSS, JavaScript and TypeScript. Having worked on both sides, I write tests with a developer's eye and code with a tester's: I care about software that actually works for the people who use it.",
