@@ -549,7 +549,7 @@ const FaintRings = () => {
 
 /* ------------------------------------------------------------------ Stars */
 
-/** White stars all around, at their own brightness and pace. They turn a little as the page goes on. */
+/** White stars all around, each at its own steady brightness. They turn a little as the page goes on. */
 const Stars = ({ count }: { count: number }) => {
   const ref = useRef<THREE.Points>(null);
   const { geometry, material } = useMemo(() => {
@@ -557,7 +557,6 @@ const Stars = ({ count }: { count: number }) => {
     const pos = new Float32Array(count * 3);
     const col = new Float32Array(count * 3);
     const size = new Float32Array(count);
-    const seed = new Float32Array(count);
     const v = new THREE.Vector3();
     for (let i = 0; i < count; i++) {
       v.randomDirection().multiplyScalar(260 + Math.random() * 420);
@@ -565,16 +564,14 @@ const Stars = ({ count }: { count: number }) => {
       const b = 0.55 + Math.random() * 0.45;
       col.set([b, b, b], i * 3);
       size[i] = Math.random() < 0.035 ? 2.6 + Math.random() * 2.2 : 0.7 + Math.random() * 1.5;
-      seed[i] = Math.random();
     }
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     g.setAttribute('aColor', new THREE.BufferAttribute(col, 3));
     g.setAttribute('aSize', new THREE.BufferAttribute(size, 1));
-    g.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
     const m = new THREE.ShaderMaterial({
       vertexShader: starsVertex,
       fragmentShader: starsFragment,
-      uniforms: { uTime: time, uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) } },
+      uniforms: { uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) } },
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -592,18 +589,9 @@ const Stars = ({ count }: { count: number }) => {
 
 /* ------------------------------------------------------------------ Rig */
 
+/** The camera never moves (not even with the mouse): only the page moves the sky. */
 const Rig = () => {
-  const { camera, size } = useThree();
-  const pointer = useRef({ x: 0, y: 0 });
-  useEffect(() => {
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerType !== 'mouse') return;
-      pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      pointer.current.y = (e.clientY / window.innerHeight) * 2 - 1;
-    };
-    window.addEventListener('pointermove', onMove, { passive: true });
-    return () => window.removeEventListener('pointermove', onMove);
-  }, []);
+  const { size } = useThree();
   // Runs before the bodies (negative priority), so they all read the same moment.
   useFrame((state, dt) => {
     const d = Math.min(Math.max(dt, 0), 0.05);
@@ -615,9 +603,6 @@ const Rig = () => {
     const k = dt > 0.25 || dt < 0 ? 1 : 1 - Math.exp(-d * 3.2);
     stage.t += (journey.t - stage.t) * k;
     stage.local += (journey.local - stage.local) * k;
-    // A whisper of depth with the mouse.
-    camera.position.set(pointer.current.x * 0.05, -pointer.current.y * 0.04, 0);
-    camera.lookAt(camera.position.x * 0.5, camera.position.y * 0.5, -10);
   }, -1);
   return null;
 };
@@ -644,7 +629,7 @@ const SpaceScene = () => {
   return (
     <Canvas
       frameloop={testDrive ? 'never' : 'always'}
-      camera={{ position: [0, 0, 0], fov: FOV, near: 0.05, far: 2000 }}
+      camera={{ position: [0, 0, 0], rotation: [0, 0, 0], fov: FOV, near: 0.05, far: 2000 }}
       gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', stencil: false }}
       dpr={light ? [1, 1.5] : [1, 2]}
       style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}

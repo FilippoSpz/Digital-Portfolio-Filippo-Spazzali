@@ -327,31 +327,29 @@ void main() {
 }
 `;
 
-/** Stars: round, soft, each at its own size and twinkling at its own pace. */
+/**
+ * Stars: steady, round, soft. They are as good as infinitely far, so their size does not depend on
+ * distance, and none is smaller than ~2 px: a sub-pixel point jumps from pixel to pixel as the sky
+ * turns, and that is what makes stars flicker.
+ */
 export const starsVertex = /* glsl */ `
 attribute float aSize;
-attribute float aSeed;
 attribute vec3 aColor;
-uniform float uTime;
 uniform float uPixelRatio;
 varying vec3 vColor;
-varying float vTwinkle;
 void main() {
   vColor = aColor;
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
-  vTwinkle = 0.65 + 0.35 * sin(uTime * (0.6 + aSeed * 2.4) + aSeed * 40.0);
-  gl_PointSize = clamp(aSize * uPixelRatio * (90.0 / -mv.z), 0.8, 7.0 * uPixelRatio);
+  gl_PointSize = (1.3 + aSize * 0.6) * uPixelRatio;
   gl_Position = projectionMatrix * mv;
 }
 `;
 
 export const starsFragment = /* glsl */ `
 varying vec3 vColor;
-varying float vTwinkle;
 void main() {
-  vec2 c = gl_PointCoord - 0.5;
-  float d = length(c);
-  float a = smoothstep(0.5, 0.0, d);
-  gl_FragColor = vec4(vColor * vTwinkle * (0.6 + a), a);
+  float d = length(gl_PointCoord - 0.5);
+  float a = smoothstep(0.5, 0.1, d);
+  gl_FragColor = vec4(vColor * a, a);
 }
 `;
