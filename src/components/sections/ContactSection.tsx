@@ -78,6 +78,15 @@ const ContactSection = ({ isActive }: ContactSectionProps) => {
             </div>
           </div>
         </Reveal>
+
+        {/* The planet maps are CC BY 4.0: their source is credited here. */}
+        <p className="mt-10 text-center text-[11px] text-muted-foreground/70">
+          {t('contact.credits')}{' '}
+          <a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 transition-colors hover:text-primary">
+            Solar System Scope
+          </a>{' '}
+          (CC BY 4.0)
+        </p>
       </div>
     </section>
   );

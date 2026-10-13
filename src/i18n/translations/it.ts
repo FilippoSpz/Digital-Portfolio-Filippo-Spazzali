@@ -5,6 +5,7 @@ export const it: Record<TranslationKey, string> = {
   'nav.home': 'Home',
   'nav.about': 'Chi Sono',
   'nav.experience': 'Esperienze',
+  'contact.credits': 'Mappe dei pianeti:',
   'nav.skills': 'Competenze',
   'nav.certifications': 'Certificazioni',
   'nav.portfolio': 'Portfolio',

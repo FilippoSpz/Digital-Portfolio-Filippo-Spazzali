@@ -3,6 +3,7 @@ export const en = {
   'nav.home': 'Home',
   'nav.about': 'About',
   'nav.experience': 'Experience',
+  'contact.credits': 'Planet maps:',
   'nav.skills': 'Skills',
   'nav.certifications': 'Certifications',
   'nav.portfolio': 'Portfolio',
