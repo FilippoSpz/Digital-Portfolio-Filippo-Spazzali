@@ -27,7 +27,7 @@ export const en = {
     "I'm a passionate software developer with a strong foundation in web technologies and a keen eye for creating seamless user experiences.",
   'about.professionalSummary': 'Professional Summary',
   'about.professionalSummaryText':
-    'Software Developer with 4 years of experience specializing in web development. Delivered lots of improvements in site responsiveness and user accessibility by optimizing interfaces and system performance for clients including Colori di Sicilia and Wärtsilä Italia, where I was also an intern. Built full e-commerce platforms for niche craftsmanship, enhancing user experience with custom web solutions. Skilled in HTML, CSS, JavaScript, TypeScript; known for driving user-centric digital transformation.',
+    "I'm a Test Automation Engineer at INNOVA S.p.A. in Trieste, hired after my QA internship there, and a Computer Engineering student at the University of Trieste (graduating in March 2027). My job is making sure software releases work: I write automated tests with Playwright, run manual, functional and regression tests, write test cases and bug reports, and work with Git, GitLab and Jira. Before testing, I was a developer: since 2022 I have built a management application that replaced a legacy tool, two Odoo e-commerce platforms for artisan brands and a Magento site redesign, using HTML, CSS, JavaScript and TypeScript. Having worked on both sides, I write tests with a developer's eye and code with a tester's: I care about software that actually works for the people who use it.",
   'about.experience': 'Work Experience',
   'about.workExperience': 'Work Experience',
   'about.education': 'Education',
