@@ -1,5 +1,5 @@
-/* GLSL for the solar system: planets drawn procedurally (bands, storms, terrain), Earth from real
-   NASA maps, the Sun, Saturn's rings, the stars and the hyperspace streaks. */
+/* GLSL for the solar system: every planet from real maps (NASA / Solar System Scope), the Sun with its
+   boiling surface and flames, Saturn's rings, the stars. */
 
 /** 3D simplex noise (Ashima Arts / Stefan Gustavson, MIT) + fractal sum. */
 export const noise = /* glsl */ `
@@ -81,94 +81,6 @@ float daylight(vec3 n, vec3 l) { return smoothstep(-0.18, 0.55, dot(n, l)); }
 float fresnel(vec3 n, vec3 v, float p) { return pow(1.0 - max(dot(n, v), 0.0), p); }
 `;
 
-/** Gas giants: latitude bands bent by turbulence, an optional oval storm (Jupiter's Great Red Spot). */
-export const gasGiantFragment = /* glsl */ `
-uniform vec3 uLight;
-uniform float uTime;
-uniform vec3 uC1;
-uniform vec3 uC2;
-uniform vec3 uC3;
-uniform vec3 uC4;
-uniform float uBands;
-uniform float uTurb;
-uniform vec3 uAtmo;
-uniform float uSpot;
-uniform vec3 uSpotColor;
-varying vec3 vObj;
-varying vec3 vNormalW;
-varying vec3 vViewW;
-${noise}
-${lighting}
-void main() {
-  vec3 p = normalize(vObj);
-  float lat = p.y;
-  float flow = fbm(vec3(p.x * 1.6, p.y * 9.0, p.z * 1.6) + vec3(uTime * 0.012, 0.0, uTime * 0.008));
-  float b = lat * uBands + flow * uTurb;
-  float s = sin(b * 3.14159);
-  float s2 = sin(b * 1.73 + 1.3);
-  vec3 col = mix(uC1, uC2, smoothstep(-0.9, 0.9, s));
-  col = mix(col, uC3, smoothstep(0.35, 1.0, s2) * 0.65);
-  float fine = fbm(p * 7.0 + flow * 2.0);
-  col = mix(col, uC4, smoothstep(0.25, 0.9, fine) * 0.35);
-  col *= 0.88 + 0.24 * fbm(vec3(p.x * 3.0, p.y * 30.0, p.z * 3.0));
-
-  if (uSpot > 0.5) {
-    float lon = atan(p.z, p.x);
-    float dlon = lon - 0.9;
-    dlon = mod(dlon + 3.14159, 6.28318) - 3.14159;
-    float dlat = asin(clamp(p.y, -1.0, 1.0)) + 0.38;
-    float e = sqrt(dlon * dlon * 0.32 + dlat * dlat * 1.6);
-    float swirl = sin(e * 55.0 - atan(dlat, dlon) * 2.0 + flow * 6.0) * 0.5 + 0.5;
-    float m = smoothstep(0.17, 0.09, e);
-    col = mix(col, uSpotColor * (0.75 + 0.35 * swirl), m);
-  }
-
-  vec3 n = normalize(vNormalW);
-  vec3 v = normalize(vViewW);
-  float d = daylight(n, normalize(uLight));
-  vec3 lit = col * (0.025 + d * 1.1);
-  lit += uAtmo * fresnel(n, v, 2.6) * (0.08 + d * 0.9);
-  gl_FragColor = vec4(lit, 1.0);
-  ${outro}
-}
-`;
-
-/** Rocky worlds (Mars): terrain from fractal noise, dark maria, polar caps. */
-export const rockyFragment = /* glsl */ `
-uniform vec3 uLight;
-uniform vec3 uC1;
-uniform vec3 uC2;
-uniform vec3 uC3;
-uniform vec3 uAtmo;
-varying vec3 vObj;
-varying vec3 vNormalW;
-varying vec3 vViewW;
-${noise}
-${lighting}
-void main() {
-  vec3 p = normalize(vObj);
-  float h = fbm(p * 2.6);
-  float h2 = fbm(p * 11.0 + 7.0);
-  vec3 col = mix(uC1, uC2, smoothstep(-0.45, 0.45, h + h2 * 0.35));
-  col = mix(col, uC3, smoothstep(0.15, 0.55, fbm(p * 1.4 + 3.0)) * 0.55);
-  // Craters as small dark rings.
-  float c = snoise(p * 22.0);
-  col *= 1.0 - smoothstep(0.55, 0.75, c) * 0.25 + smoothstep(0.75, 0.8, c) * 0.12;
-  float cap = smoothstep(0.91, 0.96, abs(p.y) + h * 0.05);
-  col = mix(col, vec3(0.86, 0.8, 0.74), cap * 0.85);
-
-  vec3 n = normalize(vNormalW);
-  vec3 v = normalize(vViewW);
-  // A little relief: the noise tilts the light.
-  float relief = (h2 - fbm(p * 11.0 + vec3(7.03, 7.0, 7.0))) * 6.0;
-  float d = daylight(n, normalize(uLight)) * (0.92 + relief * 0.25);
-  vec3 lit = col * (0.02 + max(d, 0.0) * 1.1);
-  lit += uAtmo * fresnel(n, v, 3.0) * (0.05 + d * 0.5);
-  gl_FragColor = vec4(lit, 1.0);
-  ${outro}
-}
-`;
-
 /** Earth from NASA maps: day side, city lights on the night side, shining oceans, blue limb. */
 export const earthFragment = /* glsl */ `
 uniform vec3 uLight;
@@ -191,7 +103,9 @@ void main() {
   vec3 col = mix(nightCol, dayCol, day);
   float ocean = texture2D(uSpec, vUv).r;
   vec3 hv = normalize(l + v);
-  col += vec3(1.0, 0.95, 0.85) * pow(max(dot(n, hv), 0.0), 60.0) * ocean * 0.9 * day;
+  // The Sun's glint on the oceans: a small bright spot, not a blur.
+  float nh = max(dot(n, hv), 0.0);
+  col += vec3(1.0, 0.93, 0.82) * (pow(nh, 260.0) * 0.55 + pow(nh, 40.0) * 0.05) * ocean * day;
   col += vec3(0.32, 0.6, 1.0) * fresnel(n, v, 2.4) * (0.06 + day * 0.85);
   gl_FragColor = vec4(col, 1.0);
   ${outro}
@@ -246,23 +160,69 @@ void main() {
 }
 `;
 
-/** The Sun: boiling granulation, bright enough (above 1.0) for the bloom to catch. */
+/** The Sun from its map, slowly boiling (the map drifts on noise), darker towards the rim. */
 export const sunFragment = /* glsl */ `
 uniform float uTime;
+uniform sampler2D uMap;
+varying vec2 vUv;
 varying vec3 vObj;
 varying vec3 vNormalW;
 varying vec3 vViewW;
 ${noise}
 void main() {
   vec3 p = normalize(vObj);
-  float g = fbm(p * 3.2 + vec3(0.0, uTime * 0.04, uTime * 0.025));
-  float g2 = fbm(p * 22.0 - vec3(uTime * 0.07));
-  float heat = 0.55 + 0.45 * g + 0.25 * g2;
-  vec3 col = mix(vec3(0.85, 0.16, 0.01), vec3(1.0, 0.52, 0.12), smoothstep(0.25, 1.05, heat));
-  col = mix(col, vec3(0.5, 0.06, 0.0), smoothstep(0.45, 0.15, heat) * 0.6);
-  float limb = pow(max(dot(normalize(vNormalW), normalize(vViewW)), 0.0), 0.5);
-  // Bright enough for the bloom, not so bright that it all turns white.
-  gl_FragColor = vec4(col * (0.95 + heat * 0.85) * (0.5 + 0.5 * limb), 1.0);
+  vec2 drift = vec2(snoise(p * 4.0 + uTime * 0.05), snoise(p * 4.0 - uTime * 0.04)) * 0.004;
+  vec3 map = texture2D(uMap, vUv + drift).rgb;
+  float boil = 0.85 + 0.3 * fbm(p * 18.0 + vec3(uTime * 0.06));
+  float mu = max(dot(normalize(vNormalW), normalize(vViewW)), 0.0);
+  float limb = 0.42 + 0.58 * pow(mu, 0.45);
+  vec3 col = map * vec3(1.35, 0.95, 0.62) * boil * limb * 1.6;
+  gl_FragColor = vec4(col, 1.0);
+  #include <colorspace_fragment>
+}
+`;
+
+/**
+ * Flames around a disc (the Sun in the sky, the profile photo in the menu): tongues of plasma that
+ * rise from the rim, curl and fall back, never twice the same. Drawn on a square facing the camera;
+ * uDisc is the radius of the disc in the square's units (0.5 = the square's edge).
+ */
+export const coronaVertex = /* glsl */ `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+export const coronaFragment = /* glsl */ `
+uniform float uTime;
+uniform float uDisc;
+uniform float uReach;
+uniform float uStrength;
+uniform float uRim;
+varying vec2 vUv;
+${noise}
+void main() {
+  vec2 c = vUv - 0.5;
+  float r = length(c);
+  float a = atan(c.y, c.x);
+  // Height of the flames around the rim: a few big tongues, many small licks, all drifting.
+  vec2 ring = vec2(cos(a), sin(a));
+  float big = fbm(vec3(ring * 1.6, uTime * 0.11));
+  float small = snoise(vec3(ring * 6.0, uTime * 0.35));
+  float tongue = pow(max(big * 0.5 + 0.5, 0.0), 1.9) * 1.35 + max(small, 0.0) * 0.18;
+  // Turbulence inside the flames, rising outwards.
+  float h = (r - uDisc) / uReach;
+  float flow = fbm(vec3(c * 9.0 / (0.55 + r), uTime * 0.5 - r * 7.0));
+  float flame = smoothstep(tongue + 0.05, 0.0, h) * smoothstep(-0.06, 0.02, h);
+  flame *= 0.6 + 0.55 * flow;
+  // A thin, steady glow hugging the rim, under the flames.
+  float rim = exp(-max(h, 0.0) * 9.0) * smoothstep(-0.05, 0.0, h);
+  float k = clamp(flame + rim * uRim, 0.0, 1.4) * uStrength;
+  // Hot yellow at the base, deep orange-red at the tips.
+  vec3 col = mix(vec3(1.0, 0.27, 0.04), vec3(1.0, 0.78, 0.36), smoothstep(0.65, 0.0, h + (1.0 - flow) * 0.25));
+  gl_FragColor = vec4(col * k, k);
 }
 `;
 
@@ -312,6 +272,61 @@ void main() {
 }
 `;
 
+/** Saturn's rings from their real map (brightness and see-through across the radius), lit by the Sun,
+ *  darkened in the planet's shadow; uFade lets the rocks take over when the camera is close. */
+export const ringTexFragment = /* glsl */ `
+uniform vec3 uLight;
+uniform vec3 uPlanet;
+uniform float uPlanetR;
+uniform float uInner;
+uniform float uOuter;
+uniform sampler2D uMap;
+uniform float uFade;
+varying vec3 vLocal;
+varying vec3 vWorld;
+void main() {
+  float r = (length(vLocal.xy) - uInner) / (uOuter - uInner);
+  if (r < 0.0 || r > 1.0) discard;
+  vec4 tex = texture2D(uMap, vec2(r, 0.5));
+  vec3 l = normalize(uLight);
+  vec3 oc = vWorld - uPlanet;
+  float b = dot(oc, l);
+  float c = dot(oc, oc) - uPlanetR * uPlanetR;
+  float shadow = (b < 0.0 && b * b - c > 0.0) ? 0.1 : 1.0;
+  gl_FragColor = vec4(tex.rgb * (0.18 + 0.95 * shadow), tex.a * uFade);
+  #include <tonemapping_fragment>
+  #include <colorspace_fragment>
+}
+`;
+
+/** Planets from their maps: soft terminator, a hint of atmosphere on the lit limb. */
+export const planetFragment = /* glsl */ `
+uniform vec3 uLight;
+uniform sampler2D uMap;
+uniform vec3 uAtmo;
+uniform float uAtmoStrength;
+uniform float uAmbient;
+uniform float uTerminator;
+varying vec2 vUv;
+varying vec3 vNormalW;
+varying vec3 vViewW;
+void main() {
+  vec3 n = normalize(vNormalW);
+  vec3 v = normalize(vViewW);
+  vec3 l = normalize(uLight);
+  vec3 col = texture2D(uMap, vUv).rgb;
+  float ndl = dot(n, l);
+  float day = smoothstep(-uTerminator, 0.65, ndl);
+  // Real limbs are a touch darker (and, with an atmosphere, softly coloured).
+  float mu = max(dot(n, v), 0.0);
+  vec3 lit = col * (uAmbient + day * 1.15) * (0.82 + 0.18 * mu);
+  lit += uAtmo * pow(1.0 - mu, 3.0) * uAtmoStrength * smoothstep(-0.25, 0.6, ndl);
+  gl_FragColor = vec4(lit, 1.0);
+  #include <tonemapping_fragment>
+  #include <colorspace_fragment>
+}
+`;
+
 /** Stars: round, soft, each at its own size and twinkling at its own pace. */
 export const starsVertex = /* glsl */ `
 attribute float aSize;
@@ -338,31 +353,5 @@ void main() {
   float d = length(c);
   float a = smoothstep(0.5, 0.0, d);
   gl_FragColor = vec4(vColor * vTwinkle * (0.6 + a), a);
-}
-`;
-
-/** Hyperspace: streaks rushing past the camera, longer and brighter as the jump builds. */
-export const warpVertex = /* glsl */ `
-attribute float aTail;
-attribute float aSpeed;
-uniform float uTime;
-uniform float uWarp;
-varying float vTail;
-void main() {
-  vTail = aTail;
-  vec3 p = position;
-  float span = 140.0;
-  p.z = mod(p.z + uTime * aSpeed * (20.0 + uWarp * 220.0), span) - span + 4.0;
-  p.z += aTail * (1.5 + uWarp * 26.0);
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
-}
-`;
-
-export const warpFragment = /* glsl */ `
-uniform float uWarp;
-uniform vec3 uColor;
-varying float vTail;
-void main() {
-  gl_FragColor = vec4(uColor * (1.0 + uWarp * 1.5), uWarp * (1.0 - vTail * 0.9));
 }
 `;

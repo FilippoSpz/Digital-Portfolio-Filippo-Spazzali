@@ -4,6 +4,7 @@ export const it: Record<TranslationKey, string> = {
   // Navigation
   'nav.home': 'Home',
   'nav.about': 'Chi Sono',
+  'nav.experience': 'Esperienze',
   'nav.skills': 'Competenze',
   'nav.certifications': 'Certificazioni',
   'nav.portfolio': 'Portfolio',
@@ -30,7 +31,6 @@ export const it: Record<TranslationKey, string> = {
     "Sviluppatore Software con 4 anni di esperienza specializzato nello sviluppo web. Ho apportato numerosi miglioramenti nella reattività del sito e nell'accessibilità utente ottimizzando interfacce e prestazioni di sistema per clienti tra cui Colori di Sicilia e Wärtsilä Italia, dove sono stato anche stagista. Ho costruito piattaforme e-commerce complete per l'artigianato di nicchia, migliorando l'esperienza utente con soluzioni web personalizzate. Competente in HTML, CSS, JavaScript, TypeScript; noto per guidare la trasformazione digitale incentrata sull'utente.",
   'about.experience': 'Esperienza Lavorativa',
   'about.workExperience': 'Esperienza Lavorativa',
-  'about.careerJourney': 'Scorri orizzontalmente per esplorare il mio percorso',
   'about.education': 'Formazione',
   'about.languages': 'Lingue',
   'about.languagesText': 'Livello C1',
@@ -43,6 +43,8 @@ export const it: Record<TranslationKey, string> = {
   'about.type.work': 'Lavoro',
 
   // Work Experience
+  'experience.title': 'Esperienze & Formazione',
+  'experience.subtitle': 'Il mio percorso finora, dalla scuola al lavoro',
   'experience.webDeveloper': 'Web Developer',
   'experience.intern': 'Web Developer Stagista',
   'experience.testIntern': 'Tirocinante QA / Test',
@@ -95,12 +97,9 @@ export const it: Record<TranslationKey, string> = {
   'skills.category.databases': 'Database',
   'skills.category.hardware': 'Hardware & Networking',
   'skills.category.office': 'Office & Produttività',
+  'skills.category.ai': 'Intelligenza artificiale',
   'skills.level.expert': 'Esperto',
   'skills.level.advanced': 'Avanzato',
-  'skills.playground.hintMouse': 'Prendi le mie competenze e lanciale',
-  'skills.playground.hintTouch': 'Tocca un gettone per farlo saltare',
-  'skills.playground.shake': 'Rilancia',
-  'skills.playground.start': 'Gioca con le mie competenze',
   'skills.level.intermediate': 'Intermedio',
 
   // Certifications
@@ -108,6 +107,7 @@ export const it: Record<TranslationKey, string> = {
   'certifications.subtitle': 'Certificazioni professionali e riconoscimenti',
   'certifications.view': 'Vedi Certificato',
   'certifications.download': 'Scarica',
+  'certifications.verified': 'Verificato',
   'certifications.innova.title': 'Attestato di Tirocinio e Valutazione Competenze',
   'certifications.innova.issuer': 'INNOVA — Trieste',
   'certifications.innova.date': 'Agosto 2026',
@@ -172,6 +172,8 @@ export const it: Record<TranslationKey, string> = {
   'projects.subtitle': 'Progetti universitari e personali che hanno costruito le mie basi da ingegnere',
   'projects.viewRepo': 'Vedi su GitHub',
   'projects.viewAll': 'Vedi tutte le repository su GitHub',
+  'projects.repo': 'repo',
+  'projects.repos': 'repo',
   'projects.web.title': 'Applicazioni Web',
   'projects.web.description':
     'App web responsive realizzate durante gli studi con HTML, CSS, JavaScript e TypeScript — con focus su interfacce pulite, intuitive e user-friendly.',
@@ -194,4 +196,7 @@ export const it: Record<TranslationKey, string> = {
   'contact.linkedin': 'LinkedIn',
   'contact.github': 'GitHub',
   'contact.instagram': 'Instagram',
+  'contact.channels': 'Canali in arrivo',
+  'contact.status': 'Stato',
+  'contact.online': 'Online',
 };

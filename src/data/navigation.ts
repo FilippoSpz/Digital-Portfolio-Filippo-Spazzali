@@ -1,33 +1,40 @@
-import { Home, User, Code2, Award, Briefcase, Github, Mail, type LucideIcon } from 'lucide-react';
+import { Home, User, Rocket, Code2, Award, Briefcase, Github, Mail, type LucideIcon } from 'lucide-react';
 import type { TranslationKey } from '@/i18n/translations/en';
-import type { PlanetVariant } from '@/components/layout/Planet';
 
-export const SECTION_IDS = ['home', 'about', 'skills', 'certifications', 'portfolio', 'projects', 'contact'] as const;
+/** The bodies of the solar system the site is made of: one per section, plus the two outer controls. */
+export type Body = 'sun' | 'mercury' | 'venus' | 'earth' | 'mars' | 'jupiter' | 'saturn' | 'uranus' | 'neptune' | 'pluto';
+
+/** The sections in page order — the same order as the planets from the Sun outwards. */
+export const SECTION_IDS = ['home', 'about', 'experience', 'skills', 'certifications', 'portfolio', 'projects', 'contact'] as const;
 export type SectionId = (typeof SECTION_IDS)[number];
 
 export interface NavItem {
   id: SectionId;
   icon: LucideIcon;
   labelKey: TranslationKey;
-  /** Planet accent color (hex) — drives the atmosphere glow, label + active halo. */
+  /** The body that stands for this section, in the menu and in the 3D background. */
+  body: Body;
+  /** The section's accent (hex), taken from its planet: the same hue as the section's palette in index.css. */
   color: string;
-  /** Planet diameter in px. */
+  /** Diameter in the menu, in px: roughly in proportion, so Jupiter is big and Mercury small. */
   size: number;
-  /** Which solar-system body models this node (omitted for the home/avatar node). */
-  planet?: PlanetVariant;
-  /** Constellation node position on the desktop nav, as a percentage of the column. */
-  x: number;
-  y: number;
 }
 
 export const navItems: NavItem[] = [
-  { id: 'home', icon: Home, labelKey: 'nav.home', color: '#a78bfa', size: 64, x: 33, y: 9 },
-  { id: 'about', icon: User, labelKey: 'nav.about', color: '#38bdf8', size: 52, planet: 'earth', x: 50, y: 22 },
-  { id: 'skills', icon: Code2, labelKey: 'nav.skills', color: '#e0a15a', size: 48, planet: 'jupiter', x: 29, y: 35 },
-  { id: 'certifications', icon: Award, labelKey: 'nav.certifications', color: '#e8cf90', size: 50, planet: 'saturn', x: 47, y: 48 },
-  { id: 'portfolio', icon: Briefcase, labelKey: 'nav.portfolio', color: '#e2693f', size: 52, planet: 'mars', x: 30, y: 61 },
-  { id: 'projects', icon: Github, labelKey: 'nav.projects', color: '#5c86f2', size: 48, planet: 'neptune', x: 48, y: 74 },
-  { id: 'contact', icon: Mail, labelKey: 'nav.contact', color: '#5fd6d8', size: 50, planet: 'uranus', x: 33, y: 86 },
+  { id: 'home', icon: Home, labelKey: 'nav.home', body: 'sun', color: '#ff8a33', size: 92 },
+  { id: 'about', icon: User, labelKey: 'nav.about', body: 'mercury', color: '#9eaabb', size: 24 },
+  { id: 'experience', icon: Rocket, labelKey: 'nav.experience', body: 'venus', color: '#f2d27a', size: 32 },
+  { id: 'skills', icon: Code2, labelKey: 'nav.skills', body: 'earth', color: '#3da5f5', size: 34 },
+  { id: 'certifications', icon: Award, labelKey: 'nav.certifications', body: 'mars', color: '#e5533d', size: 28 },
+  { id: 'portfolio', icon: Briefcase, labelKey: 'nav.portfolio', body: 'jupiter', color: '#dda06a', size: 54 },
+  { id: 'projects', icon: Github, labelKey: 'nav.projects', body: 'saturn', color: '#d9be8c', size: 44 },
+  { id: 'contact', icon: Mail, labelKey: 'nav.contact', body: 'uranus', color: '#6ce0e0', size: 36 },
 ];
+
+/** Beyond the last section: Neptune switches the language, Pluto downloads the CV. */
+export const outerBodies = {
+  language: { body: 'neptune' as const, color: '#5b7cf0', size: 30 },
+  resume: { body: 'pluto' as const, color: '#cdb8a0', size: 18 },
+};
 
 export const RESUME_URL = '/certificates/Filippo_Spazzali_Resume.pdf';

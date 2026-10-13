@@ -1,20 +1,15 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Code2 } from 'lucide-react';
-import { Play } from 'lucide-react';
-import { lowPower, rich3D } from '@/lib/motion';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
 import Reveal from '@/components/common/Reveal';
 import { skillCategories, type SkillLevel } from '@/data/skills';
 
-const SkillPlayground = lazy(() => import('@/components/skills/SkillPlayground'));
-
 interface SkillsSectionProps {
   isActive: boolean;
 }
 
-const ProficiencyDots = ({ level, gradient }: { level: SkillLevel; gradient: string }) => (
-  <div className="flex gap-1">
+const ProficiencyDots = ({ level, gradient, label }: { level: SkillLevel; gradient: string; label: string }) => (
+  <div className="flex gap-1" role="img" aria-label={label}>
     {[1, 2, 3, 4, 5].map((dot) => (
       <span key={dot} className={`w-1.5 h-1.5 rounded-full ${dot <= level ? `bg-gradient-to-r ${gradient}` : 'bg-muted-foreground/30'}`} />
     ))}
@@ -30,54 +25,14 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
     return t('skills.level.intermediate');
   };
 
-  // The physics tray loads only when the section gets close (it brings its own physics engine).
-  const [playground] = useState(rich3D);
-  // On phones the physics engine (about 0.8 MB) is downloaded only if you ask to play.
-  const [onTap] = useState(lowPower);
-  const [near, setNear] = useState(false);
-  const anchor = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!playground || onTap || !anchor.current) return;
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: '600px 0px' });
-    io.observe(anchor.current);
-    return () => io.disconnect();
-  }, [playground, onTap]);
-  const touch = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
-
   return (
     <section
       id="skills"
+      data-planet="skills"
       className={`min-h-screen py-24 relative transition-opacity duration-700 ${isActive ? 'opacity-100' : 'opacity-50'}`}
     >
       <div className="container mx-auto px-4 md:px-8 lg:pl-[25rem]">
-        <SectionHeader icon={Code2} badge={t('nav.skills')} title={t('skills.title')} subtitle={t('skills.subtitle')} accent="accent" index="02" className="mb-14" />
-
-        {playground && (
-          <div ref={anchor} className="mb-14 min-h-[360px] md:min-h-[440px]">
-            {!near && onTap && (
-              <button
-                type="button"
-                onClick={() => setNear(true)}
-                className="w-full h-[360px] rounded-3xl glass flex flex-col items-center justify-center gap-4 active:bg-primary/10 transition-colors"
-              >
-                <span className="w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30">
-                  <Play className="w-7 h-7 text-background ml-1" />
-                </span>
-                <span className="font-display text-lg font-semibold">{t('skills.playground.start')}</span>
-                <span className="text-sm text-muted-foreground">{t('skills.playground.hintTouch')}</span>
-              </button>
-            )}
-            {near && (
-              <Suspense fallback={<div className="h-[360px] md:h-[440px] rounded-3xl glass animate-pulse" />}>
-                <SkillPlayground
-                  hint={t(touch ? 'skills.playground.hintTouch' : 'skills.playground.hintMouse')}
-                  shakeLabel={t('skills.playground.shake')}
-                  levelLabel={levelLabel}
-                />
-              </Suspense>
-            )}
-          </div>
-        )}
+        <SectionHeader icon={Code2} badge={t('nav.skills')} title={t('skills.title')} subtitle={t('skills.subtitle')} index="04" className="mb-14" />
 
         <div className="space-y-12">
           {skillCategories.map((category, ci) => {
@@ -87,32 +42,26 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
                 <div>
                   {/* Cluster header */}
                   <div className="flex items-center gap-4 mb-7">
-                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${category.gradient} flex items-center justify-center text-background shadow-lg`}>
+                    <div className={`w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br ${category.gradient} flex items-center justify-center text-background`}>
                       <CategoryIcon className="w-6 h-6" />
                     </div>
-                    <h3 className="font-display text-xl md:text-2xl font-bold whitespace-nowrap">{t(category.categoryKey)}</h3>
+                    <h3 className="font-display text-xl md:text-2xl font-bold">{t(category.categoryKey)}</h3>
                     <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
                   </div>
 
-                  {/* Skill planets */}
+                  {/* Skill planets: on hover a skill only grows a little, nothing covers it. */}
                   <div className="flex flex-wrap gap-x-6 gap-y-8 justify-center sm:justify-start">
                     {category.skills.map((skill) => (
                       <div key={skill.name} className="group relative flex flex-col items-center gap-2 w-[92px]">
                         {/* Gradient-ring node */}
-                        <div className={`relative rounded-full bg-gradient-to-br ${category.gradient} p-[2px] transition-transform duration-300 group-hover:scale-110`}>
-                          <div className="w-16 h-16 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center">
+                        <div className={`rounded-full bg-gradient-to-br ${category.gradient} p-[2px] transition-transform duration-300 group-hover:scale-110`}>
+                          <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center">
                             <img src={skill.icon} alt={skill.name} loading="lazy" className="w-9 h-9 object-contain" />
                           </div>
-                          <div className={`absolute inset-0 rounded-full opacity-0 group-hover:opacity-60 blur-lg transition-opacity duration-300 bg-gradient-to-br ${category.gradient}`} />
                         </div>
 
                         <span className="text-sm font-medium text-center leading-tight">{skill.name}</span>
-                        <ProficiencyDots level={skill.level} gradient={category.gradient} />
-
-                        {/* Tooltip */}
-                        <span className="absolute -bottom-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-[10px] uppercase tracking-wider text-muted-foreground pointer-events-none">
-                          {levelLabel(skill.level)}
-                        </span>
+                        <ProficiencyDots level={skill.level} gradient={category.gradient} label={levelLabel(skill.level)} />
                       </div>
                     ))}
                   </div>

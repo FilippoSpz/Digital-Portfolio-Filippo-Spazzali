@@ -19,7 +19,7 @@ const ScrollToTop = () => {
     <Button
       onClick={scrollToTop}
       size="icon"
-      className="fixed bottom-8 right-8 z-50 rounded-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 shadow-lg hover-lift"
+      className="fixed bottom-8 right-8 z-50 rounded-full border border-white/15 bg-black/80 text-white transition-colors duration-300 hover:bg-white hover:text-black"
       aria-label="Scroll to top"
     >
       <ArrowUp className="h-5 w-5" />

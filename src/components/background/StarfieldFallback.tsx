@@ -44,7 +44,7 @@ const StarfieldFallback = () => {
         const twinkle = prefersReduced ? 1 : Math.sin(time * s.twinkleSpeed + s.twinkleOffset) * 0.4 + 0.6;
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(232, 236, 255, ${s.opacity * twinkle})`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity * twinkle})`;
         ctx.fill();
       });
     };

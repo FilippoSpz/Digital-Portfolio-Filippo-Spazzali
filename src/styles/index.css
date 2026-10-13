@@ -3,43 +3,135 @@
 @tailwind utilities;
 
 /*
- * Design system — deep-space theme. All colors are HSL.
+ * Design system — the site sits on pure black space with white stars. The base is neutral (greys
+ * only); every section then takes the colours of its planet through [data-planet] below. All HSL.
  */
 @layer base {
   :root {
-    --background: 228 42% 4%;
-    --foreground: 228 100% 96%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 96%;
 
-    --card: 228 32% 8%;
-    --card-foreground: 228 100% 96%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 228 34% 7%;
-    --popover-foreground: 228 100% 96%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 246 100% 71%;
-    --primary-foreground: 228 45% 6%;
+    /* Outside the sections (menu, scroll-to-top) the accent is plain starlight. */
+    --primary: 0 0% 92%;
+    --primary-foreground: 0 0% 5%;
 
-    --secondary: 209 100% 65%;
-    --secondary-foreground: 228 45% 6%;
+    --secondary: 0 0% 72%;
+    --secondary-foreground: 0 0% 5%;
 
-    --muted: 228 22% 14%;
-    --muted-foreground: 228 16% 64%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 64%;
 
-    --accent: 255 92% 76%;
-    --accent-foreground: 228 45% 6%;
+    --accent: 0 0% 100%;
+    --accent-foreground: 0 0% 5%;
 
-    --destructive: 0 84% 62%;
-    --destructive-foreground: 228 100% 96%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 96%;
 
-    --border: 228 26% 16%;
-    --input: 228 26% 16%;
-    --ring: 246 100% 71%;
+    --border: 0 0% 16%;
+    --input: 0 0% 16%;
+    --ring: 0 0% 80%;
 
     --radius: 1rem;
 
     /* Brand gradient (used by .gradient-text and accents) */
-    --gradient-start: 246 100% 71%;
-    --gradient-end: 209 100% 65%;
+    --gradient-start: 0 0% 96%;
+    --gradient-end: 0 0% 72%;
+  }
+
+  /*
+   * One palette per section, after its body of the solar system. Solid, well-defined colours:
+   * primary = the planet, secondary = its second tone, accent = a lighter tint of the primary.
+   */
+  [data-planet] {
+    --primary-foreground: 0 0% 5%;
+    --secondary-foreground: 0 0% 5%;
+    --accent-foreground: 0 0% 5%;
+  }
+
+  /* Sun — orange and gold */
+  [data-planet='home'] {
+    --primary: 26 100% 60%;
+    --secondary: 42 100% 66%;
+    --accent: 34 100% 72%;
+    --ring: 26 100% 60%;
+    --gradient-start: 26 100% 60%;
+    --gradient-end: 42 100% 66%;
+  }
+
+  /* Mercury — cool grey rock, warm grey dust */
+  [data-planet='about'] {
+    --primary: 215 16% 66%;
+    --secondary: 30 10% 58%;
+    --accent: 215 22% 80%;
+    --ring: 215 16% 66%;
+    --gradient-start: 215 22% 80%;
+    --gradient-end: 30 10% 58%;
+  }
+
+  /* Venus — pale gold clouds, amber */
+  [data-planet='experience'] {
+    --primary: 45 82% 71%;
+    --secondary: 35 70% 60%;
+    --accent: 48 90% 82%;
+    --ring: 45 82% 71%;
+    --gradient-start: 45 82% 71%;
+    --gradient-end: 35 70% 60%;
+  }
+
+  /* Earth — ocean blue, land green */
+  [data-planet='skills'] {
+    --primary: 206 90% 60%;
+    --secondary: 150 55% 50%;
+    --accent: 200 90% 74%;
+    --ring: 206 90% 60%;
+    --gradient-start: 206 90% 60%;
+    --gradient-end: 150 55% 50%;
+  }
+
+  /* Mars — rust red, iron orange */
+  [data-planet='certifications'] {
+    --primary: 8 76% 57%;
+    --secondary: 22 70% 50%;
+    --accent: 14 85% 68%;
+    --ring: 8 76% 57%;
+    --gradient-start: 8 76% 57%;
+    --gradient-end: 22 70% 50%;
+  }
+
+  /* Jupiter — tan bands, the Great Red Spot */
+  [data-planet='portfolio'] {
+    --primary: 28 62% 64%;
+    --secondary: 15 45% 52%;
+    --accent: 34 70% 76%;
+    --ring: 28 62% 64%;
+    --gradient-start: 28 62% 64%;
+    --gradient-end: 15 45% 52%;
+  }
+
+  /* Saturn — pale gold rings, sand */
+  [data-planet='projects'] {
+    --primary: 39 50% 70%;
+    --secondary: 30 30% 55%;
+    --accent: 42 60% 82%;
+    --ring: 39 50% 70%;
+    --gradient-start: 39 50% 70%;
+    --gradient-end: 30 30% 55%;
+  }
+
+  /* Uranus — cyan, teal */
+  [data-planet='contact'] {
+    --primary: 180 65% 65%;
+    --secondary: 195 60% 55%;
+    --accent: 178 70% 78%;
+    --ring: 180 65% 65%;
+    --gradient-start: 180 65% 65%;
+    --gradient-end: 195 60% 55%;
   }
 }
 
@@ -102,27 +194,23 @@
     @apply bg-gradient-to-r from-[hsl(var(--gradient-start))] to-[hsl(var(--gradient-end))] bg-clip-text text-transparent;
   }
 
-  .text-glow {
-    text-shadow: 0 0 30px hsl(var(--primary) / 0.45);
-  }
-
-  /* Readable frosted panel (kept mostly opaque so text stays legible over the 3D) */
+  /* Readable panel (kept mostly opaque so text stays legible over the 3D) */
   .glass {
-    background: hsl(228 30% 9% / 0.9);
+    background: hsl(0 0% 6% / 0.88);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid hsl(228 26% 22% / 0.9);
+    border: 1px solid hsl(0 0% 100% / 0.1);
   }
 
   /* Lighter chip variant */
   .glass-soft {
-    background: hsl(228 30% 10% / 0.7);
+    background: hsl(0 0% 8% / 0.72);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid hsl(228 26% 22% / 0.8);
+    border: 1px solid hsl(0 0% 100% / 0.08);
   }
 
-  /* Gradient hairline border via mask */
+  /* Gradient hairline border via mask (crisp 1px, in the section's colours) */
   .border-gradient {
     position: relative;
   }
@@ -132,15 +220,16 @@
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.6), transparent 40%, hsl(var(--secondary) / 0.5));
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.7), hsl(0 0% 100% / 0.08) 40%, hsl(var(--secondary) / 0.55));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
   }
 
+  /* Buttons stay still: hover only changes colour (the name is kept for the components that use it). */
   .hover-lift {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl;
+    @apply transition-colors duration-300;
   }
 
   .hide-scrollbar {

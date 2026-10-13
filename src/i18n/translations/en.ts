@@ -2,6 +2,7 @@ export const en = {
   // Navigation
   'nav.home': 'Home',
   'nav.about': 'About',
+  'nav.experience': 'Experience',
   'nav.skills': 'Skills',
   'nav.certifications': 'Certifications',
   'nav.portfolio': 'Portfolio',
@@ -28,7 +29,6 @@ export const en = {
     'Software Developer with 4 years of experience specializing in web development. Delivered lots of improvements in site responsiveness and user accessibility by optimizing interfaces and system performance for clients including Colori di Sicilia and Wärtsilä Italia, where I was also an intern. Built full e-commerce platforms for niche craftsmanship, enhancing user experience with custom web solutions. Skilled in HTML, CSS, JavaScript, TypeScript; known for driving user-centric digital transformation.',
   'about.experience': 'Work Experience',
   'about.workExperience': 'Work Experience',
-  'about.careerJourney': 'Scroll horizontally to explore my career journey',
   'about.education': 'Education',
   'about.languages': 'Languages',
   'about.languagesText': 'C1 Level',
@@ -41,6 +41,8 @@ export const en = {
   'about.type.work': 'Work',
 
   // Work Experience
+  'experience.title': 'Experience & Education',
+  'experience.subtitle': 'My journey so far, from school to work',
   'experience.webDeveloper': 'Web Developer',
   'experience.intern': 'Web Developer Intern',
   'experience.testIntern': 'QA / Test Engineer Intern',
@@ -92,12 +94,9 @@ export const en = {
   'skills.category.databases': 'Databases',
   'skills.category.hardware': 'Hardware & Networking',
   'skills.category.office': 'Office & Productivity',
+  'skills.category.ai': 'Artificial intelligence',
   'skills.level.expert': 'Expert',
   'skills.level.advanced': 'Advanced',
-  'skills.playground.hintMouse': 'Grab my skills and throw them around',
-  'skills.playground.hintTouch': 'Tap a token to make it jump',
-  'skills.playground.shake': 'Throw again',
-  'skills.playground.start': 'Play with my skills',
   'skills.level.intermediate': 'Intermediate',
 
   // Certifications
@@ -105,6 +104,7 @@ export const en = {
   'certifications.subtitle': 'Professional certifications and achievements',
   'certifications.view': 'View Certificate',
   'certifications.download': 'Download',
+  'certifications.verified': 'Verified',
   'certifications.innova.title': 'Internship Certificate & Skills Assessment',
   'certifications.innova.issuer': 'INNOVA — Trieste',
   'certifications.innova.date': 'August 2026',
@@ -169,6 +169,8 @@ export const en = {
   'projects.subtitle': 'University coursework and personal builds that shaped my engineering foundations',
   'projects.viewRepo': 'View on GitHub',
   'projects.viewAll': 'See all repositories on GitHub',
+  'projects.repo': 'repo',
+  'projects.repos': 'repos',
   'projects.web.title': 'Web Applications',
   'projects.web.description':
     'Responsive web apps built during my studies with HTML, CSS, JavaScript and TypeScript — focused on clean, intuitive, user-friendly interfaces.',
@@ -191,6 +193,9 @@ export const en = {
   'contact.linkedin': 'LinkedIn',
   'contact.github': 'GitHub',
   'contact.instagram': 'Instagram',
+  'contact.channels': 'Incoming channels',
+  'contact.status': 'Status',
+  'contact.online': 'Online',
 } as const;
 
 export type TranslationKey = keyof typeof en;

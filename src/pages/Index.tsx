@@ -2,6 +2,7 @@ import OrbitalNavigation from '@/components/layout/OrbitalNavigation';
 import CosmicBackground from '@/components/background/CosmicBackground';
 import HomeSection from '@/components/sections/HomeSection';
 import AboutSection from '@/components/sections/AboutSection';
+import ExperienceSection from '@/components/sections/ExperienceSection';
 import SkillsSection from '@/components/sections/SkillsSection';
 import CertificationsSection from '@/components/sections/CertificationsSection';
 import PortfolioSection from '@/components/sections/PortfolioSection';
@@ -29,6 +30,7 @@ const Index = () => {
       <main className="relative z-10">
         <HomeSection isActive={activeSection === 'home'} />
         <AboutSection isActive={activeSection === 'about'} />
+        <ExperienceSection isActive={activeSection === 'experience'} />
         <SkillsSection isActive={activeSection === 'skills'} />
         <CertificationsSection isActive={activeSection === 'certifications'} />
         <PortfolioSection isActive={activeSection === 'portfolio'} />

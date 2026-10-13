@@ -23,7 +23,10 @@ export interface Project {
   icon?: LucideIcon;
   /** Caption shown under the icon. */
   iconLabel?: string;
-  /** Full Tailwind gradient classes (kept verbatim for the JIT). */
+  /**
+   * Full Tailwind gradient classes (kept verbatim for the JIT). They use the section's colour tokens,
+   * so in the Portfolio they are Jupiter's: tan bands (primary), the Great Red Spot (secondary), cream (accent).
+   */
   gradient: string;
   rounded?: boolean;
   whiteBg?: boolean;
@@ -39,7 +42,7 @@ export const projects: Project[] = [
     statusKey: 'portfolio.status.private',
     icon: MapPinned,
     iconLabel: 'Sales Suite',
-    gradient: 'from-emerald-500 to-teal-500',
+    gradient: 'from-primary to-secondary',
   },
   {
     titleKey: 'portfolio.volt.title',
@@ -50,7 +53,7 @@ export const projects: Project[] = [
     statusKey: 'portfolio.status.offline',
     icon: CodeXml,
     iconLabel: 'VOLT Srl',
-    gradient: 'from-sky-400 to-cyan-500',
+    gradient: 'from-accent to-primary',
   },
   {
     titleKey: 'portfolio.viaglut.title',
@@ -60,7 +63,7 @@ export const projects: Project[] = [
     year: '2025',
     link: 'https://magento-1168665-4085035.cloudwaysapps.com/italiano/index',
     image: viaglutImage,
-    gradient: 'from-orange-500 to-amber-500',
+    gradient: 'from-secondary to-primary',
     rounded: true,
   },
   {
@@ -71,7 +74,7 @@ export const projects: Project[] = [
     year: '2022-2023',
     statusKey: 'portfolio.status.private',
     image: circoloImage,
-    gradient: 'from-cyan-500 to-purple-600',
+    gradient: 'from-primary to-accent',
   },
   {
     titleKey: 'portfolio.wartsila.title',
@@ -81,6 +84,6 @@ export const projects: Project[] = [
     year: '2022',
     link: 'https://www.wartsila.com/ita',
     image: wartsilaImage,
-    gradient: 'from-orange-500 to-amber-500',
+    gradient: 'from-accent to-secondary',
   },
 ];

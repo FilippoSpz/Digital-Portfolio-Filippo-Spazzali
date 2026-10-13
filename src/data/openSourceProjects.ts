@@ -12,7 +12,10 @@ export interface ProjectGroup {
   titleKey: TranslationKey;
   descriptionKey: TranslationKey;
   icon: LucideIcon;
-  /** Full Tailwind gradient classes (kept verbatim for the JIT). */
+  /**
+   * Full Tailwind gradient classes (kept verbatim for the JIT). They use the section's colour tokens,
+   * so in Projects they are Saturn's: pale gold rings (primary), sand (secondary), cream (accent).
+   */
   gradient: string;
   tags: string[];
   repos: RepoLink[];
@@ -23,7 +26,7 @@ export const projectGroups: ProjectGroup[] = [
     titleKey: 'projects.web.title',
     descriptionKey: 'projects.web.description',
     icon: Globe,
-    gradient: 'from-cyan-500 to-blue-600',
+    gradient: 'from-primary to-secondary',
     tags: ['HTML', 'CSS', 'JavaScript', 'TypeScript'],
     repos: [
       { name: 'EcoScoot', url: 'https://github.com/FilippoSpz/EcoScootProject' },
@@ -34,7 +37,7 @@ export const projectGroups: ProjectGroup[] = [
     titleKey: 'projects.os.title',
     descriptionKey: 'projects.os.description',
     icon: Terminal,
-    gradient: 'from-emerald-500 to-green-600',
+    gradient: 'from-accent to-primary',
     tags: ['C', 'Bash', 'Linux'],
     repos: [
       { name: 'Lab 1', url: 'https://github.com/FilippoSpz/SO-Lab1' },
@@ -48,7 +51,7 @@ export const projectGroups: ProjectGroup[] = [
     titleKey: 'projects.pa.title',
     descriptionKey: 'projects.pa.description',
     icon: Braces,
-    gradient: 'from-violet-500 to-purple-600',
+    gradient: 'from-secondary to-primary',
     tags: ['Java', 'Sockets', 'Data Structures', 'Algorithms'],
     repos: [
       { name: 'WordCounterServer', url: 'https://github.com/FilippoSpz/PA-WordCounterServer' },
@@ -61,7 +64,7 @@ export const projectGroups: ProjectGroup[] = [
     titleKey: 'projects.db.title',
     descriptionKey: 'projects.db.description',
     icon: Database,
-    gradient: 'from-orange-500 to-amber-600',
+    gradient: 'from-primary to-accent',
     tags: ['MySQL', 'SQL', 'LaTeX'],
     repos: [{ name: 'Progetto Basi di Dati', url: 'https://github.com/FilippoSpz/Progetto-Basi-di-Dati' }],
   },

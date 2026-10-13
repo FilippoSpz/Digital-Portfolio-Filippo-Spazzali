@@ -15,6 +15,7 @@ const ProjectsSection = ({ isActive }: ProjectsSectionProps) => {
   return (
     <section
       id="projects"
+      data-planet="projects"
       className={`min-h-screen py-24 relative transition-opacity duration-700 ${isActive ? 'opacity-100' : 'opacity-50'}`}
     >
       <div className="container mx-auto px-4 md:px-8 lg:pl-[25rem]">
@@ -23,8 +24,7 @@ const ProjectsSection = ({ isActive }: ProjectsSectionProps) => {
           badge={t('nav.projects')}
           title={t('projects.title')}
           subtitle={t('projects.subtitle')}
-          accent="accent"
-          index="05"
+          index="07"
           className="mb-16"
         />
 
@@ -33,17 +33,17 @@ const ProjectsSection = ({ isActive }: ProjectsSectionProps) => {
             const GroupIcon = group.icon;
             return (
               <Reveal key={group.titleKey} variant="up" delay={gi * 80}>
-                <div className="group relative flex flex-col h-full glass border-gradient rounded-2xl p-6 transition-all duration-500 hover:-translate-y-1">
+                <div className="relative flex flex-col h-full glass border-gradient rounded-2xl p-6">
                   {/* Header */}
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${group.gradient} flex items-center justify-center shadow-lg`}>
+                      <div className={`w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br ${group.gradient} flex items-center justify-center`}>
                         <GroupIcon className="w-6 h-6 text-background" />
                       </div>
                       <h3 className="font-display text-xl font-bold leading-tight">{t(group.titleKey)}</h3>
                     </div>
                     <span className="shrink-0 glass-soft rounded-full px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                      {group.repos.length} {group.repos.length === 1 ? 'repo' : 'repos'}
+                      {group.repos.length} {t(group.repos.length === 1 ? 'projects.repo' : 'projects.repos')}
                     </span>
                   </div>
 
@@ -57,11 +57,11 @@ const ProjectsSection = ({ isActive }: ProjectsSectionProps) => {
                         href={repo.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group/repo flex items-center gap-3 rounded-lg bg-background/50 border border-border/50 px-3 py-2 transition-all hover:border-primary/50 hover:bg-primary/10"
+                        className="group/repo flex items-center gap-3 rounded-lg bg-background/50 border border-border/50 px-3 py-2 transition-colors duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground"
                       >
-                        <GitBranch className="w-4 h-4 text-muted-foreground group-hover/repo:text-primary transition-colors" />
+                        <GitBranch className="w-4 h-4 text-muted-foreground group-hover/repo:text-primary-foreground transition-colors duration-300" />
                         <span className="text-sm font-medium flex-1 min-w-0 break-words">{repo.name}</span>
-                        <ArrowUpRight className="w-4 h-4 text-muted-foreground opacity-0 -translate-x-1 group-hover/repo:opacity-100 group-hover/repo:translate-x-0 transition-all" />
+                        <ArrowUpRight className="w-4 h-4 opacity-0 group-hover/repo:opacity-100 transition-opacity duration-300" />
                       </a>
                     ))}
                   </div>
@@ -81,7 +81,7 @@ const ProjectsSection = ({ isActive }: ProjectsSectionProps) => {
         </div>
 
         <Reveal variant="up" delay={120} className="mt-10 flex justify-center lg:justify-start">
-          <Button variant="outline" className="glass border-primary/40 hover:border-primary/70 hover:bg-primary/10 text-foreground" asChild>
+          <Button variant="outline" asChild>
             <a href={GITHUB_PROFILE} target="_blank" rel="noopener noreferrer">
               <Github className="mr-2 h-4 w-4" />
               {t('projects.viewAll')}

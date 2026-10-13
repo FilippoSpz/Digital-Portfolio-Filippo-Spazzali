@@ -1,34 +1,23 @@
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { advance, Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
-import { Bloom, ChromaticAberration, EffectComposer, GodRays, Noise, ToneMapping, Vignette } from '@react-three/postprocessing';
-import { BlendFunction, ToneMappingMode } from 'postprocessing';
 import * as THREE from 'three';
-import { journey, lowPower, testDrive, warp } from '@/lib/motion';
-
-if (testDrive) {
-  let clock = 0;
-  const w = window as unknown as { __advance: (s: number) => void; __warp: typeof warp; __journey: typeof journey };
-  w.__advance = (seconds: number) => {
-    for (let i = 0; i < Math.round(seconds * 60); i++) advance((clock += 1 / 60));
-  };
-  w.__warp = warp;
-  w.__journey = journey;
-}
+import { journey, lowPower, testDrive } from '@/lib/motion';
+import { navItems, type Body } from '@/data/navigation';
 import {
   atmosphereFragment,
   cloudsFragment,
+  coronaFragment,
+  coronaVertex,
   earthFragment,
-  gasGiantFragment,
+  planetFragment,
   ringFragment,
+  ringTexFragment,
   ringVertex,
-  rockyFragment,
   sphereVertex,
   starsFragment,
   starsVertex,
   sunFragment,
   texturedFragment,
-  warpFragment,
-  warpVertex,
 } from './shaders';
 import earthDay from '@/assets/space/earth-day.webp';
 import earthNight from '@/assets/space/earth-night.webp';
@@ -39,42 +28,138 @@ import earthDaySmall from '@/assets/space/earth-day-1k.webp';
 import earthNightSmall from '@/assets/space/earth-night-1k.webp';
 import earthSpecSmall from '@/assets/space/earth-specular-1k.webp';
 import moonSmall from '@/assets/space/moon-512.webp';
+import sunMap from '@/assets/space/sun.webp';
+import sunSmall from '@/assets/space/sun-1k.webp';
+import mercuryMap from '@/assets/space/mercury.webp';
+import mercurySmall from '@/assets/space/mercury-1k.webp';
+import venusMap from '@/assets/space/venus-atmosphere.webp';
+import venusSmall from '@/assets/space/venus-atmosphere-1k.webp';
+import marsMap from '@/assets/space/mars.webp';
+import marsSmall from '@/assets/space/mars-1k.webp';
+import jupiterMap from '@/assets/space/jupiter.webp';
+import jupiterSmall from '@/assets/space/jupiter-1k.webp';
+import saturnMap from '@/assets/space/saturn.webp';
+import saturnSmall from '@/assets/space/saturn-1k.webp';
+import saturnRing from '@/assets/space/saturn-ring.png';
+import uranusMap from '@/assets/space/uranus.webp';
+import uranusSmall from '@/assets/space/uranus-1k.webp';
 
-/* A trip through the solar system, one stop per section of the page:
-   the Sun (home), Earth (about), Jupiter (skills), Saturn (certifications), Mars (portfolio),
-   Neptune (projects), Uranus (contact) — the same planets as the menu. */
-
-type Vec3 = [number, number, number];
-interface Body {
-  key: 'sun' | 'earth' | 'jupiter' | 'saturn' | 'mars' | 'neptune' | 'uranus';
-  r: number;
-  pos: Vec3;
+if (testDrive) {
+  let clock = 0;
+  const w = window as unknown as { __advance: (s: number) => void; __journey: typeof journey };
+  w.__advance = (seconds: number) => {
+    for (let i = 0; i < Math.round(seconds * 60); i++) advance((clock += 1 / 60));
+  };
+  w.__journey = journey;
 }
 
-const BODIES: Body[] = [
-  { key: 'sun', r: 6.5, pos: [15, 3, 0] },
-  { key: 'earth', r: 2.2, pos: [5, 0.4, -80] },
-  { key: 'jupiter', r: 5, pos: [11, -1, -165] },
-  { key: 'saturn', r: 3.9, pos: [9, 1.2, -250] },
-  { key: 'mars', r: 1.7, pos: [4, -0.4, -330] },
-  { key: 'neptune', r: 3, pos: [7.5, 0.6, -410] },
-  { key: 'uranus', r: 2.9, pos: [7, -0.8, -490] },
-];
+/* One body per section, alone on the stage: when you move to the next section the current planet
+   leaves the screen upwards, and only then the next one rises in from below. The stars drift a
+   little meanwhile — just enough to feel the movement. Every planet comes from its real map. */
+
+type Stop = Exclude<Body, 'neptune' | 'pluto'>;
+const STOPS = navItems.map((n) => n.body) as Stop[];
+
+const FOV = 50;
+const TAN = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
 
 /** The planets are lit from the front-left: the night side shows as a crescent on the right. */
-const LIGHT = new THREE.Vector3(-0.55, 0.28, 0.79).normalize();
+const LIGHT = new THREE.Vector3(-0.78, 0.3, 0.55).normalize();
 
 const shared = { uLight: { value: LIGHT } };
 const time = { value: 0 };
+
+/** Where the page is, smoothed, and the screen's shape: written by the rig, read by every body. */
+const stage = { t: journey.t, local: 0, aspect: 1, wide: 1 };
 
 const sphereMaterial = (fragmentShader: string, uniforms: Record<string, THREE.IUniform>) =>
   new THREE.ShaderMaterial({ vertexShader: sphereVertex, fragmentShader, uniforms: { ...shared, uTime: time, ...uniforms } });
 
 const color = (hex: string) => ({ value: new THREE.Color(hex) });
 
+/** Maps for this device: phones get them at half size (a quarter of the download, the same look). */
+const pick = (big: string, small: string) => (lowPower() ? small : big);
+
+function useMap(url: string) {
+  const tex = useLoader(THREE.TextureLoader, url);
+  useMemo(() => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 8;
+  }, [tex]);
+  return tex;
+}
+
+/* ------------------------------------------------------------------ The stage */
+
+/** Centre (in screen units, -1…1) and apparent radius (fraction of half the screen height) at rest. */
+interface Pose {
+  x: number;
+  y: number;
+  size: number;
+}
+
+/** Wide screens: the planet on the right of the text. Phones: above it, smaller. The Sun peeks in from the top-right corner. */
+const REST: Record<Stop, { wide: Pose; tall: Pose }> = {
+  sun: { wide: { x: 0.84, y: 0.74, size: 0.3 }, tall: { x: 0.62, y: 0.84, size: 0.24 } },
+  mercury: { wide: { x: 0.5, y: 0.04, size: 0.4 }, tall: { x: 0.08, y: 0.55, size: 0.24 } },
+  venus: { wide: { x: 0.5, y: 0.04, size: 0.46 }, tall: { x: 0.08, y: 0.55, size: 0.28 } },
+  earth: { wide: { x: 0.5, y: 0.04, size: 0.44 }, tall: { x: 0.05, y: 0.55, size: 0.26 } },
+  mars: { wide: { x: 0.5, y: 0.04, size: 0.42 }, tall: { x: 0.08, y: 0.55, size: 0.25 } },
+  jupiter: { wide: { x: 0.6, y: 0.02, size: 0.47 }, tall: { x: 0.08, y: 0.52, size: 0.3 } },
+  saturn: { wide: { x: 0.48, y: 0.06, size: 0.3 }, tall: { x: 0.05, y: 0.55, size: 0.17 } },
+  uranus: { wide: { x: 0.5, y: 0.04, size: 0.42 }, tall: { x: 0.08, y: 0.55, size: 0.25 } },
+};
+
+/** How far beyond the screen edge a body hides, counting its glow or rings (in radii). */
+const REACH: Partial<Record<Stop, number>> = { sun: 2.4, saturn: 2.5, earth: 2.6 };
+
+const lerp = THREE.MathUtils.lerp;
+const easeOut = (u: number) => 1 - Math.pow(1 - u, 3);
+const easeIn = (u: number) => u * u * u;
+
+function restPose(stop: Stop): Pose {
+  const r = REST[stop];
+  return { x: lerp(r.tall.x, r.wide.x, stage.wide), y: lerp(r.tall.y, r.wide.y, stage.wide), size: lerp(r.tall.size, r.wide.size, stage.wide) };
+}
+
+/**
+ * Body i at the current point of the page: resting, rising in from below (the second half of the
+ * way from the section before), or leaving upwards (the first half of the way to the next); null
+ * while it is off stage.
+ */
+function stagePose(i: number, stop: Stop): Pose | null {
+  const s = stage.t - i;
+  if (s <= -0.5 || s >= 0.5) return null;
+  const rest = restPose(stop);
+  const edge = 1.08 + rest.size * (REACH[stop] ?? 1.2);
+  if (s < 0) {
+    const u = easeOut((s + 0.5) / 0.5);
+    return { x: rest.x + (1 - u) * 0.16, y: lerp(-edge, rest.y, u), size: rest.size };
+  }
+  const u = easeIn(s / 0.5);
+  return { x: rest.x - u * 0.1, y: lerp(rest.y, edge + (stop === 'sun' ? 0.2 : 0), u), size: rest.size };
+}
+
+/** Places its body (radius 1) on the stage every frame; hides it while it is off stage. */
+const OnStage = ({ index, stop, zoom, children }: { index: number; stop: Stop; zoom?: (g: THREE.Group, pose: Pose) => number; children: ReactNode }) => {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(() => {
+    const g = ref.current;
+    if (!g) return;
+    const pose = stagePose(index, stop);
+    g.visible = !!pose;
+    if (!pose) return;
+    // Distance that gives the wanted apparent size; a body may come closer (Saturn's zoom).
+    const d = (1 / (pose.size * TAN)) * (zoom ? zoom(g, pose) : 1);
+    const hh = d * TAN;
+    g.position.set(pose.x * hh * stage.aspect, pose.y * hh, -d);
+  });
+  return <group ref={ref}>{children}</group>;
+};
+
 /* ------------------------------------------------------------------ Atmospheres */
 
-const Atmosphere = ({ r, tint, scale = 1.14, power = 1.6, intensity = 1.6 }: { r: number; tint: string; scale?: number; power?: number; intensity?: number }) => {
+const Atmosphere = ({ tint, scale = 1.1, power = 1.8, intensity = 1.4 }: { tint: string; scale?: number; power?: number; intensity?: number }) => {
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -90,62 +175,174 @@ const Atmosphere = ({ r, tint, scale = 1.14, power = 1.6, intensity = 1.6 }: { r
   );
   useEffect(() => () => material.dispose(), [material]);
   return (
-    <mesh scale={r * scale} material={material}>
-      <sphereGeometry args={[1, 64, 64]} />
+    <mesh scale={scale} material={material}>
+      <sphereGeometry args={[1, 96, 96]} />
     </mesh>
   );
 };
 
 /* ------------------------------------------------------------------ The Sun */
 
-const Sun = ({ body, onDisc }: { body: Body; onDisc: (m: THREE.Mesh) => void }) => {
+/** A smooth radial glow (drawn at high resolution, so it never shows steps). */
+function glowTexture(stops: [number, string][]) {
+  const size = 1024;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d')!;
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  for (const [at, c] of stops) g.addColorStop(at, c);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+const Sun = () => {
+  const map = useMap(pick(sunMap, sunSmall));
   const surface = useMemo(() => {
-    const m = sphereMaterial(sunFragment, {});
+    const m = sphereMaterial(sunFragment, { uMap: { value: map } });
     m.toneMapped = false;
     return m;
-  }, []);
-  const corona = useMemo(() => {
-    const size = 512;
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = size;
-    const ctx = canvas.getContext('2d')!;
-    const g = ctx.createRadialGradient(size / 2, size / 2, size * 0.12, size / 2, size / 2, size / 2);
-    g.addColorStop(0, 'rgba(255,170,90,0.55)');
-    g.addColorStop(0.25, 'rgba(255,110,40,0.22)');
-    g.addColorStop(0.6, 'rgba(255,70,30,0.05)');
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, size, size);
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  }, []);
+  }, [map]);
+  const flames = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: coronaVertex,
+        fragmentShader: coronaFragment,
+        uniforms: { uTime: time, uDisc: { value: 0.25 }, uReach: { value: 0.1 }, uStrength: { value: 1.1 }, uRim: { value: 0.25 } },
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.CustomBlending,
+        blendSrc: THREE.OneFactor,
+        blendDst: THREE.OneFactor,
+        toneMapped: false,
+      }),
+    [],
+  );
+  const glow = useMemo(
+    () =>
+      glowTexture([
+        [0, 'rgba(255,190,120,0.55)'],
+        [0.2, 'rgba(255,140,60,0.28)'],
+        [0.42, 'rgba(255,100,40,0.08)'],
+        [1, 'rgba(0,0,0,0)'],
+      ]),
+    [],
+  );
+  useEffect(() => () => (surface.dispose(), flames.dispose(), glow.dispose()), [surface, flames, glow]);
   const ref = useRef<THREE.Mesh>(null);
-  useEffect(() => () => (surface.dispose(), corona.dispose()), [surface, corona]);
-  useFrame((_, dt) => {
-    if (ref.current) ref.current.rotation.y += dt * 0.02;
+  const face = useRef<THREE.Mesh>(null);
+  useFrame(({ camera }, dt) => {
+    if (ref.current) ref.current.rotation.y += dt * 0.015;
+    // The flames always face the camera itself (not just its direction), so they ring the disc as we see it.
+    if (face.current) face.current.lookAt(camera.position);
   });
   return (
-    <group position={body.pos}>
-      <mesh ref={ref} scale={body.r} material={surface}>
-        <sphereGeometry args={[1, 96, 96]} />
+    <>
+      <mesh ref={ref} material={surface}>
+        <sphereGeometry args={[1, 128, 128]} />
       </mesh>
-      {/* The bright disc the god rays come from: just inside the surface, so it only shows in their pass. */}
-      <mesh ref={(m) => m && onDisc(m)} scale={body.r * 0.985}>
-        <sphereGeometry args={[1, 48, 48]} />
-        <meshBasicMaterial color="#ffb070" transparent opacity={0.9} depthWrite={false} toneMapped={false} />
+      <mesh ref={face} material={flames} scale={4}>
+        <planeGeometry args={[1, 1]} />
       </mesh>
-      <sprite scale={[body.r * 5, body.r * 5, 1]}>
-        <spriteMaterial map={corona} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      <sprite scale={[6.5, 6.5, 1]}>
+        <spriteMaterial map={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
       </sprite>
+    </>
+  );
+};
+
+/* ------------------------------------------------------------------ Planets from their maps */
+
+interface Look {
+  map: [string, string];
+  atmo?: string;
+  atmoStrength?: number;
+  /** Shell around the planet (Venus' thick air, Mars' thin one). */
+  shell?: { tint: string; scale: number; power: number; intensity: number };
+  ambient?: number;
+  terminator?: number;
+  tilt: number;
+  spin: number;
+}
+
+const LOOKS: Record<'mercury' | 'venus' | 'mars' | 'jupiter' | 'uranus', Look> = {
+  mercury: { map: [mercuryMap, mercurySmall], ambient: 0.012, terminator: 0.04, tilt: 0.02, spin: 0.02 },
+  venus: {
+    map: [venusMap, venusSmall],
+    atmo: '#ffe2a8',
+    atmoStrength: 0.7,
+    shell: { tint: '#ffd38a', scale: 1.06, power: 2.2, intensity: 1.1 },
+    ambient: 0.02,
+    terminator: 0.22,
+    tilt: 0.05,
+    spin: 0.012,
+  },
+  mars: {
+    map: [marsMap, marsSmall],
+    atmo: '#ff9a6a',
+    atmoStrength: 0.35,
+    shell: { tint: '#ff8a5c', scale: 1.04, power: 2.6, intensity: 0.7 },
+    ambient: 0.012,
+    terminator: 0.08,
+    tilt: 0.44,
+    spin: 0.035,
+  },
+  jupiter: {
+    map: [jupiterMap, jupiterSmall],
+    atmo: '#f0cfa0',
+    atmoStrength: 0.35,
+    shell: { tint: '#e8b880', scale: 1.035, power: 2.6, intensity: 0.55 },
+    ambient: 0.015,
+    terminator: 0.12,
+    tilt: 0.05,
+    spin: 0.05,
+  },
+  uranus: {
+    map: [uranusMap, uranusSmall],
+    atmo: '#a8f4f4',
+    atmoStrength: 0.8,
+    shell: { tint: '#7fe6e6', scale: 1.05, power: 2.2, intensity: 0.9 },
+    ambient: 0.02,
+    terminator: 0.18,
+    tilt: 1.71,
+    spin: 0.03,
+  },
+};
+
+function planetMaterial(map: THREE.Texture, look: Pick<Look, 'atmo' | 'atmoStrength' | 'ambient' | 'terminator'>) {
+  return sphereMaterial(planetFragment, {
+    uMap: { value: map },
+    uAtmo: color(look.atmo ?? '#000000'),
+    uAtmoStrength: { value: look.atmoStrength ?? 0 },
+    uAmbient: { value: look.ambient ?? 0.015 },
+    uTerminator: { value: look.terminator ?? 0.1 },
+  });
+}
+
+const Planet = ({ look, children }: { look: Look; children?: ReactNode }) => {
+  const map = useMap(pick(...look.map));
+  const material = useMemo(() => planetMaterial(map, look), [map, look]);
+  useEffect(() => () => material.dispose(), [material]);
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame((_, dt) => {
+    if (ref.current) ref.current.rotation.y += dt * look.spin;
+  });
+  return (
+    <group rotation={[0, 0, look.tilt]}>
+      <mesh ref={ref} material={material}>
+        <sphereGeometry args={[1, 128, 128]} />
+      </mesh>
+      {look.shell && <Atmosphere {...look.shell} />}
+      {children}
     </group>
   );
 };
 
 /* ------------------------------------------------------------------ Earth and the Moon */
 
-const Earth = ({ body }: { body: Body }) => {
-  // Phones get the maps at half size: a quarter of the download, the same look on a small screen.
+const Earth = () => {
   const small = lowPower();
   const [day, night, clouds, spec, moon] = useLoader(
     THREE.TextureLoader,
@@ -154,7 +351,7 @@ const Earth = ({ body }: { body: Body }) => {
   useMemo(() => {
     day.colorSpace = THREE.SRGBColorSpace;
     moon.colorSpace = THREE.SRGBColorSpace;
-    for (const t of [day, night, clouds, spec, moon]) t.anisotropy = 4;
+    for (const t of [day, night, clouds, spec, moon]) t.anisotropy = 8;
   }, [day, night, clouds, spec, moon]);
   const surface = useMemo(() => sphereMaterial(earthFragment, { uDay: { value: day }, uNight: { value: night }, uSpec: { value: spec } }), [day, night, spec]);
   const cloudMat = useMemo(() => {
@@ -168,87 +365,157 @@ const Earth = ({ body }: { body: Body }) => {
 
   const planet = useRef<THREE.Mesh>(null);
   const cloudRef = useRef<THREE.Mesh>(null);
-  const moonRef = useRef<THREE.Group>(null);
+  const moonRef = useRef<THREE.Mesh>(null);
   useFrame((state, dt) => {
     if (planet.current) planet.current.rotation.y += dt * 0.03;
     if (cloudRef.current) cloudRef.current.rotation.y += dt * 0.038;
     if (moonRef.current) {
-      const a = state.clock.elapsedTime * 0.06 + 2.2;
-      moonRef.current.position.set(Math.cos(a) * body.r * 3.4, Math.sin(a * 0.7) * body.r * 0.5, Math.sin(a) * body.r * 3.4);
+      // The Moon goes round, passing in front of the Earth and behind it, on a tilted orbit.
+      const a = state.clock.elapsedTime * 0.22 + 2.4;
+      moonRef.current.position.set(Math.cos(a) * 2.05, Math.sin(a) * 0.55, Math.sin(a) * 1.5);
+      moonRef.current.rotation.y = -a;
     }
   });
 
   return (
-    <group position={body.pos} rotation={[0.41, 0, 0.12]}>
-      <mesh ref={planet} scale={body.r} material={surface} rotation={[0, 3.6, 0]}>
-        <sphereGeometry args={[1, 128, 128]} />
-      </mesh>
-      <mesh ref={cloudRef} scale={body.r * 1.012} material={cloudMat}>
-        <sphereGeometry args={[1, 96, 96]} />
-      </mesh>
-      <Atmosphere r={body.r} tint="#4f8dff" scale={1.12} power={1.4} intensity={2.4} />
-      <group ref={moonRef}>
-        <mesh scale={body.r * 0.27} material={moonMat}>
-          <sphereGeometry args={[1, 64, 64]} />
+    <group rotation={[0.18, 0, 0.12]}>
+      <group rotation={[0.41, 0, 0]}>
+        <mesh ref={planet} material={surface} rotation={[0, 3.6, 0]}>
+          <sphereGeometry args={[1, 128, 128]} />
         </mesh>
+        <mesh ref={cloudRef} scale={1.012} material={cloudMat}>
+          <sphereGeometry args={[1, 96, 96]} />
+        </mesh>
+        <Atmosphere tint="#4f8dff" scale={1.1} power={1.6} intensity={2.2} />
       </group>
+      <mesh ref={moonRef} scale={0.27} material={moonMat}>
+        <sphereGeometry args={[1, 64, 64]} />
+      </mesh>
     </group>
   );
 };
 
-/* ------------------------------------------------------------------ Gas giants, rings, Mars */
+/* ------------------------------------------------------------------ Saturn: rings made of rocks */
 
-interface GiantLook {
-  c: [string, string, string, string];
-  bands: number;
-  turb: number;
-  atmo: string;
-  spot?: string;
-  tilt: number;
-  spin: number;
+/** How densely the rings are packed at a radius (planet radii): the C, B and A rings, the Cassini division, the Encke gap. */
+function ringDensity(r: number) {
+  if (r < 1.24 || r > 2.27) return 0;
+  if (r < 1.52) return 0.22;
+  if (r < 1.95) return 1;
+  if (r < 2.03) return 0.04;
+  if (r > 2.205 && r < 2.218) return 0.05;
+  return 0.72;
 }
 
-const LOOKS: Record<'jupiter' | 'saturn' | 'neptune' | 'uranus', GiantLook> = {
-  jupiter: { c: ['#c79a6b', '#efe0c6', '#8f5a3a', '#d8b48b'], bands: 7.5, turb: 0.55, atmo: '#d9a066', spot: '#c4553a', tilt: 0.05, spin: 0.05 },
-  saturn: { c: ['#d8c08b', '#f2e4bd', '#b49461', '#e6d3a3'], bands: 6, turb: 0.25, atmo: '#e8cf90', tilt: 0.47, spin: 0.045 },
-  neptune: { c: ['#2a4fc7', '#4f7df0', '#1b2f8a', '#7fa6ff'], bands: 4, turb: 0.4, atmo: '#5c86f2', spot: '#16246b', tilt: 0.49, spin: 0.04 },
-  uranus: { c: ['#8fdbe0', '#b8eef0', '#6cc4cc', '#d2f6f6'], bands: 2.5, turb: 0.12, atmo: '#5fd6d8', tilt: 1.7, spin: 0.03 },
-};
+/** A lumpy rock: an icosahedron pushed in and out. */
+function rockGeometry(detail: number) {
+  const g = new THREE.IcosahedronGeometry(1, detail);
+  const p = g.attributes.position as THREE.BufferAttribute;
+  const v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    const k = 0.7 + 0.45 * Math.abs(Math.sin(v.x * 4.1 + v.y * 2.7) * Math.cos(v.z * 3.3 - v.y * 1.9));
+    p.setXYZ(i, v.x * k * 1.15, v.y * k * 0.8, v.z * k);
+  }
+  g.computeVertexNormals();
+  return g;
+}
 
-const Giant = ({ body, look }: { body: Body; look: GiantLook }) => {
-  const material = useMemo(
-    () =>
-      sphereMaterial(gasGiantFragment, {
-        uC1: color(look.c[0]),
-        uC2: color(look.c[1]),
-        uC3: color(look.c[2]),
-        uC4: color(look.c[3]),
-        uBands: { value: look.bands },
-        uTurb: { value: look.turb },
-        uAtmo: color(look.atmo),
-        uSpot: { value: look.spot ? 1 : 0 },
-        uSpotColor: color(look.spot ?? '#000000'),
-      }),
-    [look],
-  );
-  useEffect(() => () => material.dispose(), [material]);
-  const ref = useRef<THREE.Mesh>(null);
+const RingRocks = ({ count, detail, min, max, power }: { count: number; detail: number; min: number; max: number; power: number }) => {
+  const ref = useRef<THREE.InstancedMesh>(null);
+  const geometry = useMemo(() => rockGeometry(detail), [detail]);
+  useEffect(() => {
+    const mesh = ref.current;
+    if (!mesh) return;
+    const m = new THREE.Matrix4();
+    const q = new THREE.Quaternion();
+    const e = new THREE.Euler();
+    const pos = new THREE.Vector3();
+    const scl = new THREE.Vector3();
+    const c = new THREE.Color();
+    for (let i = 0; i < count; i++) {
+      let r = 0;
+      do r = 1.24 + Math.random() * 1.03;
+      while (Math.random() > ringDensity(r));
+      const a = Math.random() * Math.PI * 2;
+      pos.set(Math.cos(a) * r, (Math.random() - 0.5) * 0.012, Math.sin(a) * r);
+      const s = min + Math.pow(Math.random(), power) * (max - min);
+      scl.set(s, s * (0.6 + Math.random() * 0.5), s * (0.8 + Math.random() * 0.4));
+      q.setFromEuler(e.set(Math.random() * 6.3, Math.random() * 6.3, Math.random() * 6.3));
+      mesh.setMatrixAt(i, m.compose(pos, q, scl));
+      // Ice and dust: from bright grey-white to warm beige.
+      c.setHSL(0.09 + Math.random() * 0.04, 0.18 + Math.random() * 0.2, 0.55 + Math.random() * 0.3);
+      mesh.setColorAt(i, c);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }, [count, min, max, power]);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  // The rings turn slowly: close up you see the rocks drift past.
   useFrame((_, dt) => {
-    if (ref.current) ref.current.rotation.y += dt * look.spin;
+    if (ref.current) ref.current.rotation.y += dt * 0.01;
   });
   return (
-    <group position={body.pos} rotation={[0, 0, look.tilt]}>
-      <mesh ref={ref} scale={body.r} material={material}>
+    <instancedMesh ref={ref} args={[geometry, undefined, count]} frustumCulled={false}>
+      <meshStandardMaterial roughness={0.95} metalness={0} />
+    </instancedMesh>
+  );
+};
+
+const Saturn = ({ rocks, fade }: { rocks: number; fade: { value: number } }) => {
+  const [map, ringMap] = useLoader(THREE.TextureLoader, [pick(saturnMap, saturnSmall), saturnRing]);
+  useMemo(() => {
+    map.colorSpace = THREE.SRGBColorSpace;
+    ringMap.colorSpace = THREE.SRGBColorSpace;
+    map.anisotropy = 8;
+  }, [map, ringMap]);
+  const surface = useMemo(() => planetMaterial(map, { atmo: '#f2dca8', atmoStrength: 0.3, ambient: 0.015, terminator: 0.12 }), [map]);
+  const planetPos = useMemo(() => new THREE.Vector3(), []);
+  const ring = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: ringVertex,
+        fragmentShader: ringTexFragment,
+        uniforms: {
+          ...shared,
+          uPlanet: { value: planetPos },
+          uPlanetR: { value: 1 },
+          uInner: { value: 1.24 },
+          uOuter: { value: 2.27 },
+          uMap: { value: ringMap },
+          uFade: fade,
+        },
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      }),
+    [ringMap, planetPos, fade],
+  );
+  useEffect(() => () => (surface.dispose(), ring.dispose()), [surface, ring]);
+  const body = useRef<THREE.Mesh>(null);
+  useFrame((_, dt) => {
+    if (!body.current) return;
+    body.current.rotation.y += dt * 0.045;
+    body.current.getWorldPosition(planetPos);
+  });
+  return (
+    <group rotation={[0.42, 0, -0.32]}>
+      <mesh ref={body} material={surface}>
         <sphereGeometry args={[1, 128, 128]} />
       </mesh>
-      <Atmosphere r={body.r} tint={look.atmo} scale={1.08} power={1.8} intensity={1.1} />
-      {body.key === 'saturn' && <Rings body={body} inner={1.25} outer={2.35} a="#cdb88a" b="#f4e7c4" opacity={0.95} />}
-      {body.key === 'uranus' && <Rings body={body} inner={1.7} outer={1.95} a="#9ab8c4" b="#d8eef2" opacity={0.14} />}
+      <mesh rotation={[Math.PI / 2, 0, 0]} material={ring}>
+        <ringGeometry args={[1.24, 2.27, 256, 1]} />
+      </mesh>
+      {/* Mostly gravel (simple shapes, many), a few boulders (finer shapes). */}
+      <RingRocks count={rocks} detail={0} min={0.0018} max={0.0065} power={1.6} />
+      <RingRocks count={Math.round(rocks / 12)} detail={1} min={0.007} max={0.028} power={3} />
     </group>
   );
 };
 
-const Rings = ({ body, inner, outer, a, b, opacity }: { body: Body; inner: number; outer: number; a: string; b: string; opacity: number }) => {
+/** Uranus' faint rings, almost edge-on like the planet's spin. */
+const FaintRings = () => {
+  const planetPos = useMemo(() => new THREE.Vector3(), []);
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -256,74 +523,48 @@ const Rings = ({ body, inner, outer, a, b, opacity }: { body: Body; inner: numbe
         fragmentShader: ringFragment,
         uniforms: {
           ...shared,
-          uPlanet: { value: new THREE.Vector3(...body.pos) },
-          uPlanetR: { value: body.r },
-          uInner: { value: inner * body.r },
-          uOuter: { value: outer * body.r },
-          uColA: color(a),
-          uColB: color(b),
-          uOpacity: { value: opacity },
+          uPlanet: { value: planetPos },
+          uPlanetR: { value: 1 },
+          uInner: { value: 1.7 },
+          uOuter: { value: 1.98 },
+          uColA: color('#8fa8b0'),
+          uColB: color('#d8eef2'),
+          uOpacity: { value: 0.16 },
         },
         transparent: true,
         side: THREE.DoubleSide,
         depthWrite: false,
       }),
-    [body, inner, outer, a, b, opacity],
+    [planetPos],
   );
   useEffect(() => () => material.dispose(), [material]);
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame(() => ref.current?.parent?.getWorldPosition(planetPos));
   return (
-    <mesh rotation={[Math.PI / 2 - 0.12, 0, 0]} material={material}>
-      <ringGeometry args={[inner * body.r, outer * body.r, 256, 1]} />
+    <mesh ref={ref} rotation={[Math.PI / 2, 0, 0]} material={material}>
+      <ringGeometry args={[1.7, 1.98, 256, 1]} />
     </mesh>
   );
 };
 
-const Mars = ({ body }: { body: Body }) => {
-  const material = useMemo(
-    () => sphereMaterial(rockyFragment, { uC1: color('#7a2f17'), uC2: color('#d0743e'), uC3: color('#4a2116'), uAtmo: color('#ff9a6a') }),
-    [],
-  );
-  useEffect(() => () => material.dispose(), [material]);
-  const ref = useRef<THREE.Mesh>(null);
-  useFrame((_, dt) => {
-    if (ref.current) ref.current.rotation.y += dt * 0.04;
-  });
-  return (
-    <group position={body.pos} rotation={[0, 0, 0.44]}>
-      <mesh ref={ref} scale={body.r} material={material}>
-        <sphereGeometry args={[1, 128, 128]} />
-      </mesh>
-      <Atmosphere r={body.r} tint="#ff8a5c" scale={1.07} power={2.2} intensity={0.9} />
-    </group>
-  );
-};
+/* ------------------------------------------------------------------ Stars */
 
-/* ------------------------------------------------------------------ Stars, nebulae, asteroids */
-
+/** White stars all around, at their own brightness and pace. They turn a little as the page goes on. */
 const Stars = ({ count }: { count: number }) => {
+  const ref = useRef<THREE.Points>(null);
   const { geometry, material } = useMemo(() => {
     const g = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
     const col = new Float32Array(count * 3);
     const size = new Float32Array(count);
     const seed = new Float32Array(count);
-    const c = new THREE.Color();
+    const v = new THREE.Vector3();
     for (let i = 0; i < count; i++) {
-      let x = 0;
-      let y = 0;
-      // Not right on the camera's path: no star flies through the lens.
-      do {
-        x = (Math.random() - 0.5) * 520;
-        y = (Math.random() - 0.5) * 380;
-      } while (Math.hypot(x - 2, y - 1) < 10);
-      pos.set([x, y, 80 - Math.random() * 820], i * 3);
-      const t = Math.random();
-      if (t > 0.92) c.setHSL(0.08, 0.8, 0.82);
-      else if (t > 0.8) c.setHSL(0.6, 0.7, 0.85);
-      else if (t > 0.7) c.setHSL(0.72, 0.6, 0.85);
-      else c.setHSL(0.6, 0.1, 0.96);
-      col.set([c.r, c.g, c.b], i * 3);
-      size[i] = Math.random() < 0.04 ? 3 + Math.random() * 3 : 0.8 + Math.random() * 1.8;
+      v.randomDirection().multiplyScalar(260 + Math.random() * 420);
+      pos.set([v.x, v.y, v.z], i * 3);
+      const b = 0.55 + Math.random() * 0.45;
+      col.set([b, b, b], i * 3);
+      size[i] = Math.random() < 0.035 ? 2.6 + Math.random() * 2.2 : 0.7 + Math.random() * 1.5;
       seed[i] = Math.random();
     }
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
@@ -341,186 +582,19 @@ const Stars = ({ count }: { count: number }) => {
     return { geometry: g, material: m };
   }, [count]);
   useEffect(() => () => (geometry.dispose(), material.dispose()), [geometry, material]);
-  return <points geometry={geometry} material={material} frustumCulled={false} />;
-};
-
-const nebulaTexture = (inner: string, mid: string) => {
-  const size = 256;
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = size;
-  const ctx = canvas.getContext('2d')!;
-  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  g.addColorStop(0, inner);
-  g.addColorStop(0.45, mid);
-  g.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, size, size);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
-};
-
-/** A coloured glow far behind each stop: the background changes colour with the section. */
-const Nebulae = () => {
-  const clouds = useMemo(
-    () =>
-      [
-        ['rgba(124,108,255,0.5)', 'rgba(88,70,200,0.14)', [40, 30, -160], 220],
-        ['rgba(60,140,255,0.45)', 'rgba(30,80,180,0.12)', [-60, 20, -230], 200],
-        ['rgba(255,150,70,0.35)', 'rgba(170,80,40,0.1)', [70, -30, -320], 240],
-        ['rgba(240,210,140,0.32)', 'rgba(150,120,60,0.08)', [-50, 40, -400], 220],
-        ['rgba(255,90,60,0.32)', 'rgba(150,40,30,0.1)', [60, 10, -480], 220],
-        ['rgba(70,110,255,0.42)', 'rgba(30,50,170,0.12)', [-70, -20, -560], 260],
-        ['rgba(80,220,220,0.36)', 'rgba(30,120,130,0.1)', [50, 30, -650], 260],
-      ].map(([a, b, pos, scale]) => ({ tex: nebulaTexture(a as string, b as string), pos: pos as Vec3, scale: scale as number })),
-    [],
-  );
-  useEffect(() => () => clouds.forEach((c) => c.tex.dispose()), [clouds]);
-  return (
-    <group>
-      {clouds.map((c, i) => (
-        <sprite key={i} position={c.pos} scale={[c.scale, c.scale, 1]}>
-          <spriteMaterial map={c.tex} transparent opacity={0.3} depthWrite={false} blending={THREE.AdditiveBlending} />
-        </sprite>
-      ))}
-    </group>
-  );
-};
-
-/** A belt of rocks between Earth and Jupiter: the camera flies right through it. */
-const Asteroids = ({ count }: { count: number }) => {
-  const ref = useRef<THREE.InstancedMesh>(null);
-  const geometry = useMemo(() => {
-    const g = new THREE.IcosahedronGeometry(1, 2);
-    const p = g.attributes.position as THREE.BufferAttribute;
-    const v = new THREE.Vector3();
-    for (let i = 0; i < p.count; i++) {
-      v.fromBufferAttribute(p, i);
-      const k = 0.72 + 0.35 * Math.abs(Math.sin(v.x * 3.1 + v.y * 2.3) * Math.cos(v.z * 2.7 - v.x));
-      p.setXYZ(i, v.x * k, v.y * k * 0.85, v.z * k);
-    }
-    g.computeVertexNormals();
-    return g;
-  }, []);
-  const rocks = useMemo(
-    () =>
-      Array.from({ length: count }, () => {
-        const a = Math.random() * Math.PI * 2;
-        const rad = 5 + Math.random() * 28;
-        return {
-          pos: new THREE.Vector3(1.5 + Math.cos(a) * rad, 1 + Math.sin(a) * rad * 0.6, -95 - Math.random() * 55),
-          rot: new THREE.Euler(Math.random() * 6, Math.random() * 6, Math.random() * 6),
-          spin: new THREE.Vector3((Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4, 0),
-          s: Math.random() < 0.06 ? 0.5 + Math.random() * 0.5 : 0.08 + Math.random() * 0.3,
-        };
-      }),
-    [count],
-  );
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-  useFrame(({ camera }, dt) => {
-    const mesh = ref.current;
-    if (!mesh) return;
-    rocks.forEach((r, i) => {
-      r.rot.x += r.spin.x * dt;
-      r.rot.y += r.spin.y * dt;
-      dummy.position.copy(r.pos);
-      dummy.rotation.copy(r.rot);
-      // Only around the camera while it flies through: at the planets the view stays clear.
-      const near = THREE.MathUtils.smoothstep(42 - camera.position.distanceTo(r.pos), 0, 20);
-      dummy.scale.setScalar(r.s * near);
-      dummy.updateMatrix();
-      mesh.setMatrixAt(i, dummy.matrix);
-    });
-    mesh.instanceMatrix.needsUpdate = true;
+  useFrame(() => {
+    if (!ref.current) return;
+    ref.current.rotation.x = -stage.t * 0.03;
+    ref.current.rotation.y = stage.t * 0.018;
   });
-  useEffect(() => () => geometry.dispose(), [geometry]);
-  return (
-    <instancedMesh ref={ref} args={[geometry, undefined, count]} frustumCulled={false}>
-      <meshStandardMaterial color="#8a7d72" roughness={0.95} metalness={0.05} flatShading />
-    </instancedMesh>
-  );
+  return <points ref={ref} geometry={geometry} material={material} frustumCulled={false} />;
 };
 
-/* ------------------------------------------------------------------ Hyperspace */
+/* ------------------------------------------------------------------ Rig */
 
-const WarpStreaks = ({ count }: { count: number }) => {
-  const group = useRef<THREE.Group>(null);
-  const { geometry, material } = useMemo(() => {
-    const g = new THREE.BufferGeometry();
-    const pos = new Float32Array(count * 6);
-    const tail = new Float32Array(count * 2);
-    const speed = new Float32Array(count * 2);
-    for (let i = 0; i < count; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const r = 1.6 + Math.pow(Math.random(), 0.6) * 14;
-      const x = Math.cos(a) * r;
-      const y = Math.sin(a) * r;
-      const z = -Math.random() * 140;
-      pos.set([x, y, z, x, y, z], i * 6);
-      tail.set([0, 1], i * 2);
-      const s = 0.6 + Math.random() * 0.8;
-      speed.set([s, s], i * 2);
-    }
-    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    g.setAttribute('aTail', new THREE.BufferAttribute(tail, 1));
-    g.setAttribute('aSpeed', new THREE.BufferAttribute(speed, 1));
-    const m = new THREE.ShaderMaterial({
-      vertexShader: warpVertex,
-      fragmentShader: warpFragment,
-      uniforms: { uTime: time, uWarp: { value: 0 }, uColor: color('#cfd8ff') },
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-    return { geometry: g, material: m };
-  }, [count]);
-  useEffect(() => () => (geometry.dispose(), material.dispose()), [geometry, material]);
-  useFrame(({ camera }) => {
-    material.uniforms.uWarp.value = warp.value;
-    if (group.current) {
-      group.current.visible = warp.value > 0.01;
-      group.current.position.copy(camera.position);
-      group.current.quaternion.copy(camera.quaternion);
-    }
-  });
-  return (
-    <group ref={group}>
-      <lineSegments geometry={geometry} material={material} frustumCulled={false} />
-    </group>
-  );
-};
-
-/* ------------------------------------------------------------------ Camera */
-
-/** Where the camera stands and looks for each stop: the planet sits to the right on wide screens,
- *  above the text on tall (phone) screens. */
-function framing(aspect: number) {
-  const wide = THREE.MathUtils.smoothstep(aspect, 0.8, 1.35);
-  const eye: THREE.Vector3[] = [];
-  const look: THREE.Vector3[] = [];
-  for (const b of BODIES) {
-    const p = new THREE.Vector3(...b.pos);
-    const r = b.key === 'sun' ? b.r * 1.25 : b.r;
-    const sun = b.key === 'sun';
-    // The Sun rises in the top-right corner, so the portrait in the home page sits on dark sky.
-    const eyeWide = sun ? new THREE.Vector3(-1.6 * r, -0.9 * r, 4.4 * r) : new THREE.Vector3(-1.9 * r, 0.22 * r, 3.1 * r);
-    const eyeTall = sun ? new THREE.Vector3(-0.6 * r, -1.1 * r, 5.2 * r) : new THREE.Vector3(-0.25 * r, -0.1 * r, 4.6 * r);
-    const lookWide = sun ? new THREE.Vector3(-2.6 * r, -1.5 * r, 0) : new THREE.Vector3(-1.35 * r, 0, 0);
-    const lookTall = sun ? new THREE.Vector3(-0.8 * r, -1.9 * r, 0) : new THREE.Vector3(-0.15 * r, -0.85 * r, 0);
-    eye.push(p.clone().add(eyeTall.lerp(eyeWide, wide)));
-    look.push(p.clone().add(lookTall.lerp(lookWide, wide)));
-  }
-  return { eye: new THREE.CatmullRomCurve3(eye, false, 'centripetal'), look: new THREE.CatmullRomCurve3(look, false, 'centripetal') };
-}
-
-const CameraRig = () => {
+const Rig = () => {
   const { camera, size } = useThree();
-  const curves = useMemo(() => framing(size.width / Math.max(1, size.height)), [size.width, size.height]);
-  const t = useRef(journey.t);
-  const eye = useMemo(() => new THREE.Vector3(), []);
-  const look = useMemo(() => new THREE.Vector3(), []);
   const pointer = useRef({ x: 0, y: 0 });
-
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return;
@@ -530,91 +604,98 @@ const CameraRig = () => {
     window.addEventListener('pointermove', onMove, { passive: true });
     return () => window.removeEventListener('pointermove', onMove);
   }, []);
-
+  // Runs before the bodies (negative priority), so they all read the same moment.
   useFrame((state, dt) => {
-    const d = Math.min(dt, 0.05);
+    const d = Math.min(Math.max(dt, 0), 0.05);
     time.value = state.clock.elapsedTime;
+    if (testDrive) Object.assign(window, { __stage: stage, __scene: state.scene });
+    stage.aspect = size.width / Math.max(1, size.height);
+    stage.wide = THREE.MathUtils.smoothstep(stage.aspect, 0.8, 1.35);
     // Back from a hidden tab (or a long stall): be where the page is, no slow catch-up.
-    const snap = dt > 0.25;
-    warp.value = snap ? warp.target : warp.value + (warp.target - warp.value) * (1 - Math.exp(-d * (warp.target > warp.value ? 5 : 2.2)));
-    t.current = snap ? journey.t : t.current + (journey.t - t.current) * (1 - Math.exp(-d * (3 + warp.value * 6)));
-    const u = THREE.MathUtils.clamp(t.current / journey.max, 0, 1);
-    curves.eye.getPoint(u, eye);
-    curves.look.getPoint(u, look);
-    // A slight drift with the mouse, just enough to feel the depth.
-    eye.x += pointer.current.x * 0.25;
-    eye.y -= pointer.current.y * 0.18;
-    camera.position.copy(eye);
-    camera.lookAt(look);
-    // Banking gently while travelling between two planets.
-    const travel = Math.sin((t.current % 1) * Math.PI);
-    camera.rotateZ(travel * 0.05);
-    const cam = camera as THREE.PerspectiveCamera;
-    const fov = 52 + warp.value * 28;
-    if (Math.abs(cam.fov - fov) > 0.01) {
-      cam.fov = fov;
-      cam.updateProjectionMatrix();
-    }
-  });
+    const k = dt > 0.25 || dt < 0 ? 1 : 1 - Math.exp(-d * 3.2);
+    stage.t += (journey.t - stage.t) * k;
+    stage.local += (journey.local - stage.local) * k;
+    // A whisper of depth with the mouse.
+    camera.position.set(pointer.current.x * 0.05, -pointer.current.y * 0.04, 0);
+    camera.lookAt(camera.position.x * 0.5, camera.position.y * 0.5, -10);
+  }, -1);
   return null;
-};
-
-/* ------------------------------------------------------------------ Look */
-
-const Effects = ({ sun }: { sun: THREE.Mesh | null }) => {
-  const aberration = useMemo(() => new THREE.Vector2(0.0004, 0.0004), []);
-  useFrame(() => {
-    const k = 0.0004 + warp.value * 0.0045;
-    aberration.set(k, k);
-  });
-  const effects = [
-    <Bloom key="bloom" mipmapBlur luminanceThreshold={0.42} luminanceSmoothing={0.35} intensity={1.7} radius={0.82} />,
-    <ChromaticAberration key="ca" offset={aberration} radialModulation modulationOffset={0.25} />,
-    <ToneMapping key="tone" mode={ToneMappingMode.ACES_FILMIC} />,
-    <Vignette key="vignette" offset={0.28} darkness={0.72} />,
-    <Noise key="grain" opacity={0.05} premultiply blendFunction={BlendFunction.SCREEN} />,
-  ];
-  if (sun) effects.unshift(<GodRays key="rays" sun={sun} samples={60} density={0.96} decay={0.94} weight={0.55} exposure={0.5} clampMax={1} blur />);
-  return (
-    <EffectComposer key={sun ? 'with-sun' : 'no-sun'} multisampling={0}>
-      {effects}
-    </EffectComposer>
-  );
 };
 
 /* ------------------------------------------------------------------ Scene */
 
+/** Saturn's zoom: while you read the Projects section it comes close, until the rocks of the rings show. */
+const saturnFade = { value: 1 };
+function saturnZoom(g: THREE.Group, pose: Pose) {
+  const i = STOPS.indexOf('saturn');
+  const resting = 1 - Math.min(1, Math.abs(stage.t - i) * 2);
+  const z = THREE.MathUtils.smoothstep(stage.local, 0.16, 0.6) * resting;
+  // Closer, and slid down-right so the near side of the rings crosses the screen.
+  pose.x += z * 0.14;
+  pose.y -= z * 0.34;
+  saturnFade.value = 1 - z * 0.4;
+  g.rotation.x = z * 0.16;
+  return 1 - z * 0.62;
+}
+
 const SpaceScene = () => {
   const light = lowPower();
-  const [sun, setSun] = useState<THREE.Mesh | null>(null);
-  const byKey = (k: Body['key']) => BODIES.find((b) => b.key === k)!;
-
+  const at = (stop: Stop) => STOPS.indexOf(stop);
   return (
     <Canvas
       frameloop={testDrive ? 'never' : 'always'}
-      camera={{ position: [0, 0, 30], fov: 52, near: 0.1, far: 2000 }}
-      gl={{ antialias: !light, alpha: false, powerPreference: 'high-performance', stencil: false }}
-      dpr={light ? [1, 1.5] : [1, 1.75]}
+      camera={{ position: [0, 0, 0], fov: FOV, near: 0.05, far: 2000 }}
+      gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', stencil: false }}
+      dpr={light ? [1, 1.5] : [1, 2]}
       style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}
-      onCreated={({ gl }) => gl.setClearColor('#04050c')}
+      onCreated={({ gl }) => gl.setClearColor('#000000')}
     >
-      <ambientLight intensity={0.12} />
-      <directionalLight position={LIGHT.clone().multiplyScalar(100).toArray() as Vec3} intensity={2.2} color="#fff1dc" />
-      <Stars count={light ? 2600 : 7000} />
-      <Nebulae />
-      <Sun body={byKey('sun')} onDisc={(m) => setSun((cur) => cur ?? m)} />
+      <ambientLight intensity={0.05} />
+      <directionalLight position={LIGHT.clone().multiplyScalar(100).toArray() as [number, number, number]} intensity={2.4} color="#fff4e6" />
+      <Rig />
+      <Stars count={light ? 2200 : 6000} />
       <Suspense fallback={null}>
-        <Earth body={byKey('earth')} />
+        <OnStage index={at('sun')} stop="sun">
+          <Sun />
+        </OnStage>
       </Suspense>
-      <Asteroids count={light ? 90 : 260} />
-      <Giant body={byKey('jupiter')} look={LOOKS.jupiter} />
-      <Giant body={byKey('saturn')} look={LOOKS.saturn} />
-      <Mars body={byKey('mars')} />
-      <Giant body={byKey('neptune')} look={LOOKS.neptune} />
-      <Giant body={byKey('uranus')} look={LOOKS.uranus} />
-      <WarpStreaks count={light ? 260 : 600} />
-      <CameraRig />
-      {!light && <Effects sun={sun} />}
+      <Suspense fallback={null}>
+        <OnStage index={at('mercury')} stop="mercury">
+          <Planet look={LOOKS.mercury} />
+        </OnStage>
+      </Suspense>
+      <Suspense fallback={null}>
+        <OnStage index={at('venus')} stop="venus">
+          <Planet look={LOOKS.venus} />
+        </OnStage>
+      </Suspense>
+      <Suspense fallback={null}>
+        <OnStage index={at('earth')} stop="earth">
+          <Earth />
+        </OnStage>
+      </Suspense>
+      <Suspense fallback={null}>
+        <OnStage index={at('mars')} stop="mars">
+          <Planet look={LOOKS.mars} />
+        </OnStage>
+      </Suspense>
+      <Suspense fallback={null}>
+        <OnStage index={at('jupiter')} stop="jupiter">
+          <Planet look={LOOKS.jupiter} />
+        </OnStage>
+      </Suspense>
+      <Suspense fallback={null}>
+        <OnStage index={at('saturn')} stop="saturn" zoom={saturnZoom}>
+          <Saturn rocks={light ? 6000 : 22000} fade={saturnFade} />
+        </OnStage>
+      </Suspense>
+      <Suspense fallback={null}>
+        <OnStage index={at('uranus')} stop="uranus">
+          <Planet look={LOOKS.uranus}>
+            <FaintRings />
+          </Planet>
+        </OnStage>
+      </Suspense>
     </Canvas>
   );
 };

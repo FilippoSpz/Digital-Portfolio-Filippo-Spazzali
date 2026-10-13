@@ -1,4 +1,4 @@
-import { Code2, Database, Server, Wrench, type LucideIcon } from 'lucide-react';
+import { Code2, Database, Server, Sparkles, Wrench, type LucideIcon } from 'lucide-react';
 import type { TranslationKey } from '@/i18n/translations/en';
 
 import intellijIcon from '@/assets/skills/intellij.png';
@@ -24,6 +24,11 @@ import cppIcon from '@/assets/skills/cpp.png';
 import latexIcon from '@/assets/skills/latex.png';
 import pythonIcon from '@/assets/skills/python.svg';
 import playwrightIcon from '@/assets/skills/playwright.svg';
+import claudeIcon from '@/assets/skills/claude.svg';
+import openaiIcon from '@/assets/skills/openai.svg';
+import geminiIcon from '@/assets/skills/gemini.svg';
+import copilotIcon from '@/assets/skills/githubcopilot.svg';
+import promptIcon from '@/assets/skills/prompt-engineering.svg';
 
 /** 5 = Expert, 4 = Advanced, 3 = Intermediate. */
 export type SkillLevel = 3 | 4 | 5;
@@ -37,7 +42,10 @@ export interface Skill {
 export interface SkillCategory {
   categoryKey: TranslationKey;
   icon: LucideIcon;
-  /** Full Tailwind gradient classes (kept verbatim so the JIT can detect them). */
+  /**
+   * Full Tailwind gradient classes (kept verbatim so the JIT can detect them). They use the section's
+   * colour tokens, so inside Skills they are the Earth's: ocean blue (primary), land green (secondary).
+   */
   gradient: string;
   skills: Skill[];
 }
@@ -46,7 +54,7 @@ export const skillCategories: SkillCategory[] = [
   {
     categoryKey: 'skills.category.softwareProgramming',
     icon: Code2,
-    gradient: 'from-violet-500 to-purple-600',
+    gradient: 'from-primary to-accent',
     skills: [
       { name: 'IntelliJ', icon: intellijIcon, level: 5 },
       { name: 'Java', icon: javaIcon, level: 5 },
@@ -60,7 +68,7 @@ export const skillCategories: SkillCategory[] = [
   {
     categoryKey: 'skills.category.webProgramming',
     icon: Code2,
-    gradient: 'from-cyan-500 to-blue-600',
+    gradient: 'from-accent to-secondary',
     skills: [
       { name: 'HTML', icon: htmlIcon, level: 5 },
       { name: 'CSS', icon: cssIcon, level: 5 },
@@ -72,7 +80,7 @@ export const skillCategories: SkillCategory[] = [
   {
     categoryKey: 'skills.category.databases',
     icon: Database,
-    gradient: 'from-emerald-500 to-green-600',
+    gradient: 'from-secondary to-primary',
     skills: [
       { name: 'SQL', icon: mysqlIcon, level: 5 },
       { name: 'PHP', icon: phpIcon, level: 5 },
@@ -81,13 +89,13 @@ export const skillCategories: SkillCategory[] = [
   {
     categoryKey: 'skills.category.hardware',
     icon: Server,
-    gradient: 'from-orange-500 to-amber-600',
+    gradient: 'from-primary to-secondary',
     skills: [{ name: 'Cisco', icon: ciscoIcon, level: 4 }],
   },
   {
     categoryKey: 'skills.category.office',
     icon: Wrench,
-    gradient: 'from-pink-500 to-rose-600',
+    gradient: 'from-secondary to-accent',
     skills: [
       { name: 'Word', icon: wordIcon, level: 5 },
       { name: 'Excel', icon: excelIcon, level: 5 },
@@ -97,6 +105,18 @@ export const skillCategories: SkillCategory[] = [
       { name: 'PowerPoint', icon: powerpointIcon, level: 5 },
       { name: 'OneNote', icon: onenoteIcon, level: 4 },
       { name: 'Access', icon: accessIcon, level: 4 },
+    ],
+  },
+  {
+    categoryKey: 'skills.category.ai',
+    icon: Sparkles,
+    gradient: 'from-accent via-primary to-secondary',
+    skills: [
+      { name: 'Claude', icon: claudeIcon, level: 4 },
+      { name: 'ChatGPT', icon: openaiIcon, level: 4 },
+      { name: 'Gemini', icon: geminiIcon, level: 4 },
+      { name: 'GitHub Copilot', icon: copilotIcon, level: 4 },
+      { name: 'Prompt engineering', icon: promptIcon, level: 4 },
     ],
   },
 ];

@@ -1,9 +1,14 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Languages, Menu, X, FileDown } from 'lucide-react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import { Menu, X, FileDown } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { navItems, RESUME_URL, type NavItem, type SectionId } from '@/data/navigation';
-import Planet from '@/components/layout/Planet';
+import { navItems, outerBodies, RESUME_URL, type NavItem, type SectionId } from '@/data/navigation';
+import { rich3D } from '@/lib/motion';
+import { menuLayout, menuSky, MENU_WIDTH, type MenuNode } from './menuLayout';
+import MiniPlanet from './MiniPlanet';
 import profilePhoto from '@/assets/images/profile-photo.jpeg';
+import './menu.css';
+
+const MenuSky = lazy(() => import('./MenuSky'));
 
 interface OrbitalNavigationProps {
   activeSection: string;
@@ -12,52 +17,41 @@ interface OrbitalNavigationProps {
 
 type LocalizedNavItem = NavItem & { label: string };
 
-/** Decorative twinkling specks scattered across the constellation. */
-const SPARKS = [
-  { x: '14%', y: '15%', s: 2, d: '0s' },
-  { x: '72%', y: '12%', s: 2, d: '1.4s' },
-  { x: '84%', y: '40%', s: 2, d: '0.6s' },
-  { x: '10%', y: '52%', s: 2, d: '2.1s' },
-  { x: '78%', y: '66%', s: 2, d: '0.9s' },
-  { x: '16%', y: '80%', s: 3, d: '1.8s' },
-  { x: '66%', y: '90%', s: 2, d: '2.6s' },
-];
+/** When each planet's label appears: once the planet has glided into place (see MenuSky). */
+const arrival = (i: number) => 0.35 + i * 0.13 + 1.15;
 
-/** The home node: the profile photo framed by a rotating gradient arc + breathing glow. */
-const AvatarOrb = ({ size, active }: { size: number; active: boolean }) => (
-  <div className="relative" style={{ width: size, height: size }}>
-    <div
-      className="absolute inset-[-30%] rounded-full animate-pulse pointer-events-none"
-      style={{ background: 'radial-gradient(circle, hsl(246 100% 71% / 0.4) 0%, hsl(255 92% 76% / 0.16) 45%, transparent 70%)' }}
-    />
-    <svg className="absolute inset-[-12%] animate-spin-slow" viewBox="0 0 100 100" fill="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="avatar-orb-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="hsl(246 100% 71%)" />
-          <stop offset="50%" stopColor="hsl(255 92% 76%)" />
-          <stop offset="100%" stopColor="hsl(209 100% 65%)" />
-        </linearGradient>
-      </defs>
-      <circle cx="50" cy="50" r="48" stroke="url(#avatar-orb-grad)" strokeWidth="2" strokeLinecap="round" strokeDasharray="84 210" />
-    </svg>
-    {active && (
-      <span
-        className="absolute inset-[-8%] rounded-full pointer-events-none animate-halo"
-        style={{ border: '2px solid hsl(246 100% 71%)', boxShadow: '0 0 16px hsl(246 100% 71%)' }}
-      />
+/** Room a body takes on its right (rings, moons), so its label starts clear of it. */
+const reach = (node: MenuNode) => node.r * (node.body === 'saturn' ? 2.3 : node.body === 'jupiter' ? 2.0 : node.body === 'earth' ? 2.25 : 1) + 12;
+
+/** The pill with the section number and name: always still; it fills with the planet's colour on hover. */
+const Label = ({ color, index, text, active, delay, animate }: { color: string; index?: string; text: ReactNode; active: boolean; delay: number; animate: boolean }) => (
+  <span
+    className={`flex items-center gap-2 h-8 pl-2.5 pr-3 rounded-full border whitespace-nowrap text-sm transition-colors duration-300 ${
+      active ? 'border-[var(--c)] bg-black text-white font-semibold' : 'border-white/10 bg-black/70 text-white/80 font-medium'
+    } group-hover:bg-[var(--c)] group-hover:border-[var(--c)] group-hover:text-black ${animate ? 'menu-arrive' : ''}`}
+    style={{ '--c': color, animationDelay: `${delay}s` } as CSSProperties}
+  >
+    {index && (
+      <>
+        <span className="text-[10px] font-mono font-bold tabular-nums text-[var(--c)] group-hover:text-black transition-colors duration-300">{index}</span>
+        <span className="w-px h-3 bg-white/15 group-hover:bg-black/25" />
+      </>
     )}
-    <div
-      className="absolute inset-[7%] rounded-full overflow-hidden border-2 border-primary/60"
-      style={{ boxShadow: '0 0 22px hsl(246 100% 71% / 0.4)' }}
-    >
-      <img src={profilePhoto} alt="Filippo Spazzali" className="w-full h-full object-cover" />
-    </div>
-  </div>
+    {text}
+  </span>
 );
 
 const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigationProps) => {
   const { language, toggleLanguage, t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [height, setHeight] = useState(() => (typeof window === 'undefined' ? 900 : window.innerHeight));
+  const [use3D] = useState(() => typeof window !== 'undefined' && rich3D());
+
+  useEffect(() => {
+    const onResize = () => setHeight(window.innerHeight);
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const items: LocalizedNavItem[] = useMemo(
     () => navItems.map((item) => ({ ...item, label: t(item.labelKey) })),
@@ -65,6 +59,7 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [language],
   );
+  const layout = useMemo(() => menuLayout(height), [height]);
 
   const handleSectionClick = useCallback(
     (sectionId: SectionId) => {
@@ -74,134 +69,158 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
     [onSectionChange],
   );
 
-  const pathD = useMemo(() => items.map((n, i) => `${i ? 'L' : 'M'}${n.x} ${n.y}`).join(' '), [items]);
-
-  const renderNode = (item: LocalizedNavItem) => {
-    const isActive = activeSection === item.id;
-    return item.id === 'home' || !item.planet ? (
-      <AvatarOrb size={item.size} active={isActive} />
-    ) : (
-      <Planet variant={item.planet} size={item.size} color={item.color} active={isActive} />
-    );
+  const switchLanguage = () => {
+    toggleLanguage();
+    menuSky.flip = Math.PI * 2;
   };
+
+  const { sun, planets } = layout;
+  const activeIndex = items.findIndex((i) => i.id === activeSection);
+  const languageLabel = (
+    <span>
+      <span className={language === 'it' ? 'font-bold' : 'opacity-50'}>IT</span>
+      <span className="opacity-40"> / </span>
+      <span className={language === 'en' ? 'font-bold' : 'opacity-50'}>EN</span>
+    </span>
+  );
 
   return (
     <>
-      {/* Desktop constellation navigation */}
-      <nav className="fixed left-0 top-0 h-screen w-[400px] z-[100] hidden lg:block">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 32% 50%, hsl(228 42% 4% / 0.9) 0%, hsl(228 42% 4% / 0.5) 46%, transparent 74%)' }}
-        />
+      {/* Desktop: a small solar system, the photo as its Sun */}
+      <nav className="fixed left-0 top-0 h-screen z-[100] hidden lg:block" style={{ width: MENU_WIDTH }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to right, #000 0%, rgba(0,0,0,0.88) 55%, transparent 100%)' }} />
 
-        <div className="relative w-full h-full">
-          {SPARKS.map((s, i) => (
-            <span
-              key={i}
-              className="absolute rounded-full bg-white animate-twinkle pointer-events-none"
-              style={{ left: s.x, top: s.y, width: s.s, height: s.s, animationDelay: s.d }}
-            />
-          ))}
-
-          {/* Connecting lines + travelling light pulse */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            <defs>
-              <linearGradient id="constellation-grad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="hsl(246 100% 71%)" />
-                <stop offset="50%" stopColor="hsl(209 100% 65%)" />
-                <stop offset="100%" stopColor="hsl(255 92% 76%)" />
-              </linearGradient>
-            </defs>
-            <path d={pathD} fill="none" stroke="rgba(180,190,255,0.18)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-            <path
-              d={pathD}
-              fill="none"
-              stroke="url(#constellation-grad)"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              pathLength={1000}
-              strokeDasharray="26 974"
-              vectorEffect="non-scaling-stroke"
-              className="animate-constellation-flow"
-            />
-          </svg>
-
-          {/* Planet nodes */}
-          {items.map((item, index) => {
-            const isActive = activeSection === item.id;
+        {/* Orbits: hairlines around the Sun; the one of the section you are in takes its planet's colour */}
+        <svg className="menu-orbits absolute inset-0 pointer-events-none" width={MENU_WIDTH} height={height} aria-hidden="true">
+          {planets.map((p, i) => {
+            const isActive = activeIndex === i + 1;
             return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleSectionClick(item.id)}
-                aria-label={item.label}
-                aria-current={isActive ? 'true' : undefined}
-                className="absolute group"
-                style={{ left: `${item.x}%`, top: `${item.y}%`, transform: 'translate(-50%, -50%)' }}
-              >
-                <div className="animate-float-soft" style={{ animationDelay: `${index * 0.6}s` }}>
-                  <div className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
-                    {renderNode(item)}
-                  </div>
-                </div>
-
-                <div
-                  className={`absolute left-full ml-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pl-2 pr-3 py-1 rounded-full glass whitespace-nowrap transition-all duration-300 pointer-events-none ${
-                    isActive ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'
-                  }`}
-                  style={{ boxShadow: isActive ? `0 0 18px ${item.color}44` : undefined }}
-                >
-                  <span className="text-[10px] font-mono font-bold tabular-nums" style={{ color: item.color }}>
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span className="w-px h-3 bg-white/15" />
-                  <span className={`text-sm ${isActive ? 'font-semibold text-foreground' : 'font-medium text-foreground/85'}`}>{item.label}</span>
-                </div>
-              </button>
+              <circle
+                key={p.body}
+                cx={sun.x}
+                cy={sun.y}
+                r={p.orbit}
+                fill="none"
+                stroke={isActive ? items[i + 1].color : 'rgba(255,255,255,0.1)'}
+                strokeOpacity={isActive ? 0.75 : 1}
+                strokeWidth={isActive ? 1.4 : 1}
+                style={{ transition: 'stroke 0.6s, stroke-opacity 0.6s' }}
+              />
             );
           })}
-        </div>
+          {[layout.language, layout.resume].map((p) => (
+            <circle key={p.body} cx={sun.x} cy={sun.y} r={p.orbit} fill="none" stroke="rgba(255,255,255,0.07)" strokeDasharray="2 6" />
+          ))}
+        </svg>
 
-        {/* Floating controls dock */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 rounded-2xl glass z-[101]">
-          <button
-            onClick={toggleLanguage}
-            type="button"
-            className="flex items-center gap-2 h-11 px-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.09] border border-white/10 transition-all duration-300 hover:scale-[1.03]"
-            aria-label={language === 'en' ? 'Switch to Italian' : 'Passa all’inglese'}
-          >
-            <Languages className="w-4 h-4 text-secondary" />
-            <span className="text-sm font-semibold text-foreground">{language === 'en' ? 'EN' : 'IT'}</span>
-          </button>
+        {use3D ? (
+          <Suspense fallback={null}>
+            <MenuSky layout={layout} />
+          </Suspense>
+        ) : (
+          [...planets, layout.language, layout.resume].map((p) => (
+            <span key={p.body} className="absolute pointer-events-none" style={{ left: p.x - p.r, top: p.y - p.r }}>
+              <MiniPlanet body={p.body} size={p.r * 2} />
+            </span>
+          ))
+        )}
 
-          <a
-            href={RESUME_URL}
-            download
-            className="flex items-center gap-2 h-11 px-4 rounded-xl bg-gradient-to-r from-primary to-secondary text-background text-sm font-semibold hover:opacity-90 transition-all duration-300 hover:scale-[1.03] group"
-            title={t('nav.downloadCV')}
-            aria-label={t('nav.downloadCV')}
-            style={{ boxShadow: '0 0 20px hsl(246 100% 71% / 0.35)' }}
-          >
-            <FileDown className="w-4 h-4 group-hover:animate-bounce" />
-            CV
-          </a>
-        </div>
+        {/* The Sun: the photo, ringed in orange, flames rising from its rim (drawn by MenuSky) */}
+        <button
+          type="button"
+          onClick={() => handleSectionClick('home')}
+          onMouseEnter={() => (menuSky.heat = 1)}
+          onMouseLeave={() => (menuSky.heat = 0)}
+          aria-label={items[0].label}
+          aria-current={activeIndex === 0 ? 'true' : undefined}
+          className="group absolute flex items-center"
+          style={{ left: sun.x - sun.r, top: sun.y - sun.r, height: sun.r * 2 }}
+        >
+          <span className="menu-sun block rounded-full overflow-hidden shrink-0" style={{ width: sun.r * 2, height: sun.r * 2 }}>
+            <img src={profilePhoto} alt="Filippo Spazzali" className="w-full h-full object-cover" />
+          </span>
+          <span className="ml-12">
+            <Label color={items[0].color} index="01" text={items[0].label} active={activeIndex === 0} delay={0.5} animate={use3D} />
+          </span>
+        </button>
+
+        {/* The planets, one per section */}
+        {planets.map((p, i) => {
+          const item = items[i + 1];
+          const isActive = activeIndex === i + 1;
+          const box = Math.max(p.r, 16);
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => handleSectionClick(item.id)}
+              aria-label={item.label}
+              aria-current={isActive ? 'true' : undefined}
+              className="group absolute flex items-center"
+              style={{ left: p.x - p.r, top: p.y - box, height: box * 2 }}
+            >
+              <span className="shrink-0" style={{ width: p.r + reach(p) }} />
+              <Label
+                color={item.color}
+                index={String(i + 2).padStart(2, '0')}
+                text={item.label}
+                active={isActive}
+                delay={arrival(i)}
+                animate={use3D}
+              />
+            </button>
+          );
+        })}
+
+        {/* Beyond the last orbit: Neptune switches the language, Pluto downloads the CV */}
+        <button
+          type="button"
+          onClick={switchLanguage}
+          aria-label={language === 'en' ? 'Switch to Italian' : 'Passa all’inglese'}
+          className="group absolute flex items-center"
+          style={{ left: layout.language.x - layout.language.r, top: layout.language.y - 16, height: 32 }}
+        >
+          <span className="shrink-0" style={{ width: layout.language.r * 2 + 12 }} />
+          <Label color={outerBodies.language.color} text={languageLabel} active={false} delay={arrival(7.6)} animate={use3D} />
+        </button>
+        <a
+          href={RESUME_URL}
+          download
+          aria-label={t('nav.downloadCV')}
+          title={t('nav.downloadCV')}
+          className="group absolute flex items-center"
+          style={{ left: layout.resume.x - layout.resume.r, top: layout.resume.y - 16, height: 32 }}
+        >
+          <span className="shrink-0" style={{ width: layout.resume.r * 2 + 12 }} />
+          <Label
+            color={outerBodies.resume.color}
+            text={
+              <span className="flex items-center gap-1.5">
+                <FileDown className="w-3.5 h-3.5" />
+                CV
+              </span>
+            }
+            active={false}
+            delay={arrival(8.6)}
+            animate={use3D}
+          />
+        </a>
       </nav>
 
-      {/* Mobile / tablet header */}
+      {/* Phone / tablet: a bar with the photo, and the planets as a list */}
       <header className="fixed top-0 left-0 right-0 z-[100] lg:hidden">
-        <div className="flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur-xl border-b border-border/30">
+        <div className="flex items-center justify-between px-4 py-3 bg-black/95 backdrop-blur-xl border-b border-white/10">
           <button type="button" onClick={() => handleSectionClick('home')} className="flex items-center gap-3" aria-label={t('nav.home')}>
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/50">
+            <span className="menu-sun block w-10 h-10 rounded-full overflow-hidden">
               <img src={profilePhoto} alt="Filippo Spazzali" className="w-full h-full object-cover" />
-            </div>
+            </span>
             <span className="font-semibold text-foreground">Filippo Spazzali</span>
           </button>
 
           <button
             type="button"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="w-10 h-10 rounded-xl flex items-center justify-center bg-card/50 border border-border/50 active:bg-primary/20"
+            className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/[0.04] border border-white/10 transition-colors active:bg-white/15"
             aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileMenuOpen}
           >
@@ -210,14 +229,13 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
         </div>
 
         <div
-          className={`absolute top-full left-0 right-0 bg-background/98 backdrop-blur-xl border-b border-border/30 transition-all duration-500 overflow-hidden ${
-            mobileMenuOpen ? 'max-h-[620px] opacity-100' : 'max-h-0 opacity-0'
+          className={`absolute top-full left-0 right-0 bg-black/98 backdrop-blur-xl border-b border-white/10 transition-all duration-500 overflow-hidden ${
+            mobileMenuOpen ? 'max-h-[720px] opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
           <div className="p-4">
-            {/* Constellation as a vertical timeline menu */}
             <div className="relative flex flex-col gap-1">
-              <div className="absolute top-7 bottom-7 w-px bg-[rgba(180,190,255,0.16)]" style={{ left: '30px' }} />
+              <div className="absolute top-6 bottom-6 w-px bg-white/10" style={{ left: '27px' }} />
               {items.map((item, index) => {
                 const isActive = activeSection === item.id;
                 return (
@@ -226,10 +244,16 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
                     type="button"
                     onClick={() => handleSectionClick(item.id)}
                     aria-current={isActive ? 'true' : undefined}
-                    className={`relative flex items-center gap-3 rounded-xl px-2 py-1.5 transition-colors ${isActive ? 'bg-white/[0.06]' : ''} active:bg-white/[0.08]`}
+                    className={`relative flex items-center gap-3 rounded-xl px-2 py-1.5 transition-colors ${isActive ? 'bg-white/[0.07]' : ''} active:bg-white/[0.1]`}
                   >
-                    <span className="relative shrink-0 flex items-center justify-center" style={{ width: 44, height: 44 }}>
-                      {renderNode(item)}
+                    <span className="relative shrink-0 flex items-center justify-center" style={{ width: 40, height: 40 }}>
+                      {item.body === 'sun' ? (
+                        <span className="menu-sun block w-8 h-8 rounded-full overflow-hidden">
+                          <img src={profilePhoto} alt="" className="w-full h-full object-cover" />
+                        </span>
+                      ) : (
+                        <MiniPlanet body={item.body} size={item.body === 'jupiter' || item.body === 'saturn' ? 26 : 22} />
+                      )}
                     </span>
                     <span className="text-[10px] font-mono font-bold tabular-nums" style={{ color: item.color }}>
                       {String(index + 1).padStart(2, '0')}
@@ -240,24 +264,25 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
               })}
             </div>
 
-            <div className="flex items-center gap-3 pt-4 border-t border-border/30 mt-4">
+            <div className="flex items-center gap-3 pt-4 border-t border-white/10 mt-4">
               <button
                 type="button"
-                onClick={toggleLanguage}
-                className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-card/50 border border-border/50 active:bg-primary/20 transition-colors"
+                onClick={switchLanguage}
+                className="flex-1 py-2.5 rounded-xl flex items-center justify-center gap-2.5 border border-white/10 transition-colors active:bg-[#5b7cf0] active:text-black"
                 aria-label={language === 'en' ? 'Switch to Italian' : 'Passa all’inglese'}
               >
-                <Languages className="w-4 h-4" />
-                <span className="text-sm font-medium">{language === 'en' ? 'Italiano' : 'English'}</span>
+                <MiniPlanet body="neptune" size={20} />
+                <span className="text-sm font-medium">{languageLabel}</span>
               </button>
               <a
                 href={RESUME_URL}
                 download
-                className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary"
+                className="flex-1 py-2.5 rounded-xl flex items-center justify-center gap-2.5 border border-white/10 transition-colors active:bg-[#cdb8a0] active:text-black"
                 aria-label={t('nav.downloadCV')}
               >
-                <FileDown className="w-4 h-4 text-background" />
-                <span className="text-sm text-background font-medium">{t('nav.downloadCV')}</span>
+                <MiniPlanet body="pluto" size={14} />
+                <FileDown className="w-4 h-4" />
+                <span className="text-sm font-medium">{t('nav.downloadCV')}</span>
               </a>
             </div>
           </div>

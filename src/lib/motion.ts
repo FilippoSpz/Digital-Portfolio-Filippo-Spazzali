@@ -51,16 +51,12 @@ export const rich3D = () => !reducedMotion() && supportsWebGL();
 /* ------------------------------------------------------------------ The journey */
 
 /**
- * Where the camera is in the trip through the solar system, as a continuous stop index:
- * 0 = the Sun (home), 1 = Earth (about) … 6 = Uranus (contact). Read every frame by the scene.
+ * Where the page is in the trip through the solar system, as a continuous stop index:
+ * 0 = the Sun (home), 1 = Mercury (about) … 7 = Uranus (contact); `local` is how far the current
+ * section has been read (0–1), for effects inside a stop (the zoom on Saturn's rings).
+ * Read every frame by the scene and by the menu.
  */
-export const journey = { t: 0, max: SECTION_IDS.length - 1 };
-
-/**
- * Hyperspace: `target` is set by a menu jump, `value` follows it smoothly in the scene
- * (stars stretch into lines, the lens widens).
- */
-export const warp = { value: 0, target: 0 };
+export const journey = { t: 0, local: 0, max: SECTION_IDS.length - 1 };
 
 const smoothstep = (a: number, b: number, x: number) => {
   const t = Math.min(Math.max((x - a) / (b - a), 0), 1);
@@ -83,6 +79,7 @@ function updateJourney() {
   // The last stop is reached at the very bottom at the latest.
   starts[starts.length - 1] = Math.min(starts[starts.length - 1], max);
   let t = 0;
+  let local = 1;
   for (let i = 0; i < starts.length - 1; i++) {
     const a = starts[i];
     const b = starts[i + 1];
@@ -90,10 +87,14 @@ function updateJourney() {
       t = i + 1;
       continue;
     }
-    if (y >= a) t = i + smoothstep(0.45, 1, (y - a) / Math.max(1, b - a));
+    if (y >= a) {
+      local = (y - a) / Math.max(1, b - a);
+      t = i + smoothstep(0.45, 1, local);
+    }
     break;
   }
   journey.t = Math.min(journey.max, Math.max(0, t));
+  journey.local = local;
 }
 
 /* ------------------------------------------------------------------ Smooth scroll */
@@ -140,28 +141,13 @@ export function scrollToTop() {
   else window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/**
- * The menu jump: into hyperspace, across the solar system, out at the planet of that section.
- * The farther the destination, the longer the jump.
- */
+/** The menu jump: a smooth glide to the section, a little longer the farther it is. */
 export function jumpToSection(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
   if (!lenis || reducedMotion()) return scrollToSection(id);
-  const from = journey.t;
-  const to = SECTION_IDS.indexOf(id as (typeof SECTION_IDS)[number]);
-  const distance = Math.abs(to - from);
-  if (distance < 0.5) return scrollToSection(id);
-  warp.target = 1;
-  lenis.scrollTo(el, {
-    duration: 1.1 + Math.min(distance, 6) * 0.22,
-    easing: easeInOutCubic,
-    onComplete: () => {
-      warp.target = 0;
-    },
-  });
-  // In case the scroll is interrupted (wheel, key): never stay in hyperspace.
-  window.setTimeout(() => (warp.target = 0), 3200);
+  const distance = Math.abs(SECTION_IDS.indexOf(id as (typeof SECTION_IDS)[number]) - journey.t);
+  lenis.scrollTo(el, { duration: 1.1 + Math.min(distance, 7) * 0.16, easing: easeInOutCubic });
 }
 
 export { gsap, ScrollTrigger };

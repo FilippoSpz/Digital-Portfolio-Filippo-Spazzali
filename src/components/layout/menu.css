@@ -1,0 +1,50 @@
+/* The menu's own motion: planets that turn without WebGL, labels that appear once their planet has arrived. */
+
+.animate-planet-turn {
+  background-repeat: repeat-x;
+  animation-name: planet-turn;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes planet-turn {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(-2 * var(--size)) 0;
+  }
+}
+
+.menu-arrive {
+  animation: menu-arrive 0.7s ease-out both;
+}
+
+@keyframes menu-arrive {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* The orbits fade out towards the content, instead of stopping on a hard edge. */
+.menu-orbits {
+  -webkit-mask-image: linear-gradient(to right, #000 62%, transparent 98%);
+  mask-image: linear-gradient(to right, #000 62%, transparent 98%);
+}
+
+/* The photo: a hairline of the Sun's orange, slowly turning sunlit highlights on the rim. */
+.menu-sun {
+  box-shadow:
+    0 0 0 2px #ff8a33,
+    0 0 0 3px rgba(255, 196, 120, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-planet-turn,
+  .menu-arrive {
+    animation: none;
+  }
+}
