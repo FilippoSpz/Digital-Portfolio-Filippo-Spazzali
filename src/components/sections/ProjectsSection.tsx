@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Github, ExternalLink, GitBranch, ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -94,4 +95,4 @@ const ProjectsSection = ({ isActive }: ProjectsSectionProps) => {
   );
 };
 
-export default ProjectsSection;
+export default memo(ProjectsSection);

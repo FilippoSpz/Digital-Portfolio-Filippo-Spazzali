@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Award, Download, ExternalLink, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -77,4 +78,4 @@ const CertificationsSection = ({ isActive }: CertificationsSectionProps) => {
   );
 };
 
-export default CertificationsSection;
+export default memo(CertificationsSection);

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { memo, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowRight, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -172,4 +172,4 @@ const HomeSection = ({ isActive }: HomeSectionProps) => {
   );
 };
 
-export default HomeSection;
+export default memo(HomeSection);

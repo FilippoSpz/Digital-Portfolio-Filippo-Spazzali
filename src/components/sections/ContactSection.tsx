@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Send, Radio, ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
@@ -92,4 +93,4 @@ const ContactSection = ({ isActive }: ContactSectionProps) => {
   );
 };
 
-export default ContactSection;
+export default memo(ContactSection);

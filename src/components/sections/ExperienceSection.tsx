@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Briefcase, GraduationCap, MapPin, Calendar, Rocket, ExternalLink, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -128,4 +129,4 @@ const ExperienceSection = ({ isActive }: ExperienceSectionProps) => {
   );
 };
 
-export default ExperienceSection;
+export default memo(ExperienceSection);

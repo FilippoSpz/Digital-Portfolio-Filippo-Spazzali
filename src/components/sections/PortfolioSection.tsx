@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Briefcase, ArrowUpRight, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -135,4 +136,4 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
   );
 };
 
-export default PortfolioSection;
+export default memo(PortfolioSection);

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Languages, User } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
@@ -66,4 +67,4 @@ const AboutSection = ({ isActive }: AboutSectionProps) => {
   );
 };
 
-export default AboutSection;
+export default memo(AboutSection);

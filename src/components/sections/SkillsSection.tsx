@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Code2 } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SectionHeader from '@/components/common/SectionHeader';
@@ -75,4 +76,4 @@ const SkillsSection = ({ isActive }: SkillsSectionProps) => {
   );
 };
 
-export default SkillsSection;
+export default memo(SkillsSection);

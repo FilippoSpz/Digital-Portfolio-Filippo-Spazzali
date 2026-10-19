@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { lazy, memo, Suspense, useCallback, useEffect, useState } from 'react';
 import { rich3D } from '@/lib/motion';
 import { startMapQueue } from './mapQueue';
 import StarfieldFallback from './StarfieldFallback';
@@ -48,4 +48,5 @@ const CosmicBackground = (_props: CosmicBackgroundProps) => {
   );
 };
 
-export default CosmicBackground;
+// Its prop is unused: the sky never redraws when the section changes.
+export default memo(CosmicBackground);
