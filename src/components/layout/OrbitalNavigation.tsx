@@ -1,10 +1,11 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
-import { Menu, X, FileDown } from 'lucide-react';
+import { FileDown } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { navItems, outerBodies, RESUME_URL, type NavItem, type SectionId } from '@/data/navigation';
 import { rich3D } from '@/lib/motion';
 import { menuLayout, menuSky, MENU_WIDTH, type MenuNode } from './menuLayout';
 import MiniPlanet from './MiniPlanet';
+import MobileDock from './MobileDock';
 import profilePhoto from '@/assets/images/profile-photo.jpeg';
 import './menu.css';
 
@@ -41,16 +42,26 @@ const Label = ({ color, index, text, active, delay, animate }: { color: string; 
   </span>
 );
 
+/** Wide enough for the menu column on the left; below this, the phone's bars. */
+const WIDE = '(min-width: 1024px)';
+
 const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigationProps) => {
   const { language, toggleLanguage, t } = useLanguage();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [height, setHeight] = useState(() => (typeof window === 'undefined' ? 900 : window.innerHeight));
   const [use3D] = useState(() => typeof window !== 'undefined' && rich3D());
+  // Only one of the two little skies runs: the hidden one would still draw every frame.
+  const [wide, setWide] = useState(() => typeof window !== 'undefined' && window.matchMedia(WIDE).matches);
 
   useEffect(() => {
     const onResize = () => setHeight(window.innerHeight);
     window.addEventListener('resize', onResize, { passive: true });
-    return () => window.removeEventListener('resize', onResize);
+    const query = window.matchMedia(WIDE);
+    const onWide = () => setWide(query.matches);
+    query.addEventListener('change', onWide);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      query.removeEventListener('change', onWide);
+    };
   }, []);
 
   const items: LocalizedNavItem[] = useMemo(
@@ -62,10 +73,7 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
   const layout = useMemo(() => menuLayout(height), [height]);
 
   const handleSectionClick = useCallback(
-    (sectionId: SectionId) => {
-      onSectionChange(sectionId);
-      setMobileMenuOpen(false);
-    },
+    (sectionId: SectionId) => onSectionChange(sectionId),
     [onSectionChange],
   );
 
@@ -76,6 +84,7 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
 
   const { sun, planets } = layout;
   const activeIndex = items.findIndex((i) => i.id === activeSection);
+  const active = items[activeIndex];
   const languageLabel = (
     <span>
       <span className={language === 'it' ? 'font-bold' : 'opacity-50'}>IT</span>
@@ -114,9 +123,11 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
         </svg>
 
         {use3D ? (
-          <Suspense fallback={null}>
-            <MenuSky layout={layout} />
-          </Suspense>
+          wide && (
+            <Suspense fallback={null}>
+              <MenuSky layout={layout} />
+            </Suspense>
+          )
         ) : (
           [...planets, layout.language, layout.resume].map((p) => (
             <span key={p.body} className="absolute pointer-events-none" style={{ left: p.x - p.r, top: p.y - p.r }}>
@@ -207,87 +218,45 @@ const OrbitalNavigation = ({ activeSection, onSectionChange }: OrbitalNavigation
         </a>
       </nav>
 
-      {/* Phone / tablet: a bar with the photo, and the planets as a list */}
-      <header className="fixed top-0 left-0 right-0 z-[100] lg:hidden">
-        <div className="flex items-center justify-between px-4 py-3 bg-black/95 backdrop-blur-xl border-b border-white/10">
-          <button type="button" onClick={() => handleSectionClick('home')} className="flex items-center gap-3" aria-label={t('nav.home')}>
-            <span className="menu-sun block w-10 h-10 rounded-full overflow-hidden">
-              <img src={profilePhoto} alt="Filippo Spazzali" className="w-full h-full object-cover" />
-            </span>
-            <span className="font-semibold text-foreground">Filippo Spazzali</span>
+      {/* Phone / tablet: a slim bar on top (where you are, language, CV), the planets in the dock below */}
+      <header className="fixed top-0 inset-x-0 z-[100] lg:hidden bg-black/90 border-b border-white/10" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <div className="flex items-center justify-between gap-3 h-14 px-4">
+          <button type="button" onClick={() => handleSectionClick('home')} className="flex flex-col items-start min-w-0 text-left" aria-label={items[0].label}>
+            <span className="text-[15px] font-semibold leading-tight text-foreground">Filippo Spazzali</span>
+            {active && (
+              <span key={active.id} className="menu-arrive flex items-center gap-1.5 max-w-full text-xs leading-tight text-white/75">
+                <span className="text-[10px] font-mono font-bold tabular-nums" style={{ color: active.color }}>
+                  {String(activeIndex + 1).padStart(2, '0')}
+                </span>
+                <span className="truncate">{active.label}</span>
+              </span>
+            )}
           </button>
 
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/[0.04] border border-white/10 transition-colors active:bg-white/15"
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
-
-        <div
-          className={`absolute top-full left-0 right-0 bg-black/98 backdrop-blur-xl border-b border-white/10 transition-all duration-500 overflow-hidden ${
-            mobileMenuOpen ? 'max-h-[720px] opacity-100' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <div className="p-4">
-            <div className="relative flex flex-col gap-1">
-              <div className="absolute top-6 bottom-6 w-px bg-white/10" style={{ left: '27px' }} />
-              {items.map((item, index) => {
-                const isActive = activeSection === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => handleSectionClick(item.id)}
-                    aria-current={isActive ? 'true' : undefined}
-                    className={`relative flex items-center gap-3 rounded-xl px-2 py-1.5 transition-colors ${isActive ? 'bg-white/[0.07]' : ''} active:bg-white/[0.1]`}
-                  >
-                    <span className="relative shrink-0 flex items-center justify-center" style={{ width: 40, height: 40 }}>
-                      {item.body === 'sun' ? (
-                        <span className="menu-sun block w-8 h-8 rounded-full overflow-hidden">
-                          <img src={profilePhoto} alt="" className="w-full h-full object-cover" />
-                        </span>
-                      ) : (
-                        <MiniPlanet body={item.body} size={item.body === 'jupiter' || item.body === 'saturn' ? 26 : 22} />
-                      )}
-                    </span>
-                    <span className="text-[10px] font-mono font-bold tabular-nums" style={{ color: item.color }}>
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <span className={`text-sm ${isActive ? 'font-semibold text-foreground' : 'font-medium text-foreground/85'}`}>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex items-center gap-3 pt-4 border-t border-white/10 mt-4">
-              <button
-                type="button"
-                onClick={switchLanguage}
-                className="flex-1 py-2.5 rounded-xl flex items-center justify-center gap-2.5 border border-white/10 transition-colors active:bg-[#5b7cf0] active:text-black"
-                aria-label={language === 'en' ? 'Switch to Italian' : 'Passa all’inglese'}
-              >
-                <MiniPlanet body="neptune" size={20} />
-                <span className="text-sm font-medium">{languageLabel}</span>
-              </button>
-              <a
-                href={RESUME_URL}
-                download
-                className="flex-1 py-2.5 rounded-xl flex items-center justify-center gap-2.5 border border-white/10 transition-colors active:bg-[#cdb8a0] active:text-black"
-                aria-label={t('nav.downloadCV')}
-              >
-                <MiniPlanet body="pluto" size={14} />
-                <FileDown className="w-4 h-4" />
-                <span className="text-sm font-medium">{t('nav.downloadCV')}</span>
-              </a>
-            </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={switchLanguage}
+              className="h-9 px-3 rounded-full border border-white/10 bg-black/60 text-xs transition-colors active:bg-[#5b7cf0] active:text-black"
+              aria-label={language === 'en' ? 'Switch to Italian' : 'Passa all’inglese'}
+            >
+              {languageLabel}
+            </button>
+            <a
+              href={RESUME_URL}
+              download
+              aria-label={t('nav.downloadCV')}
+              title={t('nav.downloadCV')}
+              className="h-9 px-3 rounded-full border border-white/10 bg-black/60 flex items-center gap-1.5 text-xs font-medium transition-colors active:bg-[#cdb8a0] active:text-black"
+            >
+              <FileDown className="w-3.5 h-3.5" />
+              CV
+            </a>
           </div>
         </div>
       </header>
+
+      <MobileDock items={items} activeIndex={activeIndex} onSelect={handleSectionClick} use3D={use3D && !wide} />
     </>
   );
 };

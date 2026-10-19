@@ -100,21 +100,30 @@ const smoothstep = (a: number, b: number, x: number) => {
  * its top on the page. Measured once and again only when the page changes size: reading the layout
  * on every scroll made the browser recompute it while the page was moving.
  */
-const layout = { starts: [] as number[], tops: [] as number[], max: 0 };
+const layout = { starts: [] as number[], tops: [] as number[], leave: [] as number[], max: 0 };
 
 function measure() {
   const vh = window.innerHeight;
   const y = window.scrollY;
+  // Phones and tablets (no menu column: the planet sits above the title, in the empty band left
+  // for it): a stop is reached as its section's top meets the top of the screen, and the trip there
+  // takes only the last screen before it, so the planet rises in together with its band.
+  const narrow = window.innerWidth < 1024;
   layout.max = Math.max(0, document.documentElement.scrollHeight - vh);
   layout.tops = SECTION_IDS.map((id) => {
     const el = document.getElementById(id);
     return el ? el.getBoundingClientRect().top + y : 0;
   });
-  layout.starts = layout.tops.map((top) => top - vh * 0.35);
+  layout.starts = layout.tops.map((top) => top - vh * (narrow ? 0 : 0.35));
   layout.starts[0] = 0;
   // The last stop is reached at the very bottom at the latest.
   const last = layout.starts.length - 1;
   layout.starts[last] = Math.min(layout.starts[last], layout.max);
+  // How far into each section (0…1) the trip to the next stop begins.
+  layout.leave = layout.starts.map((start, i) => {
+    if (!narrow || i === last) return 0.45;
+    return Math.max(0.45, 1 - (vh * 0.85) / Math.max(1, layout.starts[i + 1] - start));
+  });
 }
 
 /**
@@ -132,7 +141,7 @@ function mapScroll(y: number) {
   for (let i = 0; i < last; i++) {
     if (y < starts[i + 1]) {
       const local = clamp01((y - starts[i]) / Math.max(1, starts[i + 1] - starts[i]));
-      return { t: i + smoothstep(0.45, 1, local), local, pos: i + local };
+      return { t: i + smoothstep(layout.leave[i] ?? 0.45, 1, local), local, pos: i + local };
     }
   }
   return { t: last, local: 0, pos: last };

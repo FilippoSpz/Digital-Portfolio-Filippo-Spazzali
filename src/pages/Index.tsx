@@ -24,8 +24,8 @@ const Index = () => {
 
       <OrbitalNavigation activeSection={activeSection} onSectionChange={jumpToSection} />
 
-      {/* Mobile/tablet header spacer */}
-      <div className="lg:hidden h-16" />
+      {/* Mobile/tablet: room for the bar on top */}
+      <div className="lg:hidden" style={{ height: 'calc(3.5rem + env(safe-area-inset-top))' }} />
 
       <main className="relative z-10">
         <HomeSection isActive={activeSection === 'home'} />
@@ -37,6 +37,9 @@ const Index = () => {
         <ProjectsSection isActive={activeSection === 'projects'} />
         <ContactSection isActive={activeSection === 'contact'} />
       </main>
+
+      {/* …and for the dock at the bottom, so the end of the page is not left under it */}
+      <div className="lg:hidden" style={{ height: 'calc(6.5rem + env(safe-area-inset-bottom))' }} />
     </div>
   );
 };

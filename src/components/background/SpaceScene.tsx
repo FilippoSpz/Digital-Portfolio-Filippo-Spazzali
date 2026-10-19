@@ -127,16 +127,20 @@ interface Pose {
   size: number;
 }
 
-/** Wide screens: the planet on the right of the text. Phones: above it, big. The Sun peeks in from the top-right corner. */
+/**
+ * Wide screens: the planet on the right of the text. Phones: big, in the empty band above the title
+ * (SectionHeader), whole when the section's top reaches the top of the screen. The Sun peeks in
+ * from the top-right corner.
+ */
 const REST: Record<Stop, { wide: Pose; tall: Pose }> = {
   sun: { wide: { x: 0.84, y: 0.74, size: 0.3 }, tall: { x: 0.62, y: 0.82, size: 0.3 } },
-  mercury: { wide: { x: 0.5, y: 0.04, size: 0.4 }, tall: { x: 0.12, y: 0.52, size: 0.3 } },
-  venus: { wide: { x: 0.5, y: 0.04, size: 0.46 }, tall: { x: 0.12, y: 0.52, size: 0.34 } },
-  earth: { wide: { x: 0.5, y: 0.04, size: 0.44 }, tall: { x: 0.1, y: 0.52, size: 0.32 } },
-  mars: { wide: { x: 0.5, y: 0.04, size: 0.42 }, tall: { x: 0.12, y: 0.52, size: 0.31 } },
-  jupiter: { wide: { x: 0.6, y: 0.02, size: 0.47 }, tall: { x: 0.12, y: 0.5, size: 0.36 } },
-  saturn: { wide: { x: 0.48, y: 0.06, size: 0.3 }, tall: { x: 0.08, y: 0.52, size: 0.21 } },
-  uranus: { wide: { x: 0.5, y: 0.04, size: 0.42 }, tall: { x: 0.12, y: 0.52, size: 0.31 } },
+  mercury: { wide: { x: 0.5, y: 0.04, size: 0.4 }, tall: { x: 0, y: 0.38, size: 0.29 } },
+  venus: { wide: { x: 0.5, y: 0.04, size: 0.46 }, tall: { x: 0, y: 0.38, size: 0.32 } },
+  earth: { wide: { x: 0.5, y: 0.04, size: 0.44 }, tall: { x: -0.06, y: 0.38, size: 0.3 } },
+  mars: { wide: { x: 0.5, y: 0.04, size: 0.42 }, tall: { x: 0, y: 0.38, size: 0.3 } },
+  jupiter: { wide: { x: 0.6, y: 0.02, size: 0.47 }, tall: { x: 0, y: 0.38, size: 0.33 } },
+  saturn: { wide: { x: 0.48, y: 0.06, size: 0.3 }, tall: { x: 0, y: 0.38, size: 0.2 } },
+  uranus: { wide: { x: 0.5, y: 0.04, size: 0.42 }, tall: { x: 0, y: 0.38, size: 0.3 } },
 };
 
 /** How far beyond the screen edge a body hides, counting its glow, rings or moons (in radii). */

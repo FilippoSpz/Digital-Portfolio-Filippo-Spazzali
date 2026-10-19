@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { journey, testDrive } from '@/lib/motion';
 import type { Body } from '@/data/navigation';
 import { coronaFragment, coronaVertex, moonFragment, planetFragment, ringTexFragment, ringVertex, sphereVertex } from '@/components/background/shaders';
-import { menuSky, type MenuLayout, type MenuNode } from './menuLayout';
+import { menuSky, type MenuNode, type SkyLayout } from './menuLayout';
 import mercuryMap from '@/assets/space/mercury-512.webp';
 import venusMap from '@/assets/space/venus-atmosphere-512.webp';
 import earthMap from '@/assets/space/earth-day-1k.webp';
@@ -123,9 +123,11 @@ interface SkyBodyProps {
   moons?: 'moon' | 'jupiter';
   ring?: boolean;
   spinOnFlip?: boolean;
+  /** In the phone's dock the bodies rise into their place in the row, instead of gliding along an orbit. */
+  dock?: boolean;
 }
 
-const SkyBody = ({ node, sun, map, delay, moons, ring, spinOnFlip }: SkyBodyProps) => {
+const SkyBody = ({ node, sun, map, delay, moons, ring, spinOnFlip, dock }: SkyBodyProps) => {
   const { size } = useThree();
   const look = LOOK[node.body]!;
   const group = useRef<THREE.Group>(null);
@@ -207,10 +209,12 @@ const SkyBody = ({ node, sun, map, delay, moons, ring, spinOnFlip }: SkyBodyProp
     const t = state.clock.elapsedTime;
     const u = Math.min(1, Math.max(0, (t - delay) / 1.6));
     g.visible = u > 0;
-    const a = arrivalAngle(node, sun, u);
-    const x = sun.x + Math.cos(a) * node.orbit;
-    const y = sun.y + Math.sin(a) * node.orbit;
-    g.position.copy(toWorld(x, y, size.width, size.height));
+    if (dock) {
+      g.position.copy(toWorld(node.x, node.y + (1 - easeOut(u)) * size.height, size.width, size.height));
+    } else {
+      const a = arrivalAngle(node, sun, u);
+      g.position.copy(toWorld(sun.x + Math.cos(a) * node.orbit, sun.y + Math.sin(a) * node.orbit, size.width, size.height));
+    }
     g.getWorldPosition(planetPos);
     shadow.set(planetPos.x, planetPos.y, planetPos.z, node.r);
     // Lit from the Sun, and partly from the front: the day side faces the photo, a thin night side
@@ -256,7 +260,8 @@ const SkyBody = ({ node, sun, map, delay, moons, ring, spinOnFlip }: SkyBodyProp
       </group>
       {moons === 'moon' && <MoonBall refFn={(m) => (moonRefs.current[0] = m)} r={node.r * 0.27} light={light} />}
       {moonMaterials.map((m, i) => (
-        <mesh key={i} ref={(mesh) => (moonRefs.current[i] = mesh)} material={m} scale={GALILEANS[i].r}>
+        // A smaller Jupiter (the dock) keeps its moons almost as big: any smaller and they would vanish.
+        <mesh key={i} ref={(mesh) => (moonRefs.current[i] = mesh)} material={m} scale={GALILEANS[i].r * Math.min(1, Math.max(0.9, node.r / 27))}>
           <sphereGeometry args={[1, 24, 16]} />
         </mesh>
       ))}
@@ -323,9 +328,11 @@ const SunFlames = ({ sun }: { sun: MenuNode }) => {
   );
 };
 
-/** Px beyond a body's rim where the satellite circles it; px left of the planets where its lane runs. */
+/** Px beyond a body's rim where the satellite circles it; px left of the planets where its lane runs
+ *  (above them in the phone's dock, where everything is smaller). */
 const ORBIT_GAP = 12;
 const LANE_GAP = 20;
+const DOCK = { orbitGap: 6, laneGap: 8, scale: 0.5 };
 /** On its lane the satellite flies in front of everything (Saturn's rings reach that far left). */
 const LANE_Z = 80;
 
@@ -373,20 +380,22 @@ const wrapAngle = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
  * its orbit, glides in one sweep along a lane just left of the planets (never stopping at the ones it
  * passes), and settles into orbit round the new one. Its nose follows its course.
  */
-const Satellite = ({ layout }: { layout: MenuLayout }) => {
+const Satellite = ({ layout, dock }: { layout: SkyLayout; dock?: boolean }) => {
   const { size } = useThree();
   const ref = useRef<THREE.Group>(null);
+  const orbitGap = dock ? DOCK.orbitGap : ORBIT_GAP;
   const stops = useMemo(() => [layout.sun, ...layout.planets], [layout]);
   const lane = useMemo(
     () =>
       stops.map((n, k) => {
+        if (dock) return new THREE.Vector2(n.x, n.y - n.r - DOCK.laneGap);
         if (k > 0) return new THREE.Vector2(n.x - n.r - LANE_GAP, n.y);
         // Below the photo, towards Mercury.
         const next = stops[1];
         const d = new THREE.Vector2(next.x - n.x, next.y - n.y).normalize().multiplyScalar(n.r + LANE_GAP);
         return new THREE.Vector2(n.x + d.x, n.y + d.y);
       }),
-    [stops],
+    [stops, dock],
   );
   const [st] = useState(() => ({
     s: journey.travel,
@@ -433,7 +442,7 @@ const Satellite = ({ layout }: { layout: MenuLayout }) => {
     // Circling stop k: a tilted orbit, in front of the planet on its lower half, behind it on the upper.
     const orbit = (k: number, out: THREE.Vector3) => {
       const n = stops[k];
-      const R = n.r + ORBIT_GAP;
+      const R = n.r + orbitGap;
       return out.set(n.x + Math.cos(spin) * R, n.y + Math.sin(spin) * R * 0.45, Math.sin(spin) * R * 0.9);
     };
     // Reading position s: in orbit at a stop; between two stops, out on the lane and back in.
@@ -487,7 +496,7 @@ const Satellite = ({ layout }: { layout: MenuLayout }) => {
     // It appears once the planets are in place.
     st.shown = Math.min(1, st.shown + (t > 2.2 ? dt * 2.5 : 0));
     g.visible = st.shown > 0;
-    g.scale.setScalar(0.85 * easeOut(st.shown));
+    g.scale.setScalar((dock ? DOCK.scale : 0.85) * easeOut(st.shown));
     g.position.set(p.x - size.width / 2, size.height / 2 - p.y, p.z);
     // Panels swaying slowly round the body's axis, the nose a little towards us: it reads as 3D.
     g.rotation.set(0.45 + 0.35 * Math.sin(t * 0.6), 0.35, st.heading, 'ZYX');
@@ -524,7 +533,7 @@ const Satellite = ({ layout }: { layout: MenuLayout }) => {
   );
 };
 
-const Sky = ({ layout }: { layout: MenuLayout }) => {
+const Sky = ({ layout, dock }: { layout: SkyLayout; dock?: boolean }) => {
   const maps = useLoader(THREE.TextureLoader, Object.values(MAPS) as string[]);
   const byBody = useMemo(() => {
     const out: Partial<Record<Body, THREE.Texture>> = {};
@@ -555,19 +564,21 @@ const Sky = ({ layout }: { layout: MenuLayout }) => {
           delay={0.35 + i * 0.13}
           moons={node.body === 'earth' ? 'moon' : node.body === 'jupiter' ? 'jupiter' : undefined}
           ring={node.body === 'saturn'}
+          dock={dock}
         />
       ))}
-      <SkyBody node={language} sun={sun} map={byBody.neptune!} delay={1.35} spinOnFlip />
-      <SkyBody node={resume} sun={sun} map={byBody.pluto!} delay={1.48} />
+      {language && <SkyBody node={language} sun={sun} map={byBody.neptune!} delay={1.35} spinOnFlip />}
+      {resume && <SkyBody node={resume} sun={sun} map={byBody.pluto!} delay={1.48} />}
       {/* Light for the satellite (the planets light themselves): from the photo, and from the front */}
       <ambientLight intensity={0.9} />
       <pointLight position={[sunWorld.x, sunWorld.y, 260]} intensity={3.2} decay={0} />
-      <Satellite layout={layout} />
+      <Satellite layout={layout} dock={dock} />
     </>
   );
 };
 
-const MenuSky = ({ layout }: { layout: MenuLayout }) => (
+/** The menu's little solar system in 3D: the desktop column, or (dock) the phone's bar at the bottom. */
+const MenuSky = ({ layout, dock }: { layout: SkyLayout; dock?: boolean }) => (
   <Canvas
     orthographic
     frameloop={testDrive ? 'never' : 'always'}
@@ -578,7 +589,7 @@ const MenuSky = ({ layout }: { layout: MenuLayout }) => (
     camera={{ position: [0, 0, 2000], zoom: 1, near: 1, far: 4000 }}
     style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
   >
-    <Sky layout={layout} />
+    <Sky layout={layout} dock={dock} />
   </Canvas>
 );
 
