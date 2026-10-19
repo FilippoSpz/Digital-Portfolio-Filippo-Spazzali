@@ -1,0 +1,4 @@
+# Netlify: the built files carry a hash in their name, so a browser can keep them for good.
+# A second visit then loads the 3D code and the planets' maps from its own cache, not the network.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

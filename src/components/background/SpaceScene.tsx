@@ -1,48 +1,29 @@
-import { Suspense, useEffect, useMemo, useRef, type ReactNode } from 'react';
-import { advance, Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { advance, Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { journey, lowPower, testDrive } from '@/lib/motion';
 import { navItems, type Body } from '@/data/navigation';
 import {
   atmosphereFragment,
+  auroraFragment,
   cloudsFragment,
-  coronaFragment,
   coronaVertex,
   earthFragment,
+  moonFragment,
   planetFragment,
-  ringFragment,
   ringTexFragment,
   ringVertex,
   sphereVertex,
   starsFragment,
   starsVertex,
   sunFragment,
+  sunHaloFragment,
   texturedFragment,
+  uranusRingFragment,
 } from './shaders';
-import earthDay from '@/assets/space/earth-day.webp';
-import earthNight from '@/assets/space/earth-night.webp';
-import earthClouds from '@/assets/space/earth-clouds.webp';
-import earthSpec from '@/assets/space/earth-specular.webp';
-import moonMap from '@/assets/space/moon.webp';
-import earthDaySmall from '@/assets/space/earth-day-1k.webp';
-import earthNightSmall from '@/assets/space/earth-night-1k.webp';
-import earthSpecSmall from '@/assets/space/earth-specular-1k.webp';
-import moonSmall from '@/assets/space/moon-512.webp';
-import sunMap from '@/assets/space/sun.webp';
-import sunSmall from '@/assets/space/sun-1k.webp';
-import mercuryMap from '@/assets/space/mercury.webp';
-import mercurySmall from '@/assets/space/mercury-1k.webp';
-import venusMap from '@/assets/space/venus-atmosphere.webp';
-import venusSmall from '@/assets/space/venus-atmosphere-1k.webp';
-import marsMap from '@/assets/space/mars.webp';
-import marsSmall from '@/assets/space/mars-1k.webp';
-import jupiterMap from '@/assets/space/jupiter.webp';
-import jupiterSmall from '@/assets/space/jupiter-1k.webp';
-import saturnMap from '@/assets/space/saturn.webp';
-import saturnSmall from '@/assets/space/saturn-1k.webp';
-import saturnRing from '@/assets/space/saturn-ring.png';
-import uranusMap from '@/assets/space/uranus.webp';
-import uranusSmall from '@/assets/space/uranus-1k.webp';
+import { mapsReady, mapUniform, pumpMaps } from './maps';
+import type { MapId } from './mapQueue';
 
 if (testDrive) {
   let clock = 0;
@@ -54,40 +35,88 @@ if (testDrive) {
 }
 
 /* One body per section, alone on the stage: when you move to the next section the current planet
-   leaves the screen upwards, and only then the next one rises in from below. The stars drift a
-   little meanwhile — just enough to feel the movement. Every planet comes from its real map. */
+   leaves the screen upwards, and only then the next one rises in from below. While its section is
+   read the planet comes closer and shows what makes it itself, and stays close until it leaves.
+   The stars drift a little meanwhile, just enough to feel the movement. */
 
 type Stop = Exclude<Body, 'neptune' | 'pluto'>;
 const STOPS = navItems.map((n) => n.body) as Stop[];
+const at = (stop: Stop) => STOPS.indexOf(stop);
 
 const FOV = 50;
 const TAN = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+const TAU = Math.PI * 2;
 
 /** The planets are lit from the front-left: the night side shows as a crescent on the right. */
 const LIGHT = new THREE.Vector3(-0.78, 0.3, 0.55).normalize();
 
-const shared = { uLight: { value: LIGHT } };
+const shared = { uLight: { value: LIGHT.clone() } };
 const time = { value: 0 };
 
 /** Where the page is, smoothed, and the screen's shape: written by the rig, read by every body. */
-const stage = { t: journey.t, local: 0, aspect: 1, wide: 1 };
+const stage = { t: journey.t, pos: journey.pos, travel: journey.t, aspect: 1, wide: 1 };
 
-const sphereMaterial = (fragmentShader: string, uniforms: Record<string, THREE.IUniform>) =>
-  new THREE.ShaderMaterial({ vertexShader: sphereVertex, fragmentShader, uniforms: { ...shared, uTime: time, ...uniforms } });
+/** How close each body has come (0 = at rest, 1 = as close as it gets): written by the rig. */
+const zoom = Object.fromEntries(STOPS.map((s) => [s, 0])) as Record<Stop, number>;
+
+/**
+ * The bodies are seen by their own camera, which looks straight at the one on stage and shifts the
+ * picture to where it sits on the screen (a shifted lens, like an architect's camera): the planet is
+ * seen face-on wherever it is, round, and its moons around it as from right in front.
+ */
+const bodyCamera = new THREE.PerspectiveCamera(FOV, 1, 0.05, 2000);
+const lens = { x: 0, y: 0 };
+
+const sunLight = new THREE.DirectionalLight('#fff4e6', 2.4);
+sunLight.layers.enableAll();
+
+const SPHERE = new THREE.SphereGeometry(1, 128, 128);
+const SHELL = new THREE.SphereGeometry(1, 96, 64);
+const SMALL_SPHERE = new THREE.SphereGeometry(1, 48, 32);
+const SQUARE = new THREE.PlaneGeometry(1, 1);
+
+const lerp = THREE.MathUtils.lerp;
+const smoothstep = THREE.MathUtils.smoothstep;
+const clamp = THREE.MathUtils.clamp;
+const easeOut = (u: number) => 1 - Math.pow(1 - u, 3);
+const easeIn = (u: number) => u * u * u;
+const wrap = (a: number) => a - TAU * Math.floor((a + Math.PI) / TAU);
 
 const color = (hex: string) => ({ value: new THREE.Color(hex) });
 
-/** Maps for this device: phones get them at half size (a quarter of the download, the same look). */
-const pick = (big: string, small: string) => (lowPower() ? small : big);
-
-function useMap(url: string) {
-  const tex = useLoader(THREE.TextureLoader, url);
-  useMemo(() => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 8;
-  }, [tex]);
-  return tex;
+function sphereMaterial(fragmentShader: string, uniforms: Record<string, THREE.IUniform>, defines: Record<string, string | number> = {}) {
+  const m = new THREE.ShaderMaterial({ vertexShader: sphereVertex, fragmentShader, uniforms: { ...shared, uTime: time, ...uniforms }, defines });
+  m.extensions.derivatives = true;
+  return m;
 }
+
+/** Light added on top (glows, aurorae): never darkens what is behind it, never tone-mapped. */
+function glowMaterial(fragmentShader: string, uniforms: Record<string, THREE.IUniform>) {
+  const m = sphereMaterial(fragmentShader, uniforms);
+  m.transparent = true;
+  m.blending = THREE.AdditiveBlending;
+  m.depthWrite = false;
+  m.toneMapped = false;
+  return m;
+}
+
+/**
+ * Turns a body so that one of its places faces us as it comes close (z → 1), freely otherwise: the
+ * turn still to make is fixed while the body is at rest, and given back in step with the zoom.
+ */
+function facer(target: number, spin: number, start = 0) {
+  let free = start;
+  let offset = NaN;
+  return (dt: number, z: number) => {
+    // Also on the first frame: the page may open already close to the planet (a reload, a link).
+    if (z <= 0 || Number.isNaN(offset)) offset = wrap(target - free);
+    free += dt * spin * (1 - 0.8 * z);
+    return free + offset * z;
+  };
+}
+
+/** The rotation that brings map coordinate u in front of the camera (three's sphere layout). */
+const facing = (u: number) => Math.PI / 2 - TAU * u;
 
 /* ------------------------------------------------------------------ The stage */
 
@@ -98,157 +127,182 @@ interface Pose {
   size: number;
 }
 
-/** Wide screens: the planet on the right of the text. Phones: above it, smaller. The Sun peeks in from the top-right corner. */
+/** Wide screens: the planet on the right of the text. Phones: above it, big. The Sun peeks in from the top-right corner. */
 const REST: Record<Stop, { wide: Pose; tall: Pose }> = {
-  sun: { wide: { x: 0.84, y: 0.74, size: 0.3 }, tall: { x: 0.62, y: 0.84, size: 0.24 } },
-  mercury: { wide: { x: 0.5, y: 0.04, size: 0.4 }, tall: { x: 0.08, y: 0.55, size: 0.24 } },
-  venus: { wide: { x: 0.5, y: 0.04, size: 0.46 }, tall: { x: 0.08, y: 0.55, size: 0.28 } },
-  earth: { wide: { x: 0.5, y: 0.04, size: 0.44 }, tall: { x: 0.05, y: 0.55, size: 0.26 } },
-  mars: { wide: { x: 0.5, y: 0.04, size: 0.42 }, tall: { x: 0.08, y: 0.55, size: 0.25 } },
-  jupiter: { wide: { x: 0.6, y: 0.02, size: 0.47 }, tall: { x: 0.08, y: 0.52, size: 0.3 } },
-  saturn: { wide: { x: 0.48, y: 0.06, size: 0.3 }, tall: { x: 0.05, y: 0.55, size: 0.17 } },
-  uranus: { wide: { x: 0.5, y: 0.04, size: 0.42 }, tall: { x: 0.08, y: 0.55, size: 0.25 } },
+  sun: { wide: { x: 0.84, y: 0.74, size: 0.3 }, tall: { x: 0.62, y: 0.82, size: 0.3 } },
+  mercury: { wide: { x: 0.5, y: 0.04, size: 0.4 }, tall: { x: 0.12, y: 0.52, size: 0.3 } },
+  venus: { wide: { x: 0.5, y: 0.04, size: 0.46 }, tall: { x: 0.12, y: 0.52, size: 0.34 } },
+  earth: { wide: { x: 0.5, y: 0.04, size: 0.44 }, tall: { x: 0.1, y: 0.52, size: 0.32 } },
+  mars: { wide: { x: 0.5, y: 0.04, size: 0.42 }, tall: { x: 0.12, y: 0.52, size: 0.31 } },
+  jupiter: { wide: { x: 0.6, y: 0.02, size: 0.47 }, tall: { x: 0.12, y: 0.5, size: 0.36 } },
+  saturn: { wide: { x: 0.48, y: 0.06, size: 0.3 }, tall: { x: 0.08, y: 0.52, size: 0.21 } },
+  uranus: { wide: { x: 0.5, y: 0.04, size: 0.42 }, tall: { x: 0.12, y: 0.52, size: 0.31 } },
 };
 
-/** How far beyond the screen edge a body hides, counting its glow or rings (in radii). */
-const REACH: Partial<Record<Stop, number>> = { sun: 2.4, saturn: 2.5, earth: 2.6 };
+/** How far beyond the screen edge a body hides, counting its glow, rings or moons (in radii). */
+const REACH: Partial<Record<Stop, number>> = { sun: 2.4, saturn: 2.5, earth: 2.6, jupiter: 2.2, mars: 2, uranus: 2.4 };
 
-const lerp = THREE.MathUtils.lerp;
-const easeOut = (u: number) => 1 - Math.pow(1 - u, 3);
-const easeIn = (u: number) => u * u * u;
-
-function restPose(stop: Stop): Pose {
-  const r = REST[stop];
-  return { x: lerp(r.tall.x, r.wide.x, stage.wide), y: lerp(r.tall.y, r.wide.y, stage.wide), size: lerp(r.tall.size, r.wide.size, stage.wide) };
+/**
+ * How each body comes close while its section is read: how much nearer (near), where it slides
+ * (dx, dy), over which stretch of the section (window), and where the light goes meanwhile.
+ */
+interface Focus {
+  near: number;
+  dx?: number;
+  dy?: number;
+  window?: [number, number];
+  light?: THREE.Vector3;
 }
+
+const FOCUS: Record<Stop, Focus> = {
+  sun: { near: 0.4, dx: 0.1, dy: 0.1 },
+  // The light swings round to graze the surface, every crater stands out; it slides right, half off
+  // the screen, a big crescent beside the text.
+  mercury: { near: 0.35, dx: 0.3, light: new THREE.Vector3(-0.9, 0.25, 0.3).normalize() },
+  venus: { near: 0.28, dx: 0.06 },
+  // The Sun goes behind the Earth: its night side, the cities and the aurora.
+  earth: { near: 0.25, dx: 0.06, light: new THREE.Vector3(-0.95, -0.25, -0.2).normalize() },
+  // Morning comes from the right: the side beside the certificates is lit, Phobos crossing it.
+  mars: { near: 0.3, dx: 0.16, light: new THREE.Vector3(0.5, 0.35, 0.79).normalize() },
+  // A higher Sun: the whole face lit, Io's shadow a round black dot just beside it.
+  jupiter: { near: 0.3, dx: 0.02, light: new THREE.Vector3(-0.35, 0.25, 0.9).normalize() },
+  // Closer, and slid down-right so the near side of the rings crosses the screen.
+  saturn: { near: 0.62, dx: 0.14, dy: -0.34, window: [0.16, 0.6] },
+  uranus: { near: 0.2, dx: 0.04, window: [0.15, 1] },
+};
+
+/**
+ * How close body i is: it comes closer while its section is read and stays close while it leaves
+ * (the reading position is past its section by then). When a jump brings it in already partly
+ * read, it comes close as it arrives.
+ */
+function zoomAt(i: number, stop: Stop) {
+  const s = stage.t - i;
+  const [a, b] = FOCUS[stop].window ?? [0.08, 0.42];
+  const enter = s < 0 ? smoothstep(s, -0.5, 0) : 1;
+  return smoothstep(clamp(stage.pos - i, 0, 1), a, b) * enter;
+}
+
+interface Placed {
+  group: THREE.Group;
+  index: number;
+  stop: Stop;
+  maps: readonly MapId[];
+}
+
+const placed: Placed[] = [];
 
 /**
  * Body i at the current point of the page: resting, rising in from below (the second half of the
- * way from the section before), or leaving upwards (the first half of the way to the next); null
- * while it is off stage.
+ * way from the section before), or leaving upwards (the first half of the way to the next); hidden
+ * while it is off stage or its maps have not arrived yet.
  */
-function stagePose(i: number, stop: Stop): Pose | null {
-  const s = stage.t - i;
-  if (s <= -0.5 || s >= 0.5) return null;
-  const rest = restPose(stop);
-  const edge = 1.08 + rest.size * (REACH[stop] ?? 1.2);
+function place({ group, index, stop, maps }: Placed) {
+  const s = stage.t - index;
+  if (s <= -0.5 || s >= 0.5 || !mapsReady(maps)) {
+    group.visible = false;
+    return;
+  }
+  group.visible = true;
+  const r = REST[stop];
+  const f = FOCUS[stop];
+  const z = zoom[stop];
+  const w = stage.wide;
+  const mul = 1 - f.near * z;
+  const size = lerp(r.tall.size, r.wide.size, w);
+  let x = lerp(r.tall.x, r.wide.x, w) + (f.dx ?? 0) * z;
+  let y = lerp(r.tall.y, r.wide.y, w) + (f.dy ?? 0) * z;
+  const edge = 1.08 + (size / mul) * (REACH[stop] ?? 1.2);
   if (s < 0) {
     const u = easeOut((s + 0.5) / 0.5);
-    return { x: rest.x + (1 - u) * 0.16, y: lerp(-edge, rest.y, u), size: rest.size };
+    x += (1 - u) * 0.16;
+    y = lerp(-edge, y, u);
+  } else {
+    const u = easeIn(s / 0.5);
+    x -= u * 0.1;
+    y = lerp(y, edge + (stop === 'sun' ? 0.2 : 0), u);
   }
-  const u = easeIn(s / 0.5);
-  return { x: rest.x - u * 0.1, y: lerp(rest.y, edge + (stop === 'sun' ? 0.2 : 0), u), size: rest.size };
+  // Distance that gives the wanted apparent size (nearer as it comes close).
+  group.position.set(0, 0, -mul / (size * TAN));
+  lens.x = x;
+  lens.y = y;
 }
 
-/** Places its body (radius 1) on the stage every frame; hides it while it is off stage. */
-const OnStage = ({ index, stop, zoom, children }: { index: number; stop: Stop; zoom?: (g: THREE.Group, pose: Pose) => number; children: ReactNode }) => {
+/** Puts its body (radius 1) on the stage; the rig places it every frame. */
+const OnStage = ({ stop, maps, children }: { stop: Stop; maps: readonly MapId[]; children: ReactNode }) => {
   const ref = useRef<THREE.Group>(null);
-  useFrame(() => {
-    const g = ref.current;
-    if (!g) return;
-    const pose = stagePose(index, stop);
-    g.visible = !!pose;
-    if (!pose) return;
-    // Distance that gives the wanted apparent size; a body may come closer (Saturn's zoom).
-    const d = (1 / (pose.size * TAN)) * (zoom ? zoom(g, pose) : 1);
-    const hh = d * TAN;
-    g.position.set(pose.x * hh * stage.aspect, pose.y * hh, -d);
-  });
+  useLayoutEffect(() => {
+    const group = ref.current;
+    if (!group) return;
+    group.visible = false;
+    const p: Placed = { group, index: at(stop), stop, maps };
+    placed.push(p);
+    return () => void placed.splice(placed.indexOf(p), 1);
+  }, [stop, maps]);
   return <group ref={ref}>{children}</group>;
 };
 
 /* ------------------------------------------------------------------ Atmospheres */
 
 const Atmosphere = ({ tint, scale = 1.1, power = 1.8, intensity = 1.4 }: { tint: string; scale?: number; power?: number; intensity?: number }) => {
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: sphereVertex,
-        fragmentShader: atmosphereFragment,
-        uniforms: { ...shared, uColor: color(tint), uPower: { value: power }, uIntensity: { value: intensity } },
-        side: THREE.BackSide,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      }),
-    [tint, power, intensity],
-  );
+  const [material] = useState(() => {
+    const m = sphereMaterial(atmosphereFragment, { uColor: color(tint), uPower: { value: power }, uIntensity: { value: intensity } });
+    m.side = THREE.BackSide;
+    m.transparent = true;
+    m.blending = THREE.AdditiveBlending;
+    m.depthWrite = false;
+    return m;
+  });
   useEffect(() => () => material.dispose(), [material]);
-  return (
-    <mesh scale={scale} material={material}>
-      <sphereGeometry args={[1, 96, 96]} />
-    </mesh>
-  );
+  return <mesh scale={scale} material={material} geometry={SHELL} renderOrder={3} />;
 };
 
 /* ------------------------------------------------------------------ The Sun */
 
-/** A smooth radial glow (drawn at high resolution, so it never shows steps). */
-function glowTexture(stops: [number, string][]) {
-  const size = 1024;
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = size;
-  const ctx = canvas.getContext('2d')!;
-  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  for (const [at, c] of stops) g.addColorStop(at, c);
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, size, size);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
-}
+/** A few sunspots (direction on the Sun and angular radius), in the two active belts. */
+const SUNSPOTS = (
+  [
+    [0.25, 0.4, 0.06],
+    [0.22, 0.52, 0.035],
+    [-0.18, 1.6, 0.07],
+    [0.14, 2.9, 0.04],
+    [-0.38, 4.4, 0.05],
+  ] as const
+).map(([lat, lon, r]) => new THREE.Vector4(Math.cos(lat) * Math.cos(lon), Math.sin(lat), Math.cos(lat) * Math.sin(lon), r));
 
 const Sun = () => {
-  const map = useMap(pick(sunMap, sunSmall));
-  const surface = useMemo(() => {
-    const m = sphereMaterial(sunFragment, { uMap: { value: map } });
+  const [surface] = useState(() => {
+    const m = sphereMaterial(sunFragment, { uSpots: { value: SUNSPOTS } });
     m.toneMapped = false;
     return m;
-  }, [map]);
-  const flames = useMemo(
+  });
+  const [halo] = useState(
     () =>
       new THREE.ShaderMaterial({
         vertexShader: coronaVertex,
-        fragmentShader: coronaFragment,
-        uniforms: { uTime: time, uDisc: { value: 0.25 }, uReach: { value: 0.1 }, uStrength: { value: 1.1 }, uRim: { value: 0.25 } },
+        fragmentShader: sunHaloFragment,
+        uniforms: { uTime: time, uDisc: { value: 0.25 } },
         transparent: true,
         depthWrite: false,
-        blending: THREE.CustomBlending,
-        blendSrc: THREE.OneFactor,
-        blendDst: THREE.OneFactor,
+        blending: THREE.AdditiveBlending,
         toneMapped: false,
       }),
-    [],
   );
-  const glow = useMemo(
-    () =>
-      glowTexture([
-        [0, 'rgba(255,190,120,0.55)'],
-        [0.2, 'rgba(255,140,60,0.28)'],
-        [0.42, 'rgba(255,100,40,0.08)'],
-        [1, 'rgba(0,0,0,0)'],
-      ]),
-    [],
-  );
-  useEffect(() => () => (surface.dispose(), flames.dispose(), glow.dispose()), [surface, flames, glow]);
+  useEffect(() => () => (surface.dispose(), halo.dispose()), [surface, halo]);
   const ref = useRef<THREE.Mesh>(null);
-  const face = useRef<THREE.Mesh>(null);
-  useFrame(({ camera }, dt) => {
-    if (ref.current) ref.current.rotation.y += dt * 0.015;
-    // The flames always face the camera itself (not just its direction), so they ring the disc as we see it.
-    if (face.current) face.current.lookAt(camera.position);
+  useFrame((_, dt) => {
+    const sun = ref.current;
+    if (!sun) return;
+    sun.rotation.y += dt * 0.015;
+    // The disc as seen from this distance is a little bigger than the Sun's cross-section.
+    const d = Math.max(-(sun.parent?.position.z ?? -10), 1.5);
+    halo.uniforms.uDisc.value = 0.25 / Math.sqrt(1 - 1 / (d * d));
   });
   return (
     <>
-      <mesh ref={ref} material={surface}>
-        <sphereGeometry args={[1, 128, 128]} />
-      </mesh>
-      <mesh ref={face} material={flames} scale={4}>
-        <planeGeometry args={[1, 1]} />
-      </mesh>
-      <sprite scale={[6.5, 6.5, 1]}>
-        <spriteMaterial map={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
-      </sprite>
+      <mesh ref={ref} material={surface} geometry={SPHERE} />
+      {/* The square already faces the camera: this camera always looks straight at the body on stage. */}
+      <mesh material={halo} scale={4} geometry={SQUARE} renderOrder={2} />
     </>
   );
 };
@@ -256,119 +310,231 @@ const Sun = () => {
 /* ------------------------------------------------------------------ Planets from their maps */
 
 interface Look {
-  map: [string, string];
   atmo?: string;
   atmoStrength?: number;
-  /** Shell around the planet (Venus' thick air, Mars' thin one). */
-  shell?: { tint: string; scale: number; power: number; intensity: number };
   ambient?: number;
   terminator?: number;
-  tilt: number;
-  spin: number;
+  /** 0 rocky limb, 1 a gas giant's dark limb. */
+  limb?: number;
 }
 
-const LOOKS: Record<'mercury' | 'venus' | 'mars' | 'jupiter' | 'uranus', Look> = {
-  mercury: { map: [mercuryMap, mercurySmall], ambient: 0.012, terminator: 0.04, tilt: 0.02, spin: 0.02 },
-  venus: {
-    map: [venusMap, venusSmall],
-    atmo: '#ffe2a8',
-    atmoStrength: 0.7,
-    shell: { tint: '#ffd38a', scale: 1.06, power: 2.2, intensity: 1.1 },
-    ambient: 0.02,
-    terminator: 0.22,
-    tilt: 0.05,
-    spin: 0.012,
-  },
-  mars: {
-    map: [marsMap, marsSmall],
-    atmo: '#ff9a6a',
-    atmoStrength: 0.35,
-    shell: { tint: '#ff8a5c', scale: 1.04, power: 2.6, intensity: 0.7 },
-    ambient: 0.012,
-    terminator: 0.08,
-    tilt: 0.44,
-    spin: 0.035,
-  },
-  jupiter: {
-    map: [jupiterMap, jupiterSmall],
-    atmo: '#f0cfa0',
-    atmoStrength: 0.35,
-    shell: { tint: '#e8b880', scale: 1.035, power: 2.6, intensity: 0.55 },
-    ambient: 0.015,
-    terminator: 0.12,
-    tilt: 0.05,
-    spin: 0.05,
-  },
-  uranus: {
-    map: [uranusMap, uranusSmall],
-    atmo: '#a8f4f4',
-    atmoStrength: 0.8,
-    shell: { tint: '#7fe6e6', scale: 1.05, power: 2.2, intensity: 0.9 },
-    ambient: 0.02,
-    terminator: 0.18,
-    tilt: 1.71,
-    spin: 0.03,
-  },
-};
-
-function planetMaterial(map: THREE.Texture, look: Pick<Look, 'atmo' | 'atmoStrength' | 'ambient' | 'terminator'>) {
-  return sphereMaterial(planetFragment, {
-    uMap: { value: map },
-    uAtmo: color(look.atmo ?? '#000000'),
-    uAtmoStrength: { value: look.atmoStrength ?? 0 },
-    uAmbient: { value: look.ambient ?? 0.015 },
-    uTerminator: { value: look.terminator ?? 0.1 },
-  });
+function planetMaterial(map: MapId, look: Look, defines: Record<string, string | number> = {}, extra: Record<string, THREE.IUniform> = {}) {
+  return sphereMaterial(
+    planetFragment,
+    {
+      uMap: mapUniform(map),
+      uAtmo: color(look.atmo ?? '#000000'),
+      uAtmoStrength: { value: look.atmoStrength ?? 0 },
+      uAmbient: { value: look.ambient ?? 0.015 },
+      uTerminator: { value: look.terminator ?? 0.1 },
+      uLimb: { value: look.limb ?? 0 },
+      uDetail: { value: 0 },
+      ...extra,
+    },
+    defines,
+  );
 }
 
-const Planet = ({ look, children }: { look: Look; children?: ReactNode }) => {
-  const map = useMap(pick(...look.map));
-  const material = useMemo(() => planetMaterial(map, look), [map, look]);
-  useEffect(() => () => material.dispose(), [material]);
-  const ref = useRef<THREE.Mesh>(null);
+/* ------------------------------------------------------------------ Moons */
+
+interface MoonLook {
+  /** 0 Io, 1 Europa, 2 Ganymede, 3 Callisto, 4 bare rock (see moonFragment). */
+  kind: number;
+  a: string;
+  b: string;
+  seed: number;
+}
+
+interface MoonSpec {
+  r: number;
+  orbit: number;
+  /** Radians per second, and where it starts. */
+  speed: number;
+  phase: number;
+  look: MoonLook;
+  geometry?: THREE.BufferGeometry;
+}
+
+/** A small moon that is not round: a fine sphere pushed in and out, stretched, with a big crater. */
+function lumpyGeometry(stretch: [number, number, number], seed: number) {
+  let g: THREE.BufferGeometry = new THREE.IcosahedronGeometry(1, 4);
+  g.deleteAttribute('normal');
+  g.deleteAttribute('uv');
+  g = mergeVertices(g);
+  const p = g.attributes.position as THREE.BufferAttribute;
+  const v = new THREE.Vector3();
+  const crater = new THREE.Vector3(0.7, 0.3, 0.65).normalize();
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    let k = 1 + 0.08 * Math.sin(v.x * 3.1 + seed) * Math.cos(v.y * 2.3 - seed) + 0.04 * Math.sin(v.z * 7.7 + v.x * 5.3 + seed * 2);
+    k -= 0.14 * Math.exp(-v.distanceToSquared(crater) / 0.09);
+    p.setXYZ(i, v.x * k * stretch[0], v.y * k * stretch[1], v.z * k * stretch[2]);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
+/** Moons come at most NEAR_KNEE + NEAR_ROOM planet radii towards the camera. */
+const NEAR_KNEE = 1.3;
+const NEAR_ROOM = 0.6;
+
+/**
+ * Moons going round their planet (in its equator, seen a little from above: `inc`), darkened in its
+ * shadow. One of them (`transit`) is eased, as the planet comes close, to a set place in front of the
+ * disc (`at`: planet radii from its centre, x right, y up, z towards us); `occ` receives where they
+ * are, for their shadows on the planet.
+ */
+const Moons = ({ specs, stop, inc = 0, transit, occ }: { specs: MoonSpec[]; stop: Stop; inc?: number; transit?: { index: number; at: THREE.Vector3 }; occ?: THREE.Vector4[] }) => {
+  const refs = useRef<(THREE.Mesh | null)[]>([]);
+  const [shadow] = useState(() => new THREE.Vector4(0, 0, 0, 1));
+  const [materials] = useState(() =>
+    specs.map((s) => sphereMaterial(moonFragment, { uKind: { value: s.look.kind }, uColA: color(s.look.a), uColB: color(s.look.b), uSeed: { value: s.look.seed }, uShadow: { value: shadow } })),
+  );
+  useEffect(() => () => materials.forEach((m) => m.dispose()), [materials]);
+  const [angles] = useState(() => specs.map((s) => ({ free: s.phase, offset: NaN })));
+  const [w] = useState(() => new THREE.Vector3());
+  const [q] = useState(() => new THREE.Quaternion());
+  const [back] = useState(() => new THREE.Quaternion());
+  const [target] = useState(() => new THREE.Vector3());
   useFrame((_, dt) => {
-    if (ref.current) ref.current.rotation.y += dt * look.spin;
+    const z = zoom[stop];
+    const parent = refs.current[0]?.parent;
+    if (!parent) return;
+    parent.getWorldPosition(w);
+    shadow.set(w.x, w.y, w.z, 1);
+    parent.getWorldQuaternion(q);
+    back.copy(q).invert();
+    if (transit) target.copy(transit.at).applyQuaternion(back);
+    specs.forEach((s, i) => {
+      const mesh = refs.current[i];
+      if (!mesh) return;
+      const a = angles[i];
+      let angle = a.free;
+      let tilt = inc;
+      let radius = s.orbit;
+      let lift = 0;
+      if (transit?.index === i) {
+        // Along its orbit to the place in front of the disc, drifting only a little once there.
+        if (z <= 0 || Number.isNaN(a.offset)) a.offset = wrap(Math.atan2(target.z, target.x) - a.free);
+        a.free += dt * s.speed * (1 - 0.92 * z);
+        angle = a.free + a.offset * z;
+        tilt = inc * (1 - z);
+        radius = THREE.MathUtils.lerp(s.orbit, Math.hypot(target.x, target.z), z);
+        lift = target.y * z;
+      } else a.free += dt * s.speed;
+      mesh.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius * Math.sin(tilt) + lift, Math.sin(angle) * radius * Math.cos(tilt));
+      // The near side of a wide orbit is pulled back a little, so a moon never sweeps past right in
+      // front of the camera when the planet is close (it would fill the screen).
+      mesh.position.applyQuaternion(q);
+      const near = mesh.position.z - NEAR_KNEE;
+      if (near > 0) mesh.position.z = NEAR_KNEE + NEAR_ROOM * (1 - Math.exp(-near / NEAR_ROOM));
+      mesh.position.applyQuaternion(back);
+      // Always the same face to the planet.
+      mesh.rotation.y = -angle;
+      if (occ) {
+        mesh.getWorldPosition(w);
+        occ[i].set(w.x, w.y, w.z, s.r);
+      }
+    });
   });
   return (
-    <group rotation={[0, 0, look.tilt]}>
-      <mesh ref={ref} material={material}>
-        <sphereGeometry args={[1, 128, 128]} />
-      </mesh>
-      {look.shell && <Atmosphere {...look.shell} />}
-      {children}
+    <>
+      {specs.map((s, i) => (
+        <mesh
+          key={i}
+          ref={(m) => {
+            refs.current[i] = m;
+          }}
+          material={materials[i]}
+          geometry={s.geometry ?? SMALL_SPHERE}
+          scale={s.r}
+        />
+      ))}
+    </>
+  );
+};
+
+/* ------------------------------------------------------------------ Mercury: craters under a grazing Sun */
+
+const Mercury = () => {
+  const [surface] = useState(() => planetMaterial('mercury', { ambient: 0.012, terminator: 0.04 }, { BUMP: '' }, { uBump: { value: 0.01 } }));
+  useEffect(() => () => surface.dispose(), [surface]);
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame((_, dt) => {
+    const z = zoom.mercury;
+    if (ref.current) ref.current.rotation.y += dt * 0.02 * (1 - 0.6 * z);
+    surface.uniforms.uDetail.value = z;
+  });
+  return (
+    <group rotation={[0, 0, 0.02]}>
+      <mesh ref={ref} material={surface} geometry={SPHERE} />
     </group>
   );
 };
 
-/* ------------------------------------------------------------------ Earth and the Moon */
+/* ------------------------------------------------------------------ Venus: the clouds racing round, the polar vortex */
+
+const Venus = () => {
+  const [surface] = useState(() =>
+    planetMaterial('venus', { atmo: '#ffe2a8', atmoStrength: 0.7, ambient: 0.02, terminator: 0.22, limb: 0.4 }, { FLOW: 3, VORTEX: '' }),
+  );
+  useEffect(() => () => surface.dispose(), [surface]);
+  const pole = useRef<THREE.Group>(null);
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame((_, dt) => {
+    const z = zoom.venus;
+    // It leans towards us, showing its north pole.
+    if (pole.current) pole.current.rotation.x = 0.6 * z;
+    if (ref.current) ref.current.rotation.y += dt * 0.012;
+  });
+  return (
+    <group ref={pole}>
+      <group rotation={[0, 0, 0.05]}>
+        <mesh ref={ref} material={surface} geometry={SPHERE} />
+        <Atmosphere tint="#ffd38a" scale={1.06} power={2.2} intensity={1.1} />
+      </group>
+    </group>
+  );
+};
+
+/* ------------------------------------------------------------------ Earth: Italy by night, the aurora, the Moon */
 
 const Earth = () => {
-  const small = lowPower();
-  const [day, night, clouds, spec, moon] = useLoader(
-    THREE.TextureLoader,
-    small ? [earthDaySmall, earthNightSmall, earthClouds, earthSpecSmall, moonSmall] : [earthDay, earthNight, earthClouds, earthSpec, moonMap],
+  const [surface] = useState(() =>
+    sphereMaterial(earthFragment, {
+      uDay: mapUniform('earthDay'),
+      uNight: mapUniform('earthNight'),
+      uSpec: mapUniform('earthSpec'),
+      uClouds: mapUniform('earthClouds'),
+      uCloudShift: { value: 0 },
+    }),
   );
-  useMemo(() => {
-    day.colorSpace = THREE.SRGBColorSpace;
-    moon.colorSpace = THREE.SRGBColorSpace;
-    for (const t of [day, night, clouds, spec, moon]) t.anisotropy = 8;
-  }, [day, night, clouds, spec, moon]);
-  const surface = useMemo(() => sphereMaterial(earthFragment, { uDay: { value: day }, uNight: { value: night }, uSpec: { value: spec } }), [day, night, spec]);
-  const cloudMat = useMemo(() => {
-    const m = sphereMaterial(cloudsFragment, { uClouds: { value: clouds } });
+  const [clouds] = useState(() => {
+    const m = sphereMaterial(cloudsFragment, { uClouds: mapUniform('earthClouds') });
     m.transparent = true;
     m.depthWrite = false;
     return m;
-  }, [clouds]);
-  const moonMat = useMemo(() => sphereMaterial(texturedFragment, { uMap: { value: moon } }), [moon]);
-  useEffect(() => () => (surface.dispose(), cloudMat.dispose(), moonMat.dispose()), [surface, cloudMat, moonMat]);
+  });
+  const [moon] = useState(() => sphereMaterial(texturedFragment, { uMap: mapUniform('moon') }));
+  const [aurora] = useState(() => [0, 1].map((top) => glowMaterial(auroraFragment, { uStrength: { value: 0 }, uTop: { value: top } })));
+  useEffect(() => () => [surface, clouds, moon, ...aurora].forEach((m) => m.dispose()), [surface, clouds, moon, aurora]);
 
+  // Italy (about 12.5° E) turns to face us as the Earth comes close.
+  const [face] = useState(() => facer(facing(0.538), 0.03, 3.6));
+  const cloudAngle = useRef(0);
   const planet = useRef<THREE.Mesh>(null);
   const cloudRef = useRef<THREE.Mesh>(null);
   const moonRef = useRef<THREE.Mesh>(null);
   useFrame((state, dt) => {
-    if (planet.current) planet.current.rotation.y += dt * 0.03;
-    if (cloudRef.current) cloudRef.current.rotation.y += dt * 0.038;
+    const z = zoom.earth;
+    const rs = face(dt, z);
+    cloudAngle.current += dt * 0.038;
+    if (planet.current) planet.current.rotation.y = rs;
+    if (cloudRef.current) cloudRef.current.rotation.y = cloudAngle.current;
+    // Where the clouds are over the ground (for their shadows and to dim the cities under them).
+    const shift = (rs - cloudAngle.current) / TAU;
+    surface.uniforms.uCloudShift.value = shift - Math.floor(shift);
+    aurora.forEach((m) => (m.uniforms.uStrength.value = 0.15 + 0.4 * z));
     if (moonRef.current) {
       // The Moon goes round, passing in front of the Earth and behind it, on a tilted orbit.
       const a = state.clock.elapsedTime * 0.22 + 2.4;
@@ -380,22 +546,105 @@ const Earth = () => {
   return (
     <group rotation={[0.18, 0, 0.12]}>
       <group rotation={[0.41, 0, 0]}>
-        <mesh ref={planet} material={surface} rotation={[0, 3.6, 0]}>
-          <sphereGeometry args={[1, 128, 128]} />
-        </mesh>
-        <mesh ref={cloudRef} scale={1.012} material={cloudMat}>
-          <sphereGeometry args={[1, 96, 96]} />
-        </mesh>
-        <Atmosphere tint="#4f8dff" scale={1.1} power={1.6} intensity={2.2} />
+        <mesh ref={planet} material={surface} geometry={SPHERE} />
+        <mesh ref={cloudRef} scale={1.012} material={clouds} geometry={SPHERE} renderOrder={1} />
+        <mesh scale={1.025} material={aurora[0]} geometry={SHELL} renderOrder={2} />
+        <mesh scale={1.042} material={aurora[1]} geometry={SHELL} renderOrder={2} />
+        <Atmosphere tint="#5a94ff" scale={1.08} power={1.8} intensity={1.6} />
       </group>
-      <mesh ref={moonRef} scale={0.27} material={moonMat}>
-        <sphereGeometry args={[1, 64, 64]} />
-      </mesh>
+      <mesh ref={moonRef} scale={0.27} material={moon} geometry={SMALL_SPHERE} />
     </group>
   );
 };
 
-/* ------------------------------------------------------------------ Saturn: rings made of rocks */
+/* ------------------------------------------------------------------ Mars: Valles Marineris, Phobos and Deimos */
+
+const MARS_MOONS: MoonSpec[] = [
+  { r: 0.05, orbit: 2.76, speed: 0.11, phase: 1, look: { kind: 4, a: '#3d342d', b: '#5e5045', seed: 1.7 }, geometry: lumpyGeometry([1.3, 0.9, 1.05], 1.7) },
+  { r: 0.03, orbit: 3.4, speed: 0.028, phase: 4, look: { kind: 4, a: '#4a4038', b: '#6b5d50', seed: 5.1 }, geometry: lumpyGeometry([1.2, 0.85, 1], 5.1) },
+];
+
+/** In front of the right half of the disc, its shadow on the lit ground beside it. */
+const PHOBOS_AT = new THREE.Vector3(0.455, 0.17, 1.14);
+
+const Mars = () => {
+  const [occ] = useState(() => MARS_MOONS.map(() => new THREE.Vector4()));
+  const [surface] = useState(() =>
+    planetMaterial(
+      'mars',
+      { atmo: '#ff9a6a', atmoStrength: 0.35, ambient: 0.012, terminator: 0.08 },
+      { BUMP: '', OCCLUDERS: MARS_MOONS.length },
+      { uBump: { value: 0.006 }, uOcc: { value: occ } },
+    ),
+  );
+  useEffect(() => () => surface.dispose(), [surface]);
+  // The great canyon turns to face us, a little right of the centre (in the morning light).
+  const [face] = useState(() => facer(facing(0.3) + 0.4, 0.035));
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame((_, dt) => {
+    const z = zoom.mars;
+    if (ref.current) ref.current.rotation.y = face(dt, z);
+    surface.uniforms.uDetail.value = z;
+  });
+  return (
+    <group rotation={[0, 0, 0.44]}>
+      <mesh ref={ref} material={surface} geometry={SPHERE} />
+      <Atmosphere tint="#ff8a5c" scale={1.04} power={2.6} intensity={0.7} />
+      {/* Phobos crosses in front of the disc as Mars comes close. */}
+      <Moons specs={MARS_MOONS} stop="mars" inc={0.1} transit={{ index: 0, at: PHOBOS_AT }} occ={occ} />
+    </group>
+  );
+};
+
+/* ------------------------------------------------------------------ Jupiter: the Great Red Spot, the four moons */
+
+const GALILEANS: MoonSpec[] = [
+  { r: 0.045, orbit: 1.6, speed: 0.12, phase: 0.8, look: { kind: 0, a: '#c2ad66', b: '#e6d9a0', seed: 1.3 } },
+  { r: 0.04, orbit: 2, speed: 0.06, phase: 3.4, look: { kind: 1, a: '#d4c9b4', b: '#efe8dc', seed: 4.1 } },
+  { r: 0.06, orbit: 2.6, speed: 0.03, phase: 5.2, look: { kind: 2, a: '#5f574e', b: '#82786c', seed: 7.7 } },
+  { r: 0.055, orbit: 3.1, speed: 0.0128, phase: 2.1, look: { kind: 3, a: '#3b342d', b: '#554c43', seed: 9.2 } },
+];
+
+/** Io over the upper half of the disc, its shadow on the clouds just below it, clear of the storm. */
+const IO_AT = new THREE.Vector3(0.015, 0.355, 1.22);
+
+/** The Great Red Spot on the map (u, v) → a direction on the planet. */
+function dirOf(u: number, v: number) {
+  const y = -Math.cos(v * Math.PI);
+  const r = Math.sqrt(1 - y * y);
+  return new THREE.Vector3(-Math.cos(TAU * u) * r, y, Math.sin(TAU * u) * r);
+}
+
+const Jupiter = () => {
+  const [occ] = useState(() => GALILEANS.map(() => new THREE.Vector4()));
+  const [surface] = useState(() =>
+    planetMaterial(
+      'jupiter',
+      { atmo: '#f0cfa0', atmoStrength: 0.35, ambient: 0.015, terminator: 0.12, limb: 1 },
+      { FLOW: 1, SPOT: '', GAS: '', OCCLUDERS: GALILEANS.length },
+      { uSpot: { value: dirOf(0.365, 0.385) }, uSpotR: { value: 0.11 }, uOcc: { value: occ } },
+    ),
+  );
+  useEffect(() => () => surface.dispose(), [surface]);
+  // The storm turns to face us, a little left of the centre (where Io's shadow does not cover it).
+  const [face] = useState(() => facer(facing(0.365) - 0.35, 0.05));
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame((_, dt) => {
+    const z = zoom.jupiter;
+    if (ref.current) ref.current.rotation.y = face(dt, z);
+    surface.uniforms.uDetail.value = z;
+  });
+  return (
+    <group rotation={[0, 0, 0.05]}>
+      <mesh ref={ref} material={surface} geometry={SPHERE} />
+      <Atmosphere tint="#e8b880" scale={1.035} power={2.6} intensity={0.55} />
+      {/* Io comes in front of the disc, its shadow on the clouds beside it. */}
+      <Moons specs={GALILEANS} stop="jupiter" inc={0.12} transit={{ index: 0, at: IO_AT }} occ={occ} />
+    </group>
+  );
+};
+
+/* ------------------------------------------------------------------ Saturn: the hexagon, rings made of rocks */
 
 /** How densely the rings are packed at a radius (planet radii): the C, B and A rings, the Cassini division, the Encke gap. */
 function ringDensity(r: number) {
@@ -423,7 +672,7 @@ function rockGeometry(detail: number) {
 
 const RingRocks = ({ count, detail, min, max, power }: { count: number; detail: number; min: number; max: number; power: number }) => {
   const ref = useRef<THREE.InstancedMesh>(null);
-  const geometry = useMemo(() => rockGeometry(detail), [detail]);
+  const [geometry] = useState(() => rockGeometry(detail));
   useEffect(() => {
     const mesh = ref.current;
     if (!mesh) return;
@@ -462,97 +711,130 @@ const RingRocks = ({ count, detail, min, max, power }: { count: number; detail: 
   );
 };
 
-const Saturn = ({ rocks, fade }: { rocks: number; fade: { value: number } }) => {
-  const [map, ringMap] = useLoader(THREE.TextureLoader, [pick(saturnMap, saturnSmall), saturnRing]);
-  useMemo(() => {
-    map.colorSpace = THREE.SRGBColorSpace;
-    ringMap.colorSpace = THREE.SRGBColorSpace;
-    map.anisotropy = 8;
-  }, [map, ringMap]);
-  const surface = useMemo(() => planetMaterial(map, { atmo: '#f2dca8', atmoStrength: 0.3, ambient: 0.015, terminator: 0.12 }), [map]);
-  const planetPos = useMemo(() => new THREE.Vector3(), []);
-  const ring = useMemo(
+/** The rings give way to the rocks as the camera comes close. */
+const saturnFade = { value: 1 };
+
+const Saturn = ({ rocks }: { rocks: number }) => {
+  const [centre] = useState(() => new THREE.Vector3());
+  const [normal] = useState(() => new THREE.Vector3(0, 1, 0));
+  const [surface] = useState(() =>
+    planetMaterial(
+      'saturn',
+      { atmo: '#f2dca8', atmoStrength: 0.3, ambient: 0.015, terminator: 0.12, limb: 1 },
+      { FLOW: 2, GAS: '', HEXAGON: '', RINGSHADOW: '' },
+      { uRingMap: mapUniform('saturnRing'), uRingNormal: { value: normal }, uCentre: { value: centre }, uRingSpan: { value: new THREE.Vector2(1.24, 2.27) } },
+    ),
+  );
+  const [ring] = useState(
     () =>
       new THREE.ShaderMaterial({
         vertexShader: ringVertex,
         fragmentShader: ringTexFragment,
         uniforms: {
           ...shared,
-          uPlanet: { value: planetPos },
+          uPlanet: { value: centre },
           uPlanetR: { value: 1 },
           uInner: { value: 1.24 },
           uOuter: { value: 2.27 },
-          uMap: { value: ringMap },
-          uFade: fade,
+          uMap: mapUniform('saturnRing'),
+          uFade: saturnFade,
         },
         transparent: true,
         side: THREE.DoubleSide,
         depthWrite: false,
       }),
-    [ringMap, planetPos, fade],
   );
   useEffect(() => () => (surface.dispose(), ring.dispose()), [surface, ring]);
+  const lean = useRef<THREE.Group>(null);
+  const axis = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
   useFrame((_, dt) => {
-    if (!body.current) return;
-    body.current.rotation.y += dt * 0.045;
-    body.current.getWorldPosition(planetPos);
+    const z = zoom.saturn;
+    saturnFade.value = 1 - z * 0.4;
+    surface.uniforms.uDetail.value = z;
+    if (lean.current) lean.current.rotation.x = z * 0.16;
+    if (body.current) body.current.rotation.y += dt * 0.045;
+    const g = axis.current;
+    if (!g) return;
+    g.updateWorldMatrix(true, false);
+    centre.setFromMatrixPosition(g.matrixWorld);
+    normal.set(0, 1, 0).transformDirection(g.matrixWorld);
   });
   return (
-    <group rotation={[0.42, 0, -0.32]}>
-      <mesh ref={body} material={surface}>
-        <sphereGeometry args={[1, 128, 128]} />
-      </mesh>
-      <mesh rotation={[Math.PI / 2, 0, 0]} material={ring}>
-        <ringGeometry args={[1.24, 2.27, 256, 1]} />
-      </mesh>
-      {/* Mostly gravel (simple shapes, many), a few boulders (finer shapes). */}
-      <RingRocks count={rocks} detail={0} min={0.0018} max={0.0065} power={1.6} />
-      <RingRocks count={Math.round(rocks / 12)} detail={1} min={0.007} max={0.028} power={3} />
+    <group ref={lean}>
+      <group ref={axis} rotation={[0.42, 0, -0.32]}>
+        <mesh ref={body} material={surface} geometry={SPHERE} />
+        <mesh rotation={[Math.PI / 2, 0, 0]} material={ring} renderOrder={1}>
+          <ringGeometry args={[1.24, 2.27, 256, 1]} />
+        </mesh>
+        {/* Mostly gravel (simple shapes, many), a few boulders (finer shapes). */}
+        <RingRocks count={rocks} detail={0} min={0.0018} max={0.0065} power={1.6} />
+        <RingRocks count={Math.round(rocks / 12)} detail={1} min={0.007} max={0.028} power={3} />
+      </group>
     </group>
   );
 };
 
-/** Uranus' faint rings, almost edge-on like the planet's spin. */
-const FaintRings = () => {
-  const planetPos = useMemo(() => new THREE.Vector3(), []);
-  const material = useMemo(
+/* ------------------------------------------------------------------ Uranus: rolling on its side, rings and moons round its pole */
+
+const URANIANS: MoonSpec[] = [
+  { r: 0.022, orbit: 2.3, speed: 0.09, phase: 0.3, look: { kind: 4, a: '#6f6c69', b: '#9a9590', seed: 2.2 } },
+  { r: 0.034, orbit: 2.7, speed: 0.06, phase: 2, look: { kind: 4, a: '#7d7a76', b: '#a8a39d', seed: 3.3 } },
+  { r: 0.034, orbit: 3.1, speed: 0.04, phase: 4.1, look: { kind: 4, a: '#4a4845', b: '#625f5b', seed: 5.5 } },
+  { r: 0.045, orbit: 3.55, speed: 0.025, phase: 5.6, look: { kind: 4, a: '#6e6862', b: '#938b83', seed: 6.6 } },
+  { r: 0.043, orbit: 4, speed: 0.018, phase: 1.1, look: { kind: 4, a: '#635d58', b: '#857d76', seed: 8.8 } },
+];
+
+const UP = new THREE.Vector3(0, 1, 0);
+/** At rest its axis lies almost across the view, the rings nearly edge-on; up close its pole faces us. */
+const URANUS_REST = new THREE.Quaternion().setFromUnitVectors(UP, new THREE.Vector3(-0.92, -0.13, 0.36).normalize());
+const URANUS_POLE = new THREE.Quaternion().setFromUnitVectors(UP, new THREE.Vector3(0, 0, 1));
+
+const Uranus = () => {
+  const [centre] = useState(() => new THREE.Vector3());
+  const [surface] = useState(() =>
+    planetMaterial('uranus', { atmo: '#a8f4f4', atmoStrength: 0.8, ambient: 0.02, terminator: 0.18, limb: 0.6 }, { ICEGIANT: '' }),
+  );
+  const [rings] = useState(
     () =>
       new THREE.ShaderMaterial({
         vertexShader: ringVertex,
-        fragmentShader: ringFragment,
-        uniforms: {
-          ...shared,
-          uPlanet: { value: planetPos },
-          uPlanetR: { value: 1 },
-          uInner: { value: 1.7 },
-          uOuter: { value: 1.98 },
-          uColA: color('#8fa8b0'),
-          uColB: color('#d8eef2'),
-          uOpacity: { value: 0.16 },
-        },
+        fragmentShader: uranusRingFragment,
+        uniforms: { ...shared, uPlanet: { value: centre }, uPlanetR: { value: 1 }, uOpacity: { value: 0.55 } },
         transparent: true,
         side: THREE.DoubleSide,
         depthWrite: false,
+        extensions: { derivatives: true },
       }),
-    [planetPos],
   );
-  useEffect(() => () => material.dispose(), [material]);
-  const ref = useRef<THREE.Mesh>(null);
-  useFrame(() => ref.current?.parent?.getWorldPosition(planetPos));
+  useEffect(() => () => (surface.dispose(), rings.dispose()), [surface, rings]);
+  const axis = useRef<THREE.Group>(null);
+  const body = useRef<THREE.Mesh>(null);
+  useFrame((_, dt) => {
+    const z = zoom.uranus;
+    if (body.current) body.current.rotation.y += dt * 0.03;
+    const g = axis.current;
+    if (!g) return;
+    g.quaternion.slerpQuaternions(URANUS_REST, URANUS_POLE, z * z * (3 - 2 * z));
+    g.getWorldPosition(centre);
+  });
   return (
-    <mesh ref={ref} rotation={[Math.PI / 2, 0, 0]} material={material}>
-      <ringGeometry args={[1.7, 1.98, 256, 1]} />
-    </mesh>
+    <group ref={axis}>
+      <mesh ref={body} material={surface} geometry={SPHERE} />
+      <Atmosphere tint="#7fe6e6" scale={1.05} power={2.2} intensity={0.9} />
+      <mesh rotation={[Math.PI / 2, 0, 0]} material={rings} renderOrder={1}>
+        <ringGeometry args={[1.6, 2.05, 256, 1]} />
+      </mesh>
+      <Moons specs={URANIANS} stop="uranus" />
+    </group>
   );
 };
 
 /* ------------------------------------------------------------------ Stars */
 
-/** White stars all around, each at its own steady brightness. They turn a little as the page goes on. */
+/** White stars all around, each at its own steady brightness. They turn a little as the trip goes on. */
 const Stars = ({ count }: { count: number }) => {
-  const ref = useRef<THREE.Points>(null);
-  const { geometry, material } = useMemo(() => {
+  const [points] = useState(() => {
     const g = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
     const col = new Float32Array(count * 3);
@@ -576,111 +858,165 @@ const Stars = ({ count }: { count: number }) => {
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
-    return { geometry: g, material: m };
-  }, [count]);
-  useEffect(() => () => (geometry.dispose(), material.dispose()), [geometry, material]);
-  useFrame(() => {
-    if (!ref.current) return;
-    ref.current.rotation.x = -stage.t * 0.03;
-    ref.current.rotation.y = stage.t * 0.018;
+    const p = new THREE.Points(g, m);
+    p.frustumCulled = false;
+    // Seen by the sky's own camera only, which never shifts: the stars stay put while planets move.
+    p.layers.set(1);
+    return p;
   });
-  return <points ref={ref} geometry={geometry} material={material} frustumCulled={false} />;
+  useEffect(() => () => (points.geometry.dispose(), (points.material as THREE.Material).dispose()), [points]);
+  useFrame(() => {
+    points.rotation.x = -stage.travel * 0.03;
+    points.rotation.y = stage.travel * 0.018;
+  });
+  return <primitive object={points} />;
 };
 
-/* ------------------------------------------------------------------ Rig */
+/* ------------------------------------------------------------------ Rig and render */
 
 /** The camera never moves (not even with the mouse): only the page moves the sky. */
 const Rig = () => {
-  const { size } = useThree();
+  const { size, gl } = useThree();
   // Runs before the bodies (negative priority), so they all read the same moment.
   useFrame((state, dt) => {
     const d = Math.min(Math.max(dt, 0), 0.05);
     time.value = state.clock.elapsedTime;
-    if (testDrive) Object.assign(window, { __stage: stage, __scene: state.scene });
+    if (testDrive) Object.assign(window, { __stage: stage, __scene: state.scene, __zoom: zoom, __camB: bodyCamera });
+    pumpMaps(gl);
     stage.aspect = size.width / Math.max(1, size.height);
-    stage.wide = THREE.MathUtils.smoothstep(stage.aspect, 0.8, 1.35);
-    // Back from a hidden tab (or a long stall): be where the page is, no slow catch-up.
-    const k = dt > 0.25 || dt < 0 ? 1 : 1 - Math.exp(-d * 3.2);
-    stage.t += (journey.t - stage.t) * k;
-    stage.local += (journey.local - stage.local) * k;
+    stage.wide = smoothstep(stage.aspect, 0.8, 1.35);
+    if (journey.jump) {
+      // A menu jump: the page glides already eased, the sky follows it exactly.
+      stage.t = journey.t;
+      stage.pos = journey.pos;
+      stage.travel = journey.travel;
+    } else {
+      // Back from a hidden tab (or a long stall): be where the page is, no slow catch-up.
+      const k = dt > 0.25 || dt < 0 ? 1 : 1 - Math.exp(-d * 3.2);
+      stage.t += (journey.t - stage.t) * k;
+      stage.pos += (journey.pos - stage.pos) * k;
+      stage.travel += (journey.travel - stage.travel) * k;
+    }
+    journey.shown = stage.t;
+    journey.shownPos = stage.pos;
+    STOPS.forEach((stop, i) => (zoom[stop] = zoomAt(i, stop)));
+
+    const on = STOPS[clamp(Math.round(stage.t), 0, STOPS.length - 1)];
+    const towards = FOCUS[on].light;
+    shared.uLight.value.copy(LIGHT);
+    if (towards) shared.uLight.value.lerp(towards, zoom[on]).normalize();
+    sunLight.position.copy(shared.uLight.value).multiplyScalar(100);
+
+    placed.forEach(place);
   }, -1);
+  return null;
+};
+
+/**
+ * Draws the sky (stars, from the fixed camera), then the body on stage (from its camera). Before
+ * the first picture every shader is compiled in the background and every body drawn once into a
+ * single pixel: no section ever stalls the first time its planet shows.
+ */
+const Render = ({ onReady }: { onReady?: () => void }) => {
+  const { gl, scene, camera, size } = useThree();
+  const phase = useRef<'compile' | 'warm' | 'live'>('compile');
+  useEffect(() => {
+    camera.layers.set(1);
+    let alive = true;
+    gl.compileAsync(scene, bodyCamera)
+      .catch(() => undefined)
+      .then(() => {
+        if (alive) phase.current = 'warm';
+      });
+    return () => {
+      alive = false;
+    };
+  }, [gl, scene, camera]);
+
+  useFrame(() => {
+    const cam = bodyCamera;
+    cam.aspect = size.width / Math.max(1, size.height);
+    cam.updateProjectionMatrix();
+    gl.autoClear = false;
+    gl.clear();
+    gl.render(scene, camera);
+    if (phase.current === 'compile') return;
+    if (phase.current === 'warm') {
+      const saved = placed.map((p) => ({ visible: p.group.visible, z: p.group.position.z }));
+      placed.forEach((p) => {
+        p.group.visible = true;
+        p.group.position.set(0, 0, -14);
+      });
+      gl.setScissorTest(true);
+      gl.setScissor(0, 0, 1, 1);
+      gl.render(scene, cam);
+      gl.setScissorTest(false);
+      placed.forEach((p, i) => {
+        p.group.visible = saved[i].visible;
+        p.group.position.z = saved[i].z;
+      });
+      phase.current = 'live';
+      onReady?.();
+    }
+    cam.projectionMatrix.elements[8] = -lens.x;
+    cam.projectionMatrix.elements[9] = -lens.y;
+    cam.projectionMatrixInverse.copy(cam.projectionMatrix).invert();
+    gl.render(scene, cam);
+  }, 1);
   return null;
 };
 
 /* ------------------------------------------------------------------ Scene */
 
-/** Saturn's zoom: while you read the Projects section it comes close, until the rocks of the rings show. */
-const saturnFade = { value: 1 };
-function saturnZoom(g: THREE.Group, pose: Pose) {
-  const i = STOPS.indexOf('saturn');
-  const resting = 1 - Math.min(1, Math.abs(stage.t - i) * 2);
-  const z = THREE.MathUtils.smoothstep(stage.local, 0.16, 0.6) * resting;
-  // Closer, and slid down-right so the near side of the rings crosses the screen.
-  pose.x += z * 0.14;
-  pose.y -= z * 0.34;
-  saturnFade.value = 1 - z * 0.4;
-  g.rotation.x = z * 0.16;
-  return 1 - z * 0.62;
-}
+const SUN_MAPS: readonly MapId[] = [];
+const MERCURY_MAPS: readonly MapId[] = ['mercury'];
+const VENUS_MAPS: readonly MapId[] = ['venus'];
+const EARTH_MAPS: readonly MapId[] = ['earthDay', 'earthNight', 'earthSpec', 'earthClouds', 'moon'];
+const MARS_MAPS: readonly MapId[] = ['mars'];
+const JUPITER_MAPS: readonly MapId[] = ['jupiter'];
+const SATURN_MAPS: readonly MapId[] = ['saturn', 'saturnRing'];
+const URANUS_MAPS: readonly MapId[] = ['uranus'];
 
-const SpaceScene = () => {
+const SpaceScene = ({ onReady }: { onReady?: () => void }) => {
   const light = lowPower();
-  const at = (stop: Stop) => STOPS.indexOf(stop);
   return (
     <Canvas
       frameloop={testDrive ? 'never' : 'always'}
       camera={{ position: [0, 0, 0], rotation: [0, 0, 0], fov: FOV, near: 0.05, far: 2000 }}
       gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', stencil: false }}
-      dpr={light ? [1, 1.5] : [1, 2]}
+      dpr={light ? [1, 1.75] : [1, 2]}
       style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}
       onCreated={({ gl }) => gl.setClearColor('#000000')}
     >
       <ambientLight intensity={0.05} />
-      <directionalLight position={LIGHT.clone().multiplyScalar(100).toArray() as [number, number, number]} intensity={2.4} color="#fff4e6" />
+      <primitive object={sunLight} />
       <Rig />
       <Stars count={light ? 2200 : 6000} />
-      <Suspense fallback={null}>
-        <OnStage index={at('sun')} stop="sun">
-          <Sun />
-        </OnStage>
-      </Suspense>
-      <Suspense fallback={null}>
-        <OnStage index={at('mercury')} stop="mercury">
-          <Planet look={LOOKS.mercury} />
-        </OnStage>
-      </Suspense>
-      <Suspense fallback={null}>
-        <OnStage index={at('venus')} stop="venus">
-          <Planet look={LOOKS.venus} />
-        </OnStage>
-      </Suspense>
-      <Suspense fallback={null}>
-        <OnStage index={at('earth')} stop="earth">
-          <Earth />
-        </OnStage>
-      </Suspense>
-      <Suspense fallback={null}>
-        <OnStage index={at('mars')} stop="mars">
-          <Planet look={LOOKS.mars} />
-        </OnStage>
-      </Suspense>
-      <Suspense fallback={null}>
-        <OnStage index={at('jupiter')} stop="jupiter">
-          <Planet look={LOOKS.jupiter} />
-        </OnStage>
-      </Suspense>
-      <Suspense fallback={null}>
-        <OnStage index={at('saturn')} stop="saturn" zoom={saturnZoom}>
-          <Saturn rocks={light ? 6000 : 22000} fade={saturnFade} />
-        </OnStage>
-      </Suspense>
-      <Suspense fallback={null}>
-        <OnStage index={at('uranus')} stop="uranus">
-          <Planet look={LOOKS.uranus}>
-            <FaintRings />
-          </Planet>
-        </OnStage>
-      </Suspense>
+      <OnStage stop="sun" maps={SUN_MAPS}>
+        <Sun />
+      </OnStage>
+      <OnStage stop="mercury" maps={MERCURY_MAPS}>
+        <Mercury />
+      </OnStage>
+      <OnStage stop="venus" maps={VENUS_MAPS}>
+        <Venus />
+      </OnStage>
+      <OnStage stop="earth" maps={EARTH_MAPS}>
+        <Earth />
+      </OnStage>
+      <OnStage stop="mars" maps={MARS_MAPS}>
+        <Mars />
+      </OnStage>
+      <OnStage stop="jupiter" maps={JUPITER_MAPS}>
+        <Jupiter />
+      </OnStage>
+      <OnStage stop="saturn" maps={SATURN_MAPS}>
+        <Saturn rocks={light ? 6000 : 22000} />
+      </OnStage>
+      <OnStage stop="uranus" maps={URANUS_MAPS}>
+        <Uranus />
+      </OnStage>
+      <Render onReady={onReady} />
     </Canvas>
   );
 };

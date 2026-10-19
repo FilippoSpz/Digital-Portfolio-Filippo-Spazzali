@@ -172,6 +172,18 @@
     font-family: 'Space Grotesk', 'Inter', sans-serif;
   }
 
+  /* Text straight over a planet (no card behind it) stays legible: a soft dark shade behind the
+     letters. Gradient letters are painted by their background, which a shadow would cover. */
+  section :is(h1, h2, h3, p) {
+    text-shadow:
+      0 0 2px rgb(0 0 0 / 0.7),
+      0 1px 14px rgb(0 0 0 / 0.9);
+  }
+  .gradient-text,
+  .bg-clip-text {
+    text-shadow: none;
+  }
+
   button,
   a,
   [role='button'] {
@@ -194,20 +206,34 @@
     @apply bg-gradient-to-r from-[hsl(var(--gradient-start))] to-[hsl(var(--gradient-end))] bg-clip-text text-transparent;
   }
 
-  /* Readable panel (kept mostly opaque so text stays legible over the 3D) */
+  /* Readable panel (kept mostly opaque so text stays legible over the 3D). No blur behind it: blurring
+     a moving 3D scene under every panel cost the browser a full extra pass per panel, every frame. */
   .glass {
-    background: hsl(0 0% 6% / 0.88);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: hsl(0 0% 6% / 0.9);
     border: 1px solid hsl(0 0% 100% / 0.1);
   }
 
-  /* Lighter chip variant */
+  /* Lighter chip variant (blurred only on computers, where it is cheap enough) */
   .glass-soft {
-    background: hsl(0 0% 8% / 0.72);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: hsl(0 0% 8% / 0.8);
     border: 1px solid hsl(0 0% 100% / 0.08);
+  }
+  @media (min-width: 1024px) and (pointer: fine) {
+    .glass-soft {
+      background: hsl(0 0% 8% / 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+  }
+
+  /* The veil over the sky that keeps the text legible; on wide screens it opens where the Sun sits. */
+  .sky-veil {
+    background: rgb(0 0 0 / 0.3);
+  }
+  @media (min-width: 768px) {
+    .sky-veil {
+      background: radial-gradient(circle at 92% 13%, rgb(0 0 0 / 0) 16vh, rgb(0 0 0 / 0.3) 44vh);
+    }
   }
 
   /* Gradient hairline border via mask (crisp 1px, in the section's colours) */

@@ -91,7 +91,8 @@ const PortfolioSection = ({ isActive }: PortfolioSectionProps) => {
                           </span>
                         ))}
                     </h3>
-                    <p className="text-muted-foreground mb-6 leading-relaxed">{t(project.descriptionKey)}</p>
+                    {/* Brighter than the usual grey: this text has no card behind it, only Jupiter. */}
+                    <p className="text-foreground/80 mb-6 leading-relaxed">{t(project.descriptionKey)}</p>
 
                     <div className="flex flex-wrap gap-2 mb-6">
                       {technologies.map((tech) => (
