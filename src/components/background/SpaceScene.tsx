@@ -264,20 +264,9 @@ const Atmosphere = ({ tint, scale = 1.1, power = 1.8, intensity = 1.4 }: { tint:
 
 /* ------------------------------------------------------------------ The Sun */
 
-/** A few sunspots (direction on the Sun and angular radius), in the two active belts. */
-const SUNSPOTS = (
-  [
-    [0.25, 0.4, 0.06],
-    [0.22, 0.52, 0.035],
-    [-0.18, 1.6, 0.07],
-    [0.14, 2.9, 0.04],
-    [-0.38, 4.4, 0.05],
-  ] as const
-).map(([lat, lon, r]) => new THREE.Vector4(Math.cos(lat) * Math.cos(lon), Math.sin(lat), Math.cos(lat) * Math.sin(lon), r));
-
 const Sun = () => {
   const [surface] = useState(() => {
-    const m = sphereMaterial(sunFragment, { uSpots: { value: SUNSPOTS } });
+    const m = sphereMaterial(sunFragment, {});
     m.toneMapped = false;
     return m;
   });
@@ -879,6 +868,18 @@ const Stars = ({ count }: { count: number }) => {
 
 /* ------------------------------------------------------------------ Rig and render */
 
+/** The veil over the sky (CosmicBackground) opens round the Sun on phones while it is on stage. */
+let veil: HTMLElement | null = null;
+let veilSun = -1;
+function openVeil() {
+  const v = Math.round((1 - smoothstep(stage.t, 0.15, 0.5)) * 20) / 20;
+  if (v === veilSun) return;
+  veil ??= document.querySelector<HTMLElement>('.sky-veil');
+  if (!veil) return;
+  veil.style.setProperty('--sun', String(v));
+  veilSun = v;
+}
+
 /** The camera never moves (not even with the mouse): only the page moves the sky. */
 const Rig = () => {
   const { size, gl } = useThree();
@@ -913,6 +914,7 @@ const Rig = () => {
     sunLight.position.copy(shared.uLight.value).multiplyScalar(100);
 
     placed.forEach(place);
+    openVeil();
   }, -1);
   return null;
 };

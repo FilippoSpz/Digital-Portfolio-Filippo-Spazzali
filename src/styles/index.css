@@ -226,9 +226,10 @@
     }
   }
 
-  /* The veil over the sky that keeps the text legible; on wide screens it opens where the Sun sits. */
+  /* The veil over the sky that keeps the text legible; it opens where the Sun sits (on phones only
+     while the Sun is on stage: --sun, written by the scene, so the planets after it stay veiled). */
   .sky-veil {
-    background: rgb(0 0 0 / 0.3);
+    background: radial-gradient(circle at 81% 9%, rgb(0 0 0 / calc(0.3 - 0.3 * var(--sun, 0))) 20vh, rgb(0 0 0 / 0.3) 36vh);
   }
   @media (min-width: 768px) {
     .sky-veil {

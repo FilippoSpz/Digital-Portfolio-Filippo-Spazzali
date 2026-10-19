@@ -331,18 +331,22 @@ void main() {
 /**
  * The Sun as a telescope with a solar filter shows it: granulation (hot cells rising, darker lanes
  * where the gas sinks back, at two scales, each fading out before its cells get smaller than ~2 px
- * so nothing shimmers), a few groups of sunspots with their dark core and streaked penumbra, bright
- * faculae near the edge, and the edge darker and redder, as on the real one. No map, no gloss: the
- * light is compressed smoothly, never clipped.
+ * so nothing shimmers), bright faculae near the edge, and the edge darker and redder, as on the real
+ * one. No map, no gloss, no sunspots (at this size they read as holes): the heat of each point picks
+ * its colour, from deep orange in the cool lanes and at the edge to bright gold where the gas rises.
  */
 export const sunFragment = /* glsl */ `
 uniform float uTime;
-uniform vec4 uSpots[5];
 varying vec3 vObj;
 varying vec3 vNormalW;
 varying vec3 vViewW;
 ${noise}
 ${cells}
+vec3 heat(float k) {
+  vec3 c = mix(vec3(0.62, 0.07, 0.004), vec3(1.0, 0.33, 0.02), smoothstep(0.2, 0.62, k));
+  c = mix(c, vec3(1.0, 0.62, 0.1), smoothstep(0.55, 0.9, k));
+  return mix(c, vec3(1.0, 0.8, 0.3), smoothstep(0.9, 1.12, k));
+}
 void main() {
   vec3 p = normalize(vObj);
   float mu = max(dot(normalize(vNormalW), normalize(vViewW)), 0.0);
@@ -351,43 +355,28 @@ void main() {
   float bright = 1.0;
   vec2 g1 = cells(p * 72.0, uTime * 0.18);
   float see1 = smoothstep(1.6, 3.5, 1.0 / (72.0 * fw));
-  bright *= 1.0 + see1 * (0.05 * (0.5 - g1.x) - 0.12 * (1.0 - smoothstep(0.02, 0.14, g1.y - g1.x)));
+  bright *= 1.0 + see1 * (0.05 * (0.5 - g1.x) - 0.07 * (1.0 - smoothstep(0.02, 0.14, g1.y - g1.x)));
   vec2 g2 = cells(p * 26.0 + 17.0, uTime * 0.07);
   float see2 = smoothstep(1.6, 3.5, 1.0 / (26.0 * fw));
-  bright *= 1.0 + see2 * (0.05 * (0.5 - g2.x) - 0.06 * (1.0 - smoothstep(0.01, 0.1, g2.y - g2.x)));
-  bright *= 1.0 + 0.07 * fbm(p * 5.0 + vec3(0.0, uTime * 0.004, 0.0));
-
-  for (int i = 0; i < 5; i++) {
-    vec4 s = uSpots[i];
-    float d = acos(clamp(dot(p, s.xyz), -1.0, 1.0));
-    if (d > s.w * 1.6) continue;
-    float x = d / (s.w * (1.0 + 0.22 * snoise(p * 40.0 + float(i) * 7.1)));
-    vec3 ta = normalize(cross(s.xyz, vec3(0.0, 1.0, 0.0)));
-    vec3 tb = cross(s.xyz, ta);
-    float az = atan(dot(p, tb), dot(p, ta));
-    float streaks = 0.75 + 0.25 * snoise(vec3(cos(az) * 9.0, sin(az) * 9.0, x * 1.5 + float(i)));
-    float k = mix(1.0, 0.62 * streaks, 1.0 - smoothstep(0.85, 1.0, x));
-    bright *= mix(k, 0.18, 1.0 - smoothstep(0.32, 0.45, x));
-  }
+  bright *= 1.0 + see2 * (0.05 * (0.5 - g2.x) - 0.04 * (1.0 - smoothstep(0.01, 0.1, g2.y - g2.x)));
+  bright *= 1.0 + 0.09 * fbm(p * 5.0 + vec3(0.0, uTime * 0.01, 0.0));
 
   float belt = smoothstep(0.1, 0.25, abs(p.y)) * (1.0 - smoothstep(0.4, 0.6, abs(p.y)));
   bright *= 1.0 + 0.35 * pow(1.0 - mu, 2.0) * max(snoise(p * 18.0 + 3.0), 0.0) * belt;
 
-  // Limb darkening, stronger in blue: golden in the middle, deep orange at the edge. The response
-  // stays linear, so the granulation and the spots keep their contrast (a saturating curve flattened them).
+  // Limb darkening: the edge is cooler, so darker and redder.
   float e = 1.0 - mu;
-  vec3 limb = 1.0 - vec3(0.5, 0.64, 0.8) * e - vec3(0.12, 0.15, 0.12) * e * e;
-  vec3 col = vec3(1.0, 0.6, 0.2) * limb * bright;
-  gl_FragColor = vec4(min(col, vec3(1.0)), 1.0);
+  gl_FragColor = vec4(heat((1.0 - 0.5 * e - 0.22 * e * e) * bright), 1.0);
   #include <colorspace_fragment>
 }
 `;
 
 /**
  * Around the Sun's edge, on a square facing the camera (uDisc = the disc's radius in the square's
- * units, 0.5 = the square's edge): the thin spiky chromosphere, a few prominences (loops of glowing
- * gas, threaded, slowly changing, and a low ragged "hedgerow"), and a faint pearly corona with
- * streamers. Nothing blurred: every glow has a sharp structure.
+ * units, 0.5 = the square's edge): a low ragged fringe of small licks all round, a few tall tongues
+ * of glowing gas that rise and sink back, sway and curl at the top while the gas inside streams
+ * upwards, and a faint pearly corona with streamers. Everything keeps moving, slowly and smoothly
+ * (no flicker), and nothing is blurred: every glow has a sharp edge.
  */
 export const sunHaloFragment = /* glsl */ `
 uniform float uTime;
@@ -398,12 +387,21 @@ float angleTo(float a, float b) {
   float d = a - b;
   return d - 6.2831853 * floor((d + 3.14159265) / 6.2831853);
 }
-/** A loop standing on the limb: q.x along the limb, q.y above it (solar radii). */
-float loopGlow(vec2 q, float span, float lift, float seed) {
-  vec2 w = q + 0.012 * vec2(snoise(vec3(q * 22.0, seed + uTime * 0.03)), snoise(vec3(q * 22.0 + 5.0, seed - uTime * 0.03)));
-  float d = abs(length(w / vec2(span, lift)) - 1.0) * min(span, lift);
-  float thread = 0.6 + 0.4 * snoise(vec3(w * 70.0, seed + uTime * 0.05));
-  return (exp(-pow(d / 0.0085, 2.0)) * thread + exp(-pow(d / 0.03, 2.0)) * 0.25) * smoothstep(-0.004, 0.01, q.y);
+float fbm3(vec3 p) { return 0.5 * snoise(p) + 0.25 * snoise(p * 2.03) + 0.125 * snoise(p * 4.07); }
+/** A tongue standing on the limb: x along the limb from its foot, h above it (solar radii). */
+float tongue(float x, float h, float width, float height, float seed) {
+  float t = uTime;
+  // It rises and sinks back over half a minute or so, never twice the same.
+  float top = height * (0.72 + 0.2 * sin(t * 0.23 + seed * 2.1) + 0.18 * snoise(vec3(seed, t * 0.12, 0.5)));
+  float u = h / top;
+  if (u > 1.25 || abs(x) > width * 3.0 + top) return 0.0;
+  // It sways and curls, more the higher up.
+  x -= top * u * u * (0.28 * sin(t * 0.37 + seed * 1.7) + 0.26 * snoise(vec3(u * 1.6 - t * 0.24, seed, 3.0)));
+  // The gas inside streams upwards; the foot spreads on the surface.
+  float flow = fbm3(vec3(x * 20.0, h * 16.0 - t * 0.9, seed + t * 0.05));
+  float w = max(width * (1.0 - 0.7 * u + 0.8 * exp(-u * 9.0)) * (0.85 + 0.45 * flow), 1e-3);
+  float body = (1.0 - smoothstep(0.5, 1.0, abs(x) / w)) * (1.0 - smoothstep(0.6, 1.0, u + 0.3 * flow));
+  return body * smoothstep(-0.006, 0.004, h) * (0.72 + 0.5 * flow);
 }
 void main() {
   vec2 c = vUv - 0.5;
@@ -412,22 +410,31 @@ void main() {
   if (h < -0.004) discard;
   float a = atan(c.y, c.x);
   vec2 ring = vec2(cos(a), sin(a));
+  float t = uTime;
 
-  float top = max(0.009 * (1.0 + 0.45 * snoise(vec3(ring * 90.0, uTime * 0.15))), 0.003);
-  float chrom = exp(-max(h, 0.0) / top) * smoothstep(-0.004, 0.0015, h);
+  // The fringe: small licks rising and falling all round the edge.
+  float lick = 0.012 + 0.022 * max(snoise(vec3(ring * 15.0, t * 0.3)), 0.0) + 0.005 * snoise(vec3(ring * 64.0, t * 0.5));
+  float fringe = (1.0 - smoothstep(0.35 * lick, lick, h)) * smoothstep(-0.004, 0.0015, h);
+  fringe *= 0.75 + 0.25 * snoise(vec3(ring * 40.0, h * 60.0 - t * 0.8));
 
-  float prom = loopGlow(vec2(angleTo(a, -2.32), h), 0.085, 0.11, 1.0);
-  prom += loopGlow(vec2(angleTo(a, -1.62), h), 0.05, 0.06, 4.0) * 0.8;
-  prom += loopGlow(vec2(angleTo(a, 2.75), h), 0.06, 0.13, 7.0) * 0.7;
-  float x = angleTo(a, -2.85);
-  float wall = 0.03 + 0.022 * snoise(vec3(x * 26.0, 3.0, uTime * 0.02));
-  float hedge = exp(-pow(x / 0.12, 2.0)) * (1.0 - smoothstep(wall * 0.5, max(wall, 0.006), h));
-  prom += max(hedge * (0.55 + 0.45 * snoise(vec3(x * 160.0, h * 14.0, uTime * 0.06))), 0.0) * 0.9;
+  float prom = 0.0;
+  if (h < 0.5) {
+    prom += tongue(angleTo(a, -2.3), h, 0.12, 0.44, 1.0);
+    prom += tongue(angleTo(a, -1.55), h, 0.07, 0.22, 4.0) * 0.9;
+    prom += tongue(angleTo(a, 2.7), h, 0.11, 0.48, 7.0);
+    prom += tongue(angleTo(a, -2.85), h, 0.15, 0.16, 10.0) * 0.85;
+    prom += tongue(angleTo(a, 2.05), h, 0.06, 0.24, 13.0) * 0.85;
+    prom += tongue(angleTo(a, -1.15), h, 0.06, 0.15, 16.0) * 0.8;
+    prom = min(prom, 1.15);
+  }
 
   float streamers = 0.6 + 0.4 * snoise(vec3(ring * 2.5, 9.0)) + 0.2 * snoise(vec3(ring * 9.0, 2.0));
   float corona = exp(-max(h, 0.0) / 0.22) * 0.035 * streamers * smoothstep(-0.004, 0.02, h);
 
-  vec3 col = vec3(1.0, 0.3, 0.12) * chrom * 0.9 + vec3(1.0, 0.3, 0.12) * prom * 0.9 + vec3(1.0, 0.86, 0.72) * corona;
+  // Like lava: deep red where the gas is thin and high up, orange-gold where it is thick and low.
+  float k = max(fringe, prom);
+  vec3 fire = mix(vec3(0.95, 0.15, 0.015), vec3(1.0, 0.5, 0.06), smoothstep(0.3, 1.0, k) * (1.0 - 0.6 * smoothstep(0.02, 0.4, h)));
+  vec3 col = fire * min(k * 1.15, 1.0) + vec3(1.0, 0.86, 0.72) * corona;
   gl_FragColor = vec4(col, 1.0);
   #include <colorspace_fragment>
 }
