@@ -1,9 +1,11 @@
 import { lazy, memo, Suspense, useCallback, useEffect, useState } from 'react';
 import { rich3D } from '@/lib/motion';
+import { diagnosing } from '@/lib/diag';
 import { startMapQueue } from './mapQueue';
 import StarfieldFallback from './StarfieldFallback';
 
 const SpaceScene = lazy(() => import('./SpaceScene'));
+const DiagPanel = lazy(() => import('./DiagPanel'));
 
 interface CosmicBackgroundProps {
   /** Not needed any more (the sky is the same black everywhere); kept so callers stay valid. */
@@ -29,22 +31,30 @@ const CosmicBackground = (_props: CosmicBackgroundProps) => {
   }, [ready]);
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-      {/* Black sky: the only light comes from the stars, the Sun and the planets. */}
-      <div className="absolute inset-0 bg-black" />
+    <>
+      <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
+        {/* Black sky: the only light comes from the stars, the Sun and the planets. */}
+        <div className="absolute inset-0 bg-black" />
 
-      {(!use3D || !fallbackGone) && <StarfieldFallback />}
-      {use3D && (
-        <div className="absolute inset-0 transition-opacity duration-700 ease-out" style={{ opacity: ready ? 1 : 0 }}>
-          <Suspense fallback={null}>
-            <SpaceScene onReady={onReady} />
-          </Suspense>
-        </div>
+        {(!use3D || !fallbackGone) && <StarfieldFallback />}
+        {use3D && (
+          <div className="absolute inset-0 transition-opacity duration-700 ease-out" style={{ opacity: ready ? 1 : 0 }}>
+            <Suspense fallback={null}>
+              <SpaceScene onReady={onReady} />
+            </Suspense>
+          </div>
+        )}
+
+        {/* A light veil keeps the text legible over the planets. */}
+        <div className="absolute inset-0 sky-veil" />
+      </div>
+
+      {diagnosing && (
+        <Suspense fallback={null}>
+          <DiagPanel use3D={use3D} />
+        </Suspense>
       )}
-
-      {/* A light veil keeps the text legible over the planets. */}
-      <div className="absolute inset-0 sky-veil" />
-    </div>
+    </>
   );
 };
 

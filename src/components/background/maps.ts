@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { boot } from '@/lib/diag';
 import { onMap, startMapQueue, type Arrival, type MapId } from './mapQueue';
 
 /* The maps as the shaders see them: one uniform per map that never changes, whose texture is
@@ -62,6 +63,7 @@ export function pumpMaps(gl: THREE.WebGLRenderer) {
   u.value?.dispose();
   u.value = tex;
   level.set(a.id, a.level);
+  boot.maps = level.size;
 }
 
 /** Starts the downloads right away (before the scene's first frame). */

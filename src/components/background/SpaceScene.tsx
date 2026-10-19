@@ -3,6 +3,7 @@ import { advance, Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { journey, lowPower, testDrive } from '@/lib/motion';
+import { boot, bootError, diagnosing } from '@/lib/diag';
 import { navItems, type Body } from '@/data/navigation';
 import {
   atmosphereFragment,
@@ -927,13 +928,31 @@ const Render = ({ onReady }: { onReady?: () => void }) => {
   useEffect(() => {
     camera.layers.set(1);
     let alive = true;
-    gl.compileAsync(scene, bodyCamera)
-      .catch(() => undefined)
-      .then(() => {
-        if (alive) phase.current = 'warm';
-      });
+    const warm = (capped: boolean) => {
+      if (!alive || phase.current !== 'compile') return;
+      phase.current = 'warm';
+      boot.capped = capped;
+      boot.phase = capped ? 'shader lenti, si parte senza aspettarli' : 'shader pronti';
+    };
+    boot.phase = 'compilazione degli shader';
+    boot.compileStart = performance.now();
+    try {
+      gl.compileAsync(scene, bodyCamera)
+        .catch(() => undefined)
+        .then(() => {
+          boot.compileEnd = performance.now();
+          warm(false);
+        });
+    } catch (e) {
+      bootError(`compileAsync: ${String(e)}`);
+      warm(false);
+    }
+    // A graphics card that takes its time (or never says it is done) does not keep the sky empty:
+    // past this, the warm-up draw below compiles whatever is left, all at once.
+    const cap = window.setTimeout(() => warm(true), 1500);
     return () => {
       alive = false;
+      window.clearTimeout(cap);
     };
   }, [gl, scene, camera]);
 
@@ -946,21 +965,29 @@ const Render = ({ onReady }: { onReady?: () => void }) => {
     gl.render(scene, camera);
     if (phase.current === 'compile') return;
     if (phase.current === 'warm') {
-      const saved = placed.map((p) => ({ visible: p.group.visible, z: p.group.position.z }));
-      placed.forEach((p) => {
-        p.group.visible = true;
-        p.group.position.set(0, 0, -14);
-      });
-      gl.setScissorTest(true);
-      gl.setScissor(0, 0, 1, 1);
-      gl.render(scene, cam);
-      gl.setScissorTest(false);
-      placed.forEach((p, i) => {
-        p.group.visible = saved[i].visible;
-        p.group.position.z = saved[i].z;
-      });
+      // Once only, whatever happens: a body that cannot be drawn must not keep the others hidden.
       phase.current = 'live';
-      onReady?.();
+      const saved = placed.map((p) => ({ visible: p.group.visible, z: p.group.position.z }));
+      try {
+        placed.forEach((p) => {
+          p.group.visible = true;
+          p.group.position.set(0, 0, -14);
+        });
+        gl.setScissorTest(true);
+        gl.setScissor(0, 0, 1, 1);
+        gl.render(scene, cam);
+      } catch (e) {
+        bootError(`warm-up: ${String(e)}`);
+      } finally {
+        gl.setScissorTest(false);
+        placed.forEach((p, i) => {
+          p.group.visible = saved[i].visible;
+          p.group.position.z = saved[i].z;
+        });
+        boot.phase = 'in funzione';
+        boot.ready = performance.now();
+        onReady?.();
+      }
     }
     cam.projectionMatrix.elements[8] = -lens.x;
     cam.projectionMatrix.elements[9] = -lens.y;
@@ -969,6 +996,25 @@ const Render = ({ onReady }: { onReady?: () => void }) => {
   }, 1);
   return null;
 };
+
+/** What the diagnosis panel (`?diag`) shows about the graphics card and the start. */
+function watchBoot(gl: THREE.WebGLRenderer) {
+  boot.webgl2 = gl.capabilities.isWebGL2;
+  gl.domElement.addEventListener('webglcontextlost', () => {
+    boot.lost++;
+    boot.phase = 'contesto WebGL perso';
+  });
+  gl.domElement.addEventListener('webglcontextrestored', () => (boot.phase = 'contesto WebGL ripristinato'));
+  if (!diagnosing) return;
+  const ctx = gl.getContext();
+  const info = ctx.getExtension('WEBGL_debug_renderer_info');
+  boot.gpu = String(ctx.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : ctx.RENDERER));
+  gl.debug.onShaderError = (c, program, vs, fs) => {
+    const log = c.getShaderInfoLog(fs) || c.getShaderInfoLog(vs) || c.getProgramInfoLog(program) || 'sconosciuto';
+    console.error('THREE.WebGLProgram: shader error', log);
+    bootError(`shader: ${log}`);
+  };
+}
 
 /* ------------------------------------------------------------------ Scene */
 
@@ -990,7 +1036,10 @@ const SpaceScene = ({ onReady }: { onReady?: () => void }) => {
       gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', stencil: false }}
       dpr={light ? [1, 1.75] : [1, 2]}
       style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}
-      onCreated={({ gl }) => gl.setClearColor('#000000')}
+      onCreated={({ gl }) => {
+        gl.setClearColor('#000000');
+        watchBoot(gl);
+      }}
     >
       <ambientLight intensity={0.05} />
       <primitive object={sunLight} />

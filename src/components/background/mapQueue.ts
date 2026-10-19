@@ -69,6 +69,8 @@ const SOURCES: Record<MapId, Source> = {
   uranus: { stop: 7, big: [uranus1k, uranus2k], small: [uranus512, uranus1k] },
 };
 
+export const MAP_COUNT = Object.keys(SOURCES).length;
+
 /** A decoded map, ready to go to the graphics card. */
 export interface Arrival {
   id: MapId;
