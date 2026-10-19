@@ -264,9 +264,34 @@ const Atmosphere = ({ tint, scale = 1.1, power = 1.8, intensity = 1.4 }: { tint:
 
 /* ------------------------------------------------------------------ The Sun */
 
+type V3 = [number, number, number];
+interface SunLook {
+  /** Colour in the middle of the disc (linear, may pass 1: the middle then saturates), and how much darker the edge gets. */
+  tint: V3;
+  limb1: V3;
+  limb2: V3;
+  /** The fringe's colour, how much gas rises above the edge, the light spilling past it. */
+  rim: V3;
+  prom: number;
+  glow: number;
+}
+
+/**
+ * Three looks to choose from (`?sole=1`, `2`, `3` in the address; no choice = 2), until one is picked:
+ * 1 the earlier one a little brighter, with a clean edge; 2 brighter and golden, gas above the edge and
+ * the light spilling past it; 3 deep orange, as in photos through a hydrogen filter.
+ */
+const SUN_LOOKS: Record<string, SunLook> = {
+  1: { tint: [1.1, 0.66, 0.22], limb1: [0.5, 0.64, 0.8], limb2: [0.12, 0.15, 0.12], rim: [0.68, 0.2, 0.03], prom: 0, glow: 0 },
+  2: { tint: [1.12, 0.78, 0.34], limb1: [0.42, 0.62, 0.85], limb2: [0.16, 0.16, 0.1], rim: [0.75, 0.26, 0.045], prom: 1, glow: 1 },
+  3: { tint: [1.05, 0.62, 0.15], limb1: [0, 0.36, 1.7], limb2: [0.3, 0.5, -0.74], rim: [0.8, 0.17, 0.02], prom: 1, glow: 0.6 },
+};
+const sunLook = SUN_LOOKS[new URLSearchParams(location.search).get('sole') ?? ''] ?? SUN_LOOKS[2];
+const vec3 = (v: V3) => ({ value: new THREE.Vector3(...v) });
+
 const Sun = () => {
   const [surface] = useState(() => {
-    const m = sphereMaterial(sunFragment, {});
+    const m = sphereMaterial(sunFragment, { uTint: vec3(sunLook.tint), uLimb1: vec3(sunLook.limb1), uLimb2: vec3(sunLook.limb2) });
     m.toneMapped = false;
     return m;
   });
@@ -275,7 +300,7 @@ const Sun = () => {
       new THREE.ShaderMaterial({
         vertexShader: coronaVertex,
         fragmentShader: sunHaloFragment,
-        uniforms: { uTime: time, uDisc: { value: 0.25 } },
+        uniforms: { uTime: time, uDisc: { value: 0.25 }, uRim: vec3(sunLook.rim), uProm: { value: sunLook.prom }, uGlow: { value: sunLook.glow } },
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
