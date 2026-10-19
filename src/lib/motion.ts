@@ -20,12 +20,13 @@ export const lowPower = (() => {
   let cached: boolean | null = null;
   return () => {
     if (cached !== null) return cached;
-    const nav = navigator as Navigator & { deviceMemory?: number };
+    const nav = navigator as Navigator & { deviceMemory?: number; brave?: unknown };
+    // Brave makes up the cores and memory it reports (a different guess on every site): there, only the screen counts.
+    const honest = !nav.brave;
     cached =
       media('(pointer: coarse)') ||
       window.innerWidth < 900 ||
-      (nav.hardwareConcurrency ?? 8) <= 4 ||
-      (nav.deviceMemory ?? 8) <= 4;
+      (honest && ((nav.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4));
     return cached;
   };
 })();
