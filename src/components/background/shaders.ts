@@ -332,14 +332,11 @@ void main() {
  * The Sun as a telescope with a solar filter shows it: granulation (hot cells rising, darker lanes
  * where the gas sinks back, at two scales, each fading out before its cells get smaller than ~2 px
  * so nothing shimmers), bright faculae near the edge, and the edge darker and redder, as on the real
- * one. No map, no gloss, no sunspots (at this size they read as holes). uTint is the colour in the
- * middle, uLimb1/uLimb2 how much darker the edge gets in red, green and blue.
+ * one. No map, no gloss, no sunspots (at this size they read as holes): deep orange, as in photos
+ * through a hydrogen filter.
  */
 export const sunFragment = /* glsl */ `
 uniform float uTime;
-uniform vec3 uTint;
-uniform vec3 uLimb1;
-uniform vec3 uLimb2;
 varying vec3 vObj;
 varying vec3 vNormalW;
 varying vec3 vViewW;
@@ -365,7 +362,7 @@ void main() {
   // Limb darkening, stronger in blue. The response stays linear, so the granulation keeps its
   // contrast (a saturating curve flattened it).
   float e = 1.0 - mu;
-  vec3 col = uTint * (1.0 - uLimb1 * e - uLimb2 * e * e) * bright;
+  vec3 col = vec3(1.05, 0.62, 0.15) * (1.0 - vec3(0.0, 0.36, 1.7) * e - vec3(0.3, 0.5, -0.74) * e * e) * bright;
   gl_FragColor = vec4(min(col, vec3(1.0)), 1.0);
   #include <colorspace_fragment>
 }
@@ -374,18 +371,15 @@ void main() {
 /**
  * Around the Sun's edge, on a square facing the camera (uDisc = the disc's radius in the square's
  * units, 0.5 = the square's edge): the chromosphere, a thin ragged fringe of spicules that rise and
- * fall all round (uRim, its colour); prominences (uProm, 0 = none), see-through clouds of glowing
- * gas drawn out in fine threads that stream outwards, low along most of the edge and taller in a
- * few places that wander and change over the minutes (no shapes placed by hand, so nothing looks
- * stuck on); the warm light spilling past the edge (uGlow) and a faint, smooth pearly corona.
+ * fall all round; prominences, see-through clouds of glowing gas drawn out in fine threads that
+ * stream outwards, low along most of the edge and taller in a few places that wander and change
+ * over the minutes (no shapes placed by hand, so nothing looks stuck on); the warm light spilling
+ * past the edge and a faint, smooth pearly corona.
  * Everything moves slowly and smoothly, and nothing is finer than a few pixels, so nothing flickers.
  */
 export const sunHaloFragment = /* glsl */ `
 uniform float uTime;
 uniform float uDisc;
-uniform vec3 uRim;
-uniform float uProm;
-uniform float uGlow;
 varying vec2 vUv;
 ${noise}
 void main() {
@@ -403,7 +397,7 @@ void main() {
   float chrom = (1.0 - smoothstep(0.25 * spic, spic, h)) * foot;
 
   float prom = 0.0;
-  if (uProm > 0.0 && h < 0.4) {
+  if (h < 0.4) {
     // How high the gas reaches here: low almost everywhere, tall where the slow noise peaks.
     float tall = smoothstep(0.05, 0.5, fbm(vec3(ring * 1.4, t * 0.008)));
     float reach = 0.025 + 0.2 * tall;
@@ -413,15 +407,15 @@ void main() {
     float threads = 0.5 + 0.5 * snoise(vec3(rw * 24.0, h * 8.0 - t * 0.22));
     float cloud = fbm(vec3(rw * 7.0, h * 10.0 - t * 0.1));
     float body = 1.0 - smoothstep(0.0, 1.0, h / max(reach * (0.75 + 0.5 * cloud), 1e-3));
-    prom = body * (0.25 + 0.75 * threads * threads) * (0.75 + 0.35 * cloud) * foot * uProm;
+    prom = body * (0.25 + 0.75 * threads * threads) * (0.75 + 0.35 * cloud) * foot;
   }
 
-  float glow = (0.7 * exp(-up / 0.035) + 0.3 * exp(-up / 0.15)) * 0.14 * uGlow * foot;
+  float glow = (0.7 * exp(-up / 0.035) + 0.3 * exp(-up / 0.15)) * 0.084 * foot;
   float corona = exp(-up / 0.3) * 0.022 * (0.8 + 0.2 * snoise(vec3(ring * 2.0, 9.0))) * foot;
 
   // The gas glows deep red where it is thin, orange only where it is dense (never brown).
   vec3 gas = mix(vec3(1.0, 0.06, 0.01), vec3(1.0, 0.36, 0.06), smoothstep(0.45, 1.0, prom)) * prom;
-  vec3 col = max(uRim * chrom, gas) + vec3(1.0, 0.55, 0.2) * glow + vec3(1.0, 0.88, 0.76) * corona;
+  vec3 col = max(vec3(0.8, 0.17, 0.02) * chrom, gas) + vec3(1.0, 0.55, 0.2) * glow + vec3(1.0, 0.88, 0.76) * corona;
   gl_FragColor = vec4(col, 1.0);
   #include <colorspace_fragment>
 }
